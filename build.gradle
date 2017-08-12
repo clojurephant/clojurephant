@@ -1,0 +1,48 @@
+plugins {
+  id 'java'
+  id 'java-gradle-plugin'
+  id 'com.gradle.plugin-publish' version '0.9.7'
+  id 'com.diffplug.gradle.spotless' version '3.4.1'
+}
+
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  // gradle
+  gradleApi()
+}
+
+pluginBundle {
+  website = 'https://github.com/gradle-clojure/gradle-clojure'
+  vcsUrl = 'https://github.com/gradle-clojure/gradle-clojure.git'
+  description = 'Clojure and Clojurescript language support for Gradle'
+  plugins {
+    clojurePlugin {
+      id = 'gradle-clojure.clojure'
+      displayName = 'Clojure language plugin for Gradle'
+      tags = ['clojure', 'language']
+    }
+  }
+}
+
+// ensure consistent formatting
+spotless {
+  java {
+    googleJavaFormat()
+    licenseHeaderFile file('gradle/HEADER')
+  }
+  format('gradle') {
+    target '**/*.gradle'
+    trimTrailingWhitespace()
+    indentWithSpaces(2)
+    endWithNewline()
+  }
+}
+
+wrapper {
+  gradleVersion = '4.1'
+}

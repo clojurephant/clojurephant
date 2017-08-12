@@ -30,13 +30,19 @@ abstract class LineProcessingOutputStream extends OutputStream {
 
   @Override
   public void write(int b) {
-    bytes.putInt(b);
+    bytes.put((byte) b);
     process(false);
   }
 
   @Override
   public void write(byte[] b) {
     bytes.put(b);
+    process(false);
+  }
+
+  @Override
+  public void write(byte[] b, int off, int len) {
+    bytes.put(b, off, len);
     process(false);
   }
 

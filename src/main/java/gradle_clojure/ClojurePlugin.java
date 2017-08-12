@@ -318,8 +318,9 @@ public class ClojurePlugin implements Plugin<Project> {
           try {
             script =
                 Stream.of(
+                        "(try",
                         "  (binding [*compile-path* \""
-                            + getDestinationDir().getCanonicalPath()
+                            + getDestinationDir().getCanonicalPath().replace("\\", "\\\\")
                             + "\"",
                         "            *warn-on-reflection* " + getReflectionWarnings().getEnabled(),
                         "            *compiler-options* {:disable-locals-clearing "
@@ -332,7 +333,7 @@ public class ClojurePlugin implements Plugin<Project> {
                             + "]",
                         "                                :direct-linking "
                             + getDirectLinking()
-                            + "]",
+                            + "}]",
                         "    "
                             + namespaces
                                 .stream()
@@ -452,7 +453,9 @@ public class ClojurePlugin implements Plugin<Project> {
       }
 
       private Set<String> getSourceRoots() {
-        return StreamSupport.stream(getSource().spliterator(), false)
+        // accessing the List<Object> field not the FileTree from getSource
+        return source
+            .stream()
             .filter(it -> it instanceof SourceDirectorySet)
             .flatMap(it -> ((SourceDirectorySet) it).getSrcDirs().stream())
             .map(
@@ -479,7 +482,7 @@ public class ClojurePlugin implements Plugin<Project> {
         CHAR_MAP.put('!', "_BANG_");
         CHAR_MAP.put('@', "_CIRCA_");
         CHAR_MAP.put('#', "_SHARP_");
-        CHAR_MAP.put('\\', "_SINGLEQUOTE_");
+        CHAR_MAP.put('\'', "_SINGLEQUOTE_");
         CHAR_MAP.put('"', "_DOUBLEQUOTE_");
         CHAR_MAP.put('%', "_PERCENT_");
         CHAR_MAP.put('^', "_CARET_");
@@ -797,7 +800,7 @@ public class ClojurePlugin implements Plugin<Project> {
 
       logger.info("Testing {}", String.join(", ", namespaces));
 
-      String namespaceVec = "[" + String.join(" ", namespaces) + "]";
+      String namespaceVec = "'[" + String.join(" ", namespaces) + "]";
       String runnerInvocation;
       if (getJunitReport() != null) {
         runnerInvocation =
@@ -830,10 +833,14 @@ public class ClojurePlugin implements Plugin<Project> {
     }
 
     private static String getTestRunnerScript() {
-      InputStream stream =
-          ClojureTestRunner.class.getResourceAsStream("/gradle_clojure/test_runner.clj");
-      Scanner scanner = new Scanner(stream).useDelimiter("\\A");
-      return scanner.hasNext() ? scanner.next() : "";
+      try (InputStream stream =
+              ClojureTestRunner.class.getResourceAsStream("/gradle_clojure/test_runner.clj");
+          Scanner scanner = new Scanner(stream)) {
+        scanner.useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
     }
 
     public FileCollection getClasspath() {

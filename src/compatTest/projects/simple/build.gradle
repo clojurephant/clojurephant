@@ -1,0 +1,9 @@
+plugins {
+  id 'gradle-clojure.clojure'
+}
+
+task simple {
+  doLast {
+    println 'stuff'
+  }
+}

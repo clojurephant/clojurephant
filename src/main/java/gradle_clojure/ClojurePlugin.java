@@ -396,7 +396,9 @@ public class ClojurePlugin implements Plugin<Project> {
       exec.setMain("clojure.main");
       exec.setClasspath(getClasspath()
           .plus(new SimpleFileCollection(getSourceRootsFiles()))
-          .plus(new SimpleFileCollection(getDestinationDir())));
+          .plus(new SimpleFileCollection(getDestinationDir()))
+          // this is just a hack for now, should pass the variable around
+          .plus(new SimpleFileCollection(new File(getTemporaryDir(), "classes"))));
       exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
       exec.setDefaultCharacterEncoding("UTF-8");
 

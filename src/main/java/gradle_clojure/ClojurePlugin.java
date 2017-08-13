@@ -279,7 +279,7 @@ public class ClojurePlugin implements Plugin<Project> {
                   Files.delete(dir);
                   return FileVisitResult.CONTINUE;
                 }
-              });  
+              });
         }
       } catch (IOException e) {
         throw new UncheckedIOException(e);

@@ -15,21 +15,22 @@
  */
 package gradle_clojure;
 
-import gradle_clojure.ClojurePlugin.ClojureSourceSetImpl.ClojureCompiler;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -48,7 +49,6 @@ import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.ConventionTask;
-import org.gradle.api.internal.HasConvention;
 import org.gradle.api.internal.file.DefaultSourceDirectorySet;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.internal.file.collections.DefaultDirectoryFileTreeFactory;
@@ -77,72 +77,33 @@ public class ClojurePlugin implements Plugin<Project> {
   public void apply(Project project) {
     logger.info("Applying ClojurePlugin");
     project.getPlugins().apply(JavaBasePlugin.class);
+    project.getPlugins().apply(JavaPlugin.class);
+
     JavaPluginConvention javaPluginConvention =
         project.getConvention().getPlugin(JavaPluginConvention.class);
 
-    project.getPlugins().apply(JavaPlugin.class);
+    javaPluginConvention
+        .getSourceSets()
+        .all(
+            sourceSet -> {
+              ClojureCompile compileTask = createCompileTask(project, sourceSet);
 
-    SourceSet mainSourceSet =
-        javaPluginConvention.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    if (mainSourceSet instanceof HasConvention) {
-      ClojureCompiler mainCompileTask = createCompileTask(project, mainSourceSet);
-      mainCompileTask
-          .getConventionMapping()
-          .map(
-              "classpath",
-              () ->
-                  mainSourceSet
-                      .getCompileClasspath()
-                      .plus(
-                          new SimpleFileCollection(mainSourceSet.getAllSource().getSrcDirs())
-                              .plus(
-                                  new SimpleFileCollection(
-                                      mainSourceSet.getOutput().getClassesDir()))));
-      mainCompileTask
-          .getConventionMapping()
-          .map("namespaces", () -> mainCompileTask.findNamespaces());
-    }
+              if (SourceSet.TEST_SOURCE_SET_NAME.equals(sourceSet.getName())) {
+                ClojureTestRunner testTask = createTestTask(project);
 
-    SourceSet testSourceSet =
-        javaPluginConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
-    if (testSourceSet instanceof HasConvention) {
-      ClojureCompiler testCompileTask = createCompileTask(project, testSourceSet);
+                testTask
+                    .getConventionMapping()
+                    .map("classpath", () -> sourceSet.getRuntimeClasspath());
+                testTask
+                    .getConventionMapping()
+                    .map("namespaces", () -> compileTask.findNamespaces());
 
-      Set<File> mainSrcDirs = mainSourceSet.getAllSource().getSrcDirs();
-      Set<File> testSrcDirs = testSourceSet.getAllSource().getSrcDirs();
-
-      List<File> outputDirs =
-          Arrays.asList(
-              mainSourceSet.getOutput().getClassesDir(), testSourceSet.getOutput().getClassesDir());
-
-      Set<File> dirs = new HashSet<>();
-      dirs.addAll(mainSrcDirs);
-      dirs.addAll(testSrcDirs);
-      dirs.addAll(outputDirs);
-
-      testCompileTask
-          .getConventionMapping()
-          .map(
-              "classpath",
-              () -> testSourceSet.getCompileClasspath().plus(new SimpleFileCollection(dirs)));
-      testCompileTask
-          .getConventionMapping()
-          .map("namespaces", () -> testCompileTask.findNamespaces());
-
-      ClojureTestRunner testTask = createTestTask(project);
-
-      testTask
-          .getConventionMapping()
-          .map(
-              "classpath",
-              () -> testSourceSet.getRuntimeClasspath().plus(new SimpleFileCollection(dirs)));
-      testTask.getConventionMapping().map("namespaces", () -> testCompileTask.findNamespaces());
-
-      testTask.dependsOn(testCompileTask);
-    }
+                testTask.dependsOn(compileTask);
+              }
+            });
   }
 
-  private ClojureCompiler createCompileTask(Project project, SourceSet sourceSet) {
+  private ClojureCompile createCompileTask(Project project, SourceSet sourceSet) {
     ProjectInternal projectInternal = (ProjectInternal) project;
     String sourceRootDir = String.format("src/%s/clojure", sourceSet.getName());
 
@@ -167,9 +128,9 @@ public class ClojurePlugin implements Plugin<Project> {
     sourceSet.getResources().getFilter().exclude(it -> clojureDirSet.contains(it.getFile()));
 
     String name = sourceSet.getCompileTaskName("clojure");
-    Class<ClojureCompiler> compilerClass = ClojureCompiler.class;
+    Class<ClojureCompile> compilerClass = ClojureCompile.class;
     logger.info("Creating Clojure compile task " + name + " with class " + compilerClass);
-    ClojureCompiler compile = project.getTasks().create(name, compilerClass);
+    ClojureCompile compile = project.getTasks().create(name, compilerClass);
     compile.setDescription("Compiles the " + sourceSet + " Clojure code");
 
     Task javaTask = project.getTasks().findByName(sourceSet.getCompileJavaTaskName());
@@ -179,6 +140,8 @@ public class ClojurePlugin implements Plugin<Project> {
 
     project.getTasks().findByName(sourceSet.getClassesTaskName()).dependsOn(compile);
 
+    compile.getConventionMapping().map("classpath", () -> sourceSet.getCompileClasspath());
+    compile.getConventionMapping().map("namespaces", () -> compile.findNamespaces());
     compile
         .getConventionMapping()
         .map("destinationDir", () -> sourceSet.getOutput().getClassesDir());
@@ -232,546 +195,623 @@ public class ClojurePlugin implements Plugin<Project> {
       configureAction.execute(clojure);
       return this;
     }
+  }
 
-    public static class ReflectionWarnings {
-      private Boolean enabled;
-      private Boolean projectOnly;
-      private Boolean asErrors;
+  public static class ReflectionWarnings {
+    private Boolean enabled;
+    private Boolean projectOnly;
+    private Boolean asErrors;
 
-      public ReflectionWarnings(Boolean enabled, Boolean projectOnly, Boolean asErrors) {
-        this.enabled = enabled;
-        this.projectOnly = projectOnly;
-        this.asErrors = asErrors;
-      }
-
-      public Boolean getEnabled() {
-        return enabled;
-      }
-
-      public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-      }
-
-      public Boolean getProjectOnly() {
-        return projectOnly;
-      }
-
-      public void setProjectOnly(Boolean projectOnly) {
-        this.projectOnly = projectOnly;
-      }
-
-      public Boolean getAsErrors() {
-        return asErrors;
-      }
-
-      public void setAsErrors(Boolean asErrors) {
-        this.asErrors = asErrors;
-      }
+    public ReflectionWarnings(Boolean enabled, Boolean projectOnly, Boolean asErrors) {
+      this.enabled = enabled;
+      this.projectOnly = projectOnly;
+      this.asErrors = asErrors;
     }
 
-    public static class ClojureCompiler extends AbstractCompile implements JavaForkOptions {
-      private final FileResolver fileResolver;
-      private final JavaForkOptions forkOptions;
+    public Boolean getEnabled() {
+      return enabled;
+    }
 
-      private Boolean aotCompile = false;
-      private Boolean copySourceSetToOutput = null;
-      private ReflectionWarnings reflectionWarnings = new ReflectionWarnings(false, false, false);
+    public void setEnabled(Boolean enabled) {
+      this.enabled = enabled;
+    }
 
-      private Boolean disableLocalsClearing = false;
-      private Collection<String> elideMeta = Collections.emptyList();
-      private Boolean directLinking = false;
+    public Boolean getProjectOnly() {
+      return projectOnly;
+    }
 
-      private Collection<String> namespaces = Collections.emptyList();
+    public void setProjectOnly(Boolean projectOnly) {
+      this.projectOnly = projectOnly;
+    }
 
-      @Inject
-      public ClojureCompiler(FileResolver fileResolver) {
-        this.fileResolver = fileResolver;
-        this.forkOptions = new DefaultJavaForkOptions(fileResolver);
+    public Boolean getAsErrors() {
+      return asErrors;
+    }
+
+    public void setAsErrors(Boolean asErrors) {
+      this.asErrors = asErrors;
+    }
+  }
+
+  public static class ClojureCompile extends AbstractCompile implements JavaForkOptions {
+    private final FileResolver fileResolver;
+    private final JavaForkOptions forkOptions;
+
+    private Boolean aotCompile = false;
+    private Boolean copySourceSetToOutput = null;
+    private ReflectionWarnings reflectionWarnings = new ReflectionWarnings(false, false, false);
+
+    private Boolean disableLocalsClearing = false;
+    private Collection<String> elideMeta = Collections.emptyList();
+    private Boolean directLinking = false;
+
+    private Collection<String> namespaces = Collections.emptyList();
+
+    @Inject
+    public ClojureCompile(FileResolver fileResolver) {
+      this.fileResolver = fileResolver;
+      this.forkOptions = new DefaultJavaForkOptions(fileResolver);
+    }
+
+    @TaskAction
+    @Override
+    public void compile() {
+      logger.info("Starting ClojureCompiler task");
+
+      File tmpDestinationDir = new File(getTemporaryDir(), "classes");
+      removeObsoleteClassFiles(getDestinationDir().toPath(), tmpDestinationDir.toPath());
+
+      try {
+        if (Files.exists(tmpDestinationDir.toPath())) {
+          Files.walkFileTree(
+              tmpDestinationDir.toPath(),
+              new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException {
+                  Files.delete(file);
+                  return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                    throws IOException {
+                  Files.delete(dir);
+                  return FileVisitResult.CONTINUE;
+                }
+              });  
+        }
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
       }
 
-      @TaskAction
-      @Override
-      public void compile() {
-        logger.info("Starting ClojureCompiler task");
+      tmpDestinationDir.mkdirs();
+      getDestinationDir().mkdirs();
 
-        if (getCopySourceSetToOutput() == null ? !getAotCompile() : getCopySourceSetToOutput()) {
-          getProject()
-              .copy(
-                  spec -> {
-                    spec.from(getSource()).into(getDestinationDir());
-                  });
+      if (getCopySourceSetToOutput() == null ? !getAotCompile() : getCopySourceSetToOutput()) {
+        getProject()
+            .copy(
+                spec -> {
+                  spec.from(getSource()).into(tmpDestinationDir);
+                });
+        // copy to destination
+        getProject()
+            .copy(
+                spec -> {
+                  spec.from(tmpDestinationDir);
+                  spec.into(getDestinationDir());
+                });
+        return;
+      }
+
+      if (getAotCompile()) {
+        logger.info("Destination: {}", getDestinationDir());
+
+        Collection<String> namespaces = getNamespaces();
+        if (namespaces.isEmpty()) {
+          logger.info("No Clojure namespaces defined, skipping {}", getName());
           return;
         }
 
-        if (getAotCompile()) {
-          logger.info("Destination: {}", getDestinationDir());
+        logger.info("Compiling {}", String.join(", ", namespaces));
 
-          Collection<String> namespaces = getNamespaces();
-          if (namespaces.isEmpty()) {
-            logger.info("No Clojure namespaces defined, skipping {}", getName());
-            return;
-          }
-
-          logger.info("Compiling {}", String.join(", ", namespaces));
-
-          String script;
-          try {
-            script =
-                Stream.of(
-                        "(try",
-                        "  (binding [*compile-path* \""
-                            + getDestinationDir().getCanonicalPath().replace("\\", "\\\\")
-                            + "\"",
-                        "            *warn-on-reflection* " + getReflectionWarnings().getEnabled(),
-                        "            *compiler-options* {:disable-locals-clearing "
-                            + getDisableLocalsClearing(),
-                        "                                :elide-meta ["
-                            + getElideMeta()
-                                .stream()
-                                .map(it -> ":" + it)
-                                .collect(Collectors.joining(" "))
-                            + "]",
-                        "                                :direct-linking "
-                            + getDirectLinking()
-                            + "}]",
-                        "    "
-                            + namespaces
-                                .stream()
-                                .map(it -> "(compile '" + it + ")")
-                                .collect(Collectors.joining("\n    "))
-                            + ")",
-                        "  (catch Throwable e",
-                        "    (.printStackTrace e)",
-                        "    (System/exit 1)))",
-                        "(System/exit 0)")
-                    .collect(Collectors.joining("\n"));
-          } catch (IOException e) {
-            throw new UncheckedIOException(e);
-          }
-
-          LineProcessingOutputStream stdout =
-              new LineProcessingOutputStream() {
-                @Override
-                protected void processLine(String line) {
-                  System.out.print(line);
-                }
-              };
-
-          Set<String> sourceRoots = getSourceRoots();
-
-          // this AtomInteger use is just to get around "effectively final" requirement of anonymous classes. Should find a nicer way to handle this
-          AtomicInteger reflectionWarningCount = new AtomicInteger();
-          AtomicInteger libraryReflectionWarningCount = new AtomicInteger();
-
-          LineProcessingOutputStream stderr =
-              new LineProcessingOutputStream() {
-                @Override
-                protected void processLine(String line) {
-                  if (line.startsWith(REFLECTION_WARNING_PREFIX)) {
-                    if (getReflectionWarnings().getProjectOnly()) {
-                      int colon = line.indexOf(':');
-                      String file = line.substring(REFLECTION_WARNING_PREFIX.length(), colon);
-                      boolean found =
-                          sourceRoots.stream().anyMatch(it -> new File(it, file).exists());
-                      if (found) {
-                        reflectionWarningCount.incrementAndGet();
-                        System.err.print(line);
-                      } else {
-                        libraryReflectionWarningCount.incrementAndGet();
-                      }
-                    } else {
-                      reflectionWarningCount.incrementAndGet();
-                      System.err.print(line);
-                    }
-                  } else {
-                    System.err.print(line);
-                  }
-                }
-              };
-
-          try {
-            executeScript(script, stdout, stderr);
-          } catch (IOException e) {
-            throw new UncheckedIOException(e);
-          }
-
-          if (libraryReflectionWarningCount.get() > 0) {
-            System.err.println(
-                libraryReflectionWarningCount + " reflection warnings from dependencies");
-          }
-          if (getReflectionWarnings().getAsErrors() && reflectionWarningCount.get() > 0) {
-            throw new ExecException(reflectionWarningCount + " reflection warnings found");
-          }
-        }
-      }
-
-      private void executeScript(String script, OutputStream stdout, OutputStream stderr)
-          throws IOException {
-        Path file = Files.createTempFile(getTemporaryDir().toPath(), "clojure-compiler", ".clj");
-        Files.write(file, (script + "\n").getBytes(StandardCharsets.UTF_8));
-
-        JavaExecHandleBuilder exec = new JavaExecHandleBuilder(fileResolver);
-        copyTo(exec);
-        exec.setMain("clojure.main");
-        exec.setClasspath(getClasspath());
-        exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
-        exec.setDefaultCharacterEncoding("UTF-8");
-
-        exec.setStandardOutput(stdout);
-        exec.setErrorOutput(stderr);
-
-        ExecResult result = exec.build().start().waitForFinish();
-
-        stdout.close();
-        stderr.close();
-
-        result.assertNormalExitValue();
-      }
-
-      private List<String> findNamespaces() {
-        Set<String> roots = getSourceRoots();
-        return StreamSupport.stream(getSource().spliterator(), false)
-            .map(it -> findNamespace(it, roots))
-            .collect(Collectors.toList());
-      }
-
-      private String findNamespace(File file, Set<String> roots) {
+        String script;
         try {
-          File current = file.getParentFile();
-          String namespace = demunge(file.getName().substring(0, file.getName().lastIndexOf('.')));
-          while (current != null) {
-            if (roots.contains(current.getCanonicalPath())) {
-              return namespace;
-            }
-            namespace = demunge(current.getName()) + "." + namespace;
-            current = current.getParentFile();
-          }
-          throw new RuntimeException("No source root found for " + file.getCanonicalPath());
+          script =
+              Stream.of(
+                      "(try",
+                      "  (binding [*compile-path* \""
+                          + tmpDestinationDir.getCanonicalPath().replace("\\", "\\\\")
+                          + "\"",
+                      "            *warn-on-reflection* " + getReflectionWarnings().getEnabled(),
+                      "            *compiler-options* {:disable-locals-clearing "
+                          + getDisableLocalsClearing(),
+                      "                                :elide-meta ["
+                          + getElideMeta()
+                              .stream()
+                              .map(it -> ":" + it)
+                              .collect(Collectors.joining(" "))
+                          + "]",
+                      "                                :direct-linking "
+                          + getDirectLinking()
+                          + "}]",
+                      "    "
+                          + namespaces
+                              .stream()
+                              .map(it -> "(compile '" + it + ")")
+                              .collect(Collectors.joining("\n    "))
+                          + ")",
+                      "  (catch Throwable e",
+                      "    (.printStackTrace e)",
+                      "    (System/exit 1)))",
+                      "(System/exit 0)")
+                  .collect(Collectors.joining("\n"));
         } catch (IOException e) {
           throw new UncheckedIOException(e);
         }
-      }
 
-      private Set<String> getSourceRoots() {
-        // accessing the List<Object> field not the FileTree from getSource
-        return source
-            .stream()
-            .filter(it -> it instanceof SourceDirectorySet)
-            .flatMap(it -> ((SourceDirectorySet) it).getSrcDirs().stream())
-            .map(
-                it -> {
-                  try {
-                    return it.getCanonicalPath();
-                  } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                  }
-                })
-            .collect(Collectors.toSet());
-      }
+        LineProcessingOutputStream stdout =
+            new LineProcessingOutputStream() {
+              @Override
+              protected void processLine(String line) {
+                System.out.print(line);
+              }
+            };
 
-      private static final Map<Character, String> CHAR_MAP = new HashMap<>();
+        Set<String> sourceRoots = getSourceRoots();
 
-      static {
-        CHAR_MAP.put('-', "_");
-        CHAR_MAP.put(':', "_COLON_");
-        CHAR_MAP.put('+', "_PLUS_");
-        CHAR_MAP.put('>', "_GT_");
-        CHAR_MAP.put('<', "_LT_");
-        CHAR_MAP.put('=', "_EQ_");
-        CHAR_MAP.put('~', "_TILDE_");
-        CHAR_MAP.put('!', "_BANG_");
-        CHAR_MAP.put('@', "_CIRCA_");
-        CHAR_MAP.put('#', "_SHARP_");
-        CHAR_MAP.put('\'', "_SINGLEQUOTE_");
-        CHAR_MAP.put('"', "_DOUBLEQUOTE_");
-        CHAR_MAP.put('%', "_PERCENT_");
-        CHAR_MAP.put('^', "_CARET_");
-        CHAR_MAP.put('&', "_AMPERSAND_");
-        CHAR_MAP.put('*', "_STAR_");
-        CHAR_MAP.put('|', "_BAR_");
-        CHAR_MAP.put('{', "_LBRACE_");
-        CHAR_MAP.put('}', "_RBRACE_");
-        CHAR_MAP.put('[', "_LBRACK_");
-        CHAR_MAP.put(']', "_RBRACK_");
-        CHAR_MAP.put('/', "_SLASH_");
-        CHAR_MAP.put('\\', "_BSLASH_");
-        CHAR_MAP.put('?', "_QMARK_");
-      }
+        // this AtomInteger use is just to get around "effectively final" requirement of anonymous classes. Should find a nicer way to handle this
+        AtomicInteger reflectionWarningCount = new AtomicInteger();
+        AtomicInteger libraryReflectionWarningCount = new AtomicInteger();
 
-      private static final Map<String, Character> DEMUNGE_MAP =
-          CHAR_MAP
-              .entrySet()
-              .stream()
-              .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-
-      private static final Pattern DEMUNGE_PATTERN =
-          Pattern.compile(
-              DEMUNGE_MAP
-                  .keySet()
-                  .stream()
-                  .sorted(Comparator.comparingInt(String::length).reversed())
-                  .map(it -> "\\Q" + it + "\\E")
-                  .collect(Collectors.joining("|")));
-
-      private static final String REFLECTION_WARNING_PREFIX = "Reflection warning, ";
-
-      private static String munge(String name) {
-        StringBuilder sb = new StringBuilder();
-        name.chars()
-            .forEach(
-                c -> {
-                  if (CHAR_MAP.containsKey(c)) {
-                    sb.append(CHAR_MAP.get(c));
+        LineProcessingOutputStream stderr =
+            new LineProcessingOutputStream() {
+              @Override
+              protected void processLine(String line) {
+                if (line.startsWith(REFLECTION_WARNING_PREFIX)) {
+                  if (getReflectionWarnings().getProjectOnly()) {
+                    int colon = line.indexOf(':');
+                    String file = line.substring(REFLECTION_WARNING_PREFIX.length(), colon);
+                    boolean found =
+                        sourceRoots.stream().anyMatch(it -> new File(it, file).exists());
+                    if (found) {
+                      reflectionWarningCount.incrementAndGet();
+                      System.err.print(line);
+                    } else {
+                      libraryReflectionWarningCount.incrementAndGet();
+                    }
                   } else {
-                    sb.append(c);
+                    reflectionWarningCount.incrementAndGet();
+                    System.err.print(line);
                   }
-                });
-        return sb.toString();
-      }
+                } else {
+                  System.err.print(line);
+                }
+              }
+            };
 
-      private static String demunge(String mungedName) {
-        StringBuilder sb = new StringBuilder();
-        Matcher m = DEMUNGE_PATTERN.matcher(mungedName);
-        int lastMatchEnd = 0;
-        while (m.find()) {
-          int start = m.start();
-          int end = m.end();
-          // Keep everything before the match
-          sb.append(mungedName.substring(lastMatchEnd, start));
-          lastMatchEnd = end;
-          // Replace the match with DEMUNGE_MAP result
-          char origCh = DEMUNGE_MAP.get(m.group());
-          sb.append(origCh);
+        try {
+          executeScript(script, stdout, stderr);
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
         }
-        // Keep everything after the last match
-        sb.append(mungedName.substring(lastMatchEnd));
-        return sb.toString();
-      }
 
-      public Boolean getAotCompile() {
-        return aotCompile;
-      }
+        // copy to destination
+        getProject()
+            .copy(
+                spec -> {
+                  spec.from(tmpDestinationDir);
+                  spec.into(getDestinationDir());
+                });
 
-      public void setAotCompile(Boolean aotCompile) {
-        this.aotCompile = aotCompile;
+        if (libraryReflectionWarningCount.get() > 0) {
+          System.err.println(
+              libraryReflectionWarningCount + " reflection warnings from dependencies");
+        }
+        if (getReflectionWarnings().getAsErrors() && reflectionWarningCount.get() > 0) {
+          throw new ExecException(reflectionWarningCount + " reflection warnings found");
+        }
       }
+    }
 
-      public Boolean getCopySourceSetToOutput() {
-        return copySourceSetToOutput;
+    private void removeObsoleteClassFiles(Path destinationDir, Path tmpDestinationDir) {
+      try {
+        if (!Files.exists(tmpDestinationDir)) {
+          return;
+        }
+        Files.walkFileTree(
+            tmpDestinationDir,
+            new SimpleFileVisitor<Path>() {
+              @Override
+              public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                  throws IOException {
+                Path destinationFile = destinationDir.resolve(tmpDestinationDir.relativize(file));
+                if (Files.exists(destinationFile)) {
+                  Files.delete(destinationFile);
+                }
+                return FileVisitResult.CONTINUE;
+              }
+            });
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
       }
+    }
 
-      public void setCopySourceSetToOutput(Boolean copySourceSetToOutput) {
-        this.copySourceSetToOutput = copySourceSetToOutput;
-      }
+    private void executeScript(String script, OutputStream stdout, OutputStream stderr)
+        throws IOException {
+      Path file = Files.createTempFile(getTemporaryDir().toPath(), "clojure-compiler", ".clj");
+      Files.write(file, (script + "\n").getBytes(StandardCharsets.UTF_8));
 
-      public ReflectionWarnings getReflectionWarnings() {
-        return reflectionWarnings;
-      }
+      JavaExecHandleBuilder exec = new JavaExecHandleBuilder(fileResolver);
+      copyTo(exec);
+      exec.setMain("clojure.main");
+      exec.setClasspath(
+          getClasspath()
+              .plus(new SimpleFileCollection(getSourceRootsFiles()))
+              .plus(new SimpleFileCollection(getDestinationDir())));
+      exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
+      exec.setDefaultCharacterEncoding("UTF-8");
 
-      public void setReflectionWarnings(ReflectionWarnings reflectionWarnings) {
-        this.reflectionWarnings = reflectionWarnings;
-      }
+      exec.setStandardOutput(stdout);
+      exec.setErrorOutput(stderr);
 
-      public ReflectionWarnings reflectionWarnings(Action<ReflectionWarnings> configureAction) {
-        configureAction.execute(reflectionWarnings);
-        return reflectionWarnings;
-      }
+      ExecResult result = exec.build().start().waitForFinish();
 
-      public Boolean getDisableLocalsClearing() {
-        return disableLocalsClearing;
-      }
+      stdout.close();
+      stderr.close();
 
-      public void setDisableLocalsClearing(Boolean disableLocalsClearing) {
-        this.disableLocalsClearing = disableLocalsClearing;
-      }
+      result.assertNormalExitValue();
+    }
 
-      public Collection<String> getElideMeta() {
-        return elideMeta;
-      }
+    private List<String> findNamespaces() {
+      Set<String> roots = getSourceRoots();
+      return StreamSupport.stream(getSource().spliterator(), false)
+          .map(it -> findNamespace(it, roots))
+          .collect(Collectors.toList());
+    }
 
-      public void setElideMeta(Collection<String> elideMeta) {
-        this.elideMeta = elideMeta;
+    private String findNamespace(File file, Set<String> roots) {
+      try {
+        File current = file.getParentFile();
+        String namespace = demunge(file.getName().substring(0, file.getName().lastIndexOf('.')));
+        while (current != null) {
+          if (roots.contains(current.getCanonicalPath())) {
+            return namespace;
+          }
+          namespace = demunge(current.getName()) + "." + namespace;
+          current = current.getParentFile();
+        }
+        throw new RuntimeException("No source root found for " + file.getCanonicalPath());
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
       }
+    }
 
-      public Boolean getDirectLinking() {
-        return directLinking;
-      }
+    private Set<String> getSourceRoots() {
+      return getSourceRootsFiles()
+          .stream()
+          .map(
+              it -> {
+                try {
+                  return it.getCanonicalPath();
+                } catch (IOException e) {
+                  throw new UncheckedIOException(e);
+                }
+              })
+          .collect(Collectors.toSet());
+    }
 
-      public void setDirectLinking(Boolean directLinking) {
-        this.directLinking = directLinking;
-      }
+    private List<File> getSourceRootsFiles() {
+      // accessing the List<Object> field not the FileTree from getSource
+      return source
+          .stream()
+          .filter(it -> it instanceof SourceDirectorySet)
+          .flatMap(it -> ((SourceDirectorySet) it).getSrcDirs().stream())
+          .collect(Collectors.toList());
+    }
 
-      public Collection<String> getNamespaces() {
-        return namespaces;
-      }
+    private static final Map<Character, String> CHAR_MAP = new HashMap<>();
 
-      public void setNamespaces(Collection<String> namespaces) {
-        this.namespaces = namespaces;
-      }
+    static {
+      CHAR_MAP.put('-', "_");
+      CHAR_MAP.put(':', "_COLON_");
+      CHAR_MAP.put('+', "_PLUS_");
+      CHAR_MAP.put('>', "_GT_");
+      CHAR_MAP.put('<', "_LT_");
+      CHAR_MAP.put('=', "_EQ_");
+      CHAR_MAP.put('~', "_TILDE_");
+      CHAR_MAP.put('!', "_BANG_");
+      CHAR_MAP.put('@', "_CIRCA_");
+      CHAR_MAP.put('#', "_SHARP_");
+      CHAR_MAP.put('\'', "_SINGLEQUOTE_");
+      CHAR_MAP.put('"', "_DOUBLEQUOTE_");
+      CHAR_MAP.put('%', "_PERCENT_");
+      CHAR_MAP.put('^', "_CARET_");
+      CHAR_MAP.put('&', "_AMPERSAND_");
+      CHAR_MAP.put('*', "_STAR_");
+      CHAR_MAP.put('|', "_BAR_");
+      CHAR_MAP.put('{', "_LBRACE_");
+      CHAR_MAP.put('}', "_RBRACE_");
+      CHAR_MAP.put('[', "_LBRACK_");
+      CHAR_MAP.put(']', "_RBRACK_");
+      CHAR_MAP.put('/', "_SLASH_");
+      CHAR_MAP.put('\\', "_BSLASH_");
+      CHAR_MAP.put('?', "_QMARK_");
+    }
 
-      public FileResolver getFileResolver() {
-        return fileResolver;
-      }
+    private static final Map<String, Character> DEMUNGE_MAP =
+        CHAR_MAP
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
-      public JavaForkOptions getForkOptions() {
-        return forkOptions;
-      }
+    private static final Pattern DEMUNGE_PATTERN =
+        Pattern.compile(
+            DEMUNGE_MAP
+                .keySet()
+                .stream()
+                .sorted(Comparator.comparingInt(String::length).reversed())
+                .map(it -> "\\Q" + it + "\\E")
+                .collect(Collectors.joining("|")));
 
-      public JavaForkOptions bootstrapClasspath(Object... arg0) {
-        return forkOptions.bootstrapClasspath(arg0);
-      }
+    private static final String REFLECTION_WARNING_PREFIX = "Reflection warning, ";
 
-      public JavaForkOptions copyTo(JavaForkOptions arg0) {
-        return forkOptions.copyTo(arg0);
-      }
+    private static String munge(String name) {
+      StringBuilder sb = new StringBuilder();
+      name.chars()
+          .forEach(
+              c -> {
+                if (CHAR_MAP.containsKey(c)) {
+                  sb.append(CHAR_MAP.get(c));
+                } else {
+                  sb.append(c);
+                }
+              });
+      return sb.toString();
+    }
 
-      public ProcessForkOptions copyTo(ProcessForkOptions arg0) {
-        return forkOptions.copyTo(arg0);
+    private static String demunge(String mungedName) {
+      StringBuilder sb = new StringBuilder();
+      Matcher m = DEMUNGE_PATTERN.matcher(mungedName);
+      int lastMatchEnd = 0;
+      while (m.find()) {
+        int start = m.start();
+        int end = m.end();
+        // Keep everything before the match
+        sb.append(mungedName.substring(lastMatchEnd, start));
+        lastMatchEnd = end;
+        // Replace the match with DEMUNGE_MAP result
+        char origCh = DEMUNGE_MAP.get(m.group());
+        sb.append(origCh);
       }
+      // Keep everything after the last match
+      sb.append(mungedName.substring(lastMatchEnd));
+      return sb.toString();
+    }
 
-      public ProcessForkOptions environment(Map<String, ?> arg0) {
-        return forkOptions.environment(arg0);
-      }
+    public Boolean getAotCompile() {
+      return aotCompile;
+    }
 
-      public ProcessForkOptions environment(String arg0, Object arg1) {
-        return forkOptions.environment(arg0, arg1);
-      }
+    public void setAotCompile(Boolean aotCompile) {
+      this.aotCompile = aotCompile;
+    }
 
-      public ProcessForkOptions executable(Object arg0) {
-        return forkOptions.executable(arg0);
-      }
+    public Boolean getCopySourceSetToOutput() {
+      return copySourceSetToOutput;
+    }
 
-      public List<String> getAllJvmArgs() {
-        return forkOptions.getAllJvmArgs();
-      }
+    public void setCopySourceSetToOutput(Boolean copySourceSetToOutput) {
+      this.copySourceSetToOutput = copySourceSetToOutput;
+    }
 
-      public FileCollection getBootstrapClasspath() {
-        return forkOptions.getBootstrapClasspath();
-      }
+    public ReflectionWarnings getReflectionWarnings() {
+      return reflectionWarnings;
+    }
 
-      public boolean getDebug() {
-        return forkOptions.getDebug();
-      }
+    public void setReflectionWarnings(ReflectionWarnings reflectionWarnings) {
+      this.reflectionWarnings = reflectionWarnings;
+    }
 
-      public String getDefaultCharacterEncoding() {
-        return forkOptions.getDefaultCharacterEncoding();
-      }
+    public ReflectionWarnings reflectionWarnings(Action<ReflectionWarnings> configureAction) {
+      configureAction.execute(reflectionWarnings);
+      return reflectionWarnings;
+    }
 
-      public boolean getEnableAssertions() {
-        return forkOptions.getEnableAssertions();
-      }
+    public Boolean getDisableLocalsClearing() {
+      return disableLocalsClearing;
+    }
 
-      public Map<String, Object> getEnvironment() {
-        return forkOptions.getEnvironment();
-      }
+    public void setDisableLocalsClearing(Boolean disableLocalsClearing) {
+      this.disableLocalsClearing = disableLocalsClearing;
+    }
 
-      public String getExecutable() {
-        return forkOptions.getExecutable();
-      }
+    public Collection<String> getElideMeta() {
+      return elideMeta;
+    }
 
-      public List<String> getJvmArgs() {
-        return forkOptions.getJvmArgs();
-      }
+    public void setElideMeta(Collection<String> elideMeta) {
+      this.elideMeta = elideMeta;
+    }
 
-      public String getMaxHeapSize() {
-        return forkOptions.getMaxHeapSize();
-      }
+    public Boolean getDirectLinking() {
+      return directLinking;
+    }
 
-      public String getMinHeapSize() {
-        return forkOptions.getMinHeapSize();
-      }
+    public void setDirectLinking(Boolean directLinking) {
+      this.directLinking = directLinking;
+    }
 
-      public Map<String, Object> getSystemProperties() {
-        return forkOptions.getSystemProperties();
-      }
+    public Collection<String> getNamespaces() {
+      return namespaces;
+    }
 
-      public File getWorkingDir() {
-        return forkOptions.getWorkingDir();
-      }
+    public void setNamespaces(Collection<String> namespaces) {
+      this.namespaces = namespaces;
+    }
 
-      public JavaForkOptions jvmArgs(Iterable<?> arg0) {
-        return forkOptions.jvmArgs(arg0);
-      }
+    public FileResolver getFileResolver() {
+      return fileResolver;
+    }
 
-      public JavaForkOptions jvmArgs(Object... arg0) {
-        return forkOptions.jvmArgs(arg0);
-      }
+    public JavaForkOptions getForkOptions() {
+      return forkOptions;
+    }
 
-      public void setAllJvmArgs(List<String> arg0) {
-        forkOptions.setAllJvmArgs(arg0);
-      }
+    public JavaForkOptions bootstrapClasspath(Object... arg0) {
+      return forkOptions.bootstrapClasspath(arg0);
+    }
 
-      public void setAllJvmArgs(Iterable<?> arg0) {
-        forkOptions.setAllJvmArgs(arg0);
-      }
+    public JavaForkOptions copyTo(JavaForkOptions arg0) {
+      return forkOptions.copyTo(arg0);
+    }
 
-      public void setBootstrapClasspath(FileCollection arg0) {
-        forkOptions.setBootstrapClasspath(arg0);
-      }
+    public ProcessForkOptions copyTo(ProcessForkOptions arg0) {
+      return forkOptions.copyTo(arg0);
+    }
 
-      public void setDebug(boolean arg0) {
-        forkOptions.setDebug(arg0);
-      }
+    public ProcessForkOptions environment(Map<String, ?> arg0) {
+      return forkOptions.environment(arg0);
+    }
 
-      public void setDefaultCharacterEncoding(String arg0) {
-        forkOptions.setDefaultCharacterEncoding(arg0);
-      }
+    public ProcessForkOptions environment(String arg0, Object arg1) {
+      return forkOptions.environment(arg0, arg1);
+    }
 
-      public void setEnableAssertions(boolean arg0) {
-        forkOptions.setEnableAssertions(arg0);
-      }
+    public ProcessForkOptions executable(Object arg0) {
+      return forkOptions.executable(arg0);
+    }
 
-      public void setEnvironment(Map<String, ?> arg0) {
-        forkOptions.setEnvironment(arg0);
-      }
+    public List<String> getAllJvmArgs() {
+      return forkOptions.getAllJvmArgs();
+    }
 
-      public void setExecutable(String arg0) {
-        forkOptions.setExecutable(arg0);
-      }
+    public FileCollection getBootstrapClasspath() {
+      return forkOptions.getBootstrapClasspath();
+    }
 
-      public void setExecutable(Object arg0) {
-        forkOptions.setExecutable(arg0);
-      }
+    public boolean getDebug() {
+      return forkOptions.getDebug();
+    }
 
-      public void setJvmArgs(List<String> arg0) {
-        forkOptions.setJvmArgs(arg0);
-      }
+    public String getDefaultCharacterEncoding() {
+      return forkOptions.getDefaultCharacterEncoding();
+    }
 
-      public void setJvmArgs(Iterable<?> arg0) {
-        forkOptions.setJvmArgs(arg0);
-      }
+    public boolean getEnableAssertions() {
+      return forkOptions.getEnableAssertions();
+    }
 
-      public void setMaxHeapSize(String arg0) {
-        forkOptions.setMaxHeapSize(arg0);
-      }
+    public Map<String, Object> getEnvironment() {
+      return forkOptions.getEnvironment();
+    }
 
-      public void setMinHeapSize(String arg0) {
-        forkOptions.setMinHeapSize(arg0);
-      }
+    public String getExecutable() {
+      return forkOptions.getExecutable();
+    }
 
-      public void setSystemProperties(Map<String, ?> arg0) {
-        forkOptions.setSystemProperties(arg0);
-      }
+    public List<String> getJvmArgs() {
+      return forkOptions.getJvmArgs();
+    }
 
-      public void setWorkingDir(File arg0) {
-        forkOptions.setWorkingDir(arg0);
-      }
+    public String getMaxHeapSize() {
+      return forkOptions.getMaxHeapSize();
+    }
 
-      public void setWorkingDir(Object arg0) {
-        forkOptions.setWorkingDir(arg0);
-      }
+    public String getMinHeapSize() {
+      return forkOptions.getMinHeapSize();
+    }
 
-      public JavaForkOptions systemProperties(Map<String, ?> arg0) {
-        return forkOptions.systemProperties(arg0);
-      }
+    public Map<String, Object> getSystemProperties() {
+      return forkOptions.getSystemProperties();
+    }
 
-      public JavaForkOptions systemProperty(String arg0, Object arg1) {
-        return forkOptions.systemProperty(arg0, arg1);
-      }
+    public File getWorkingDir() {
+      return forkOptions.getWorkingDir();
+    }
 
-      public ProcessForkOptions workingDir(Object arg0) {
-        return forkOptions.workingDir(arg0);
-      }
+    public JavaForkOptions jvmArgs(Iterable<?> arg0) {
+      return forkOptions.jvmArgs(arg0);
+    }
+
+    public JavaForkOptions jvmArgs(Object... arg0) {
+      return forkOptions.jvmArgs(arg0);
+    }
+
+    public void setAllJvmArgs(List<String> arg0) {
+      forkOptions.setAllJvmArgs(arg0);
+    }
+
+    public void setAllJvmArgs(Iterable<?> arg0) {
+      forkOptions.setAllJvmArgs(arg0);
+    }
+
+    public void setBootstrapClasspath(FileCollection arg0) {
+      forkOptions.setBootstrapClasspath(arg0);
+    }
+
+    public void setDebug(boolean arg0) {
+      forkOptions.setDebug(arg0);
+    }
+
+    public void setDefaultCharacterEncoding(String arg0) {
+      forkOptions.setDefaultCharacterEncoding(arg0);
+    }
+
+    public void setEnableAssertions(boolean arg0) {
+      forkOptions.setEnableAssertions(arg0);
+    }
+
+    public void setEnvironment(Map<String, ?> arg0) {
+      forkOptions.setEnvironment(arg0);
+    }
+
+    public void setExecutable(String arg0) {
+      forkOptions.setExecutable(arg0);
+    }
+
+    public void setExecutable(Object arg0) {
+      forkOptions.setExecutable(arg0);
+    }
+
+    public void setJvmArgs(List<String> arg0) {
+      forkOptions.setJvmArgs(arg0);
+    }
+
+    public void setJvmArgs(Iterable<?> arg0) {
+      forkOptions.setJvmArgs(arg0);
+    }
+
+    public void setMaxHeapSize(String arg0) {
+      forkOptions.setMaxHeapSize(arg0);
+    }
+
+    public void setMinHeapSize(String arg0) {
+      forkOptions.setMinHeapSize(arg0);
+    }
+
+    public void setSystemProperties(Map<String, ?> arg0) {
+      forkOptions.setSystemProperties(arg0);
+    }
+
+    public void setWorkingDir(File arg0) {
+      forkOptions.setWorkingDir(arg0);
+    }
+
+    public void setWorkingDir(Object arg0) {
+      forkOptions.setWorkingDir(arg0);
+    }
+
+    public JavaForkOptions systemProperties(Map<String, ?> arg0) {
+      return forkOptions.systemProperties(arg0);
+    }
+
+    public JavaForkOptions systemProperty(String arg0, Object arg1) {
+      return forkOptions.systemProperty(arg0, arg1);
+    }
+
+    public ProcessForkOptions workingDir(Object arg0) {
+      return forkOptions.workingDir(arg0);
     }
   }
 

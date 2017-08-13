@@ -21,9 +21,11 @@ _Coming soon_
 
 ## Code Style
 
-For consistency, uses the [spotless](https://github.com/diffplug/spotless) plugin, leveraging [google-java-format](https://github.com/google/google-java-format) to have an automated way to validate and reformat our Java code. This is meant to avoid bikeshedding on formatting.
+This project uses the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html). Google's provides [google-java-format](https://github.com/google/google-java-format) and an [Eclipse formatter profile](https://github.com/google/styleguide/blob/gh-pages/eclipse-java-google-style.xml) to help automate this. Both however have a weakness in how they line wrap, primarily for code that heavily uses lambdas. The style guide's text allows for more discretion in where line wrapping happens, but the automated ones can be overzealous. For this reason, we are using a modified version of the Eclipse profile that disables the automatic line wrapping.
 
-The build will automatically validate this with the `spotlessCheck` task. If differences are found, you can reformat the code with `./gradlew spotlessApply`.
+The style is enforced using the [spotless](https://github.com/diffplug/spotless) plugin, which can also reformat your code to comply with the style with `./gradlew spotlessApply`.
+
+You can import the Eclipse formatter settings `.gradle/eclipse-java-google-style-nowrap.xml` to have your IDE respect the style.
 
 ## Roadmap
 

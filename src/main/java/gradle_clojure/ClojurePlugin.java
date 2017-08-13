@@ -79,28 +79,20 @@ public class ClojurePlugin implements Plugin<Project> {
     project.getPlugins().apply(JavaBasePlugin.class);
     project.getPlugins().apply(JavaPlugin.class);
 
-    JavaPluginConvention javaPluginConvention =
-        project.getConvention().getPlugin(JavaPluginConvention.class);
+    JavaPluginConvention javaPluginConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
 
-    javaPluginConvention
-        .getSourceSets()
-        .all(
-            sourceSet -> {
-              ClojureCompile compileTask = createCompileTask(project, sourceSet);
+    javaPluginConvention.getSourceSets().all(sourceSet -> {
+      ClojureCompile compileTask = createCompileTask(project, sourceSet);
 
-              if (SourceSet.TEST_SOURCE_SET_NAME.equals(sourceSet.getName())) {
-                ClojureTestRunner testTask = createTestTask(project);
+      if (SourceSet.TEST_SOURCE_SET_NAME.equals(sourceSet.getName())) {
+        ClojureTestRunner testTask = createTestTask(project);
 
-                testTask
-                    .getConventionMapping()
-                    .map("classpath", () -> sourceSet.getRuntimeClasspath());
-                testTask
-                    .getConventionMapping()
-                    .map("namespaces", () -> compileTask.findNamespaces());
+        testTask.getConventionMapping().map("classpath", () -> sourceSet.getRuntimeClasspath());
+        testTask.getConventionMapping().map("namespaces", () -> compileTask.findNamespaces());
 
-                testTask.dependsOn(compileTask);
-              }
-            });
+        testTask.dependsOn(compileTask);
+      }
+    });
   }
 
   private ClojureCompile createCompileTask(Project project, SourceSet sourceSet) {
@@ -108,22 +100,16 @@ public class ClojurePlugin implements Plugin<Project> {
     String sourceRootDir = String.format("src/%s/clojure", sourceSet.getName());
 
     logger.info("Creating DefaultSourceDirectorySet for source set {}", sourceSet);
-    ClojureSourceSet clojureSrcSet =
-        new ClojureSourceSetImpl(sourceSet.getName(), projectInternal.getFileResolver());
+    ClojureSourceSet clojureSrcSet = new ClojureSourceSetImpl(sourceSet.getName(), projectInternal.getFileResolver());
     SourceDirectorySet clojureDirSet = clojureSrcSet.getClojure();
 
     new DslObject(sourceSet).getConvention().getPlugins().put("clojure", clojureSrcSet);
 
     File srcDir = project.file(sourceRootDir);
-    logger.info(
-        "Creating Clojure SourceDirectorySet for source set "
-            + sourceSet
-            + " with src dir "
-            + srcDir);
+    logger.info("Creating Clojure SourceDirectorySet for source set " + sourceSet + " with src dir " + srcDir);
     clojureDirSet.srcDir(srcDir);
 
-    logger.info(
-        "Adding ClojureSourceDirectorySet " + clojureDirSet + " to source set " + sourceSet);
+    logger.info("Adding ClojureSourceDirectorySet " + clojureDirSet + " to source set " + sourceSet);
     sourceSet.getAllSource().source(clojureDirSet);
     sourceSet.getResources().getFilter().exclude(it -> clojureDirSet.contains(it.getFile()));
 
@@ -142,9 +128,7 @@ public class ClojurePlugin implements Plugin<Project> {
 
     compile.getConventionMapping().map("classpath", () -> sourceSet.getCompileClasspath());
     compile.getConventionMapping().map("namespaces", () -> compile.findNamespaces());
-    compile
-        .getConventionMapping()
-        .map("destinationDir", () -> sourceSet.getOutput().getClassesDir());
+    compile.getConventionMapping().map("destinationDir", () -> sourceSet.getOutput().getClassesDir());
 
     compile.source(clojureDirSet);
 
@@ -179,9 +163,7 @@ public class ClojurePlugin implements Plugin<Project> {
     public ClojureSourceSetImpl(String displayName, FileResolver resolver) {
       this.displayName = displayName;
       this.resolver = resolver;
-      this.clojure =
-          new DefaultSourceDirectorySet(
-              displayName, resolver, new DefaultDirectoryFileTreeFactory());
+      this.clojure = new DefaultSourceDirectorySet(displayName, resolver, new DefaultDirectoryFileTreeFactory());
       this.clojure.getFilter().include("**/*.clj", "**/*.cljc");
     }
 
@@ -263,23 +245,19 @@ public class ClojurePlugin implements Plugin<Project> {
 
       try {
         if (Files.exists(tmpDestinationDir.toPath())) {
-          Files.walkFileTree(
-              tmpDestinationDir.toPath(),
-              new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException {
-                  Files.delete(file);
-                  return FileVisitResult.CONTINUE;
-                }
+          Files.walkFileTree(tmpDestinationDir.toPath(), new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+              Files.delete(file);
+              return FileVisitResult.CONTINUE;
+            }
 
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-                    throws IOException {
-                  Files.delete(dir);
-                  return FileVisitResult.CONTINUE;
-                }
-              });
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+              Files.delete(dir);
+              return FileVisitResult.CONTINUE;
+            }
+          });
         }
       } catch (IOException e) {
         throw new UncheckedIOException(e);
@@ -289,18 +267,14 @@ public class ClojurePlugin implements Plugin<Project> {
       getDestinationDir().mkdirs();
 
       if (getCopySourceSetToOutput() == null ? !getAotCompile() : getCopySourceSetToOutput()) {
-        getProject()
-            .copy(
-                spec -> {
-                  spec.from(getSource()).into(tmpDestinationDir);
-                });
+        getProject().copy(spec -> {
+          spec.from(getSource()).into(tmpDestinationDir);
+        });
         // copy to destination
-        getProject()
-            .copy(
-                spec -> {
-                  spec.from(tmpDestinationDir);
-                  spec.into(getDestinationDir());
-                });
+        getProject().copy(spec -> {
+          spec.from(tmpDestinationDir);
+          spec.into(getDestinationDir());
+        });
         return;
       }
 
@@ -317,78 +291,60 @@ public class ClojurePlugin implements Plugin<Project> {
 
         String script;
         try {
-          script =
-              Stream.of(
-                      "(try",
-                      "  (binding [*compile-path* \""
-                          + tmpDestinationDir.getCanonicalPath().replace("\\", "\\\\")
-                          + "\"",
-                      "            *warn-on-reflection* " + getReflectionWarnings().getEnabled(),
-                      "            *compiler-options* {:disable-locals-clearing "
-                          + getDisableLocalsClearing(),
-                      "                                :elide-meta ["
-                          + getElideMeta()
-                              .stream()
-                              .map(it -> ":" + it)
-                              .collect(Collectors.joining(" "))
-                          + "]",
-                      "                                :direct-linking "
-                          + getDirectLinking()
-                          + "}]",
-                      "    "
-                          + namespaces
-                              .stream()
-                              .map(it -> "(compile '" + it + ")")
-                              .collect(Collectors.joining("\n    "))
-                          + ")",
-                      "  (catch Throwable e",
-                      "    (.printStackTrace e)",
-                      "    (System/exit 1)))",
-                      "(System/exit 0)")
-                  .collect(Collectors.joining("\n"));
+          script = Stream.of(
+              "(try",
+              "  (binding [*compile-path* \"" + tmpDestinationDir.getCanonicalPath().replace("\\", "\\\\") + "\"",
+              "            *warn-on-reflection* " + getReflectionWarnings().getEnabled(),
+              "            *compiler-options* {:disable-locals-clearing " + getDisableLocalsClearing(),
+              "                                :elide-meta [" + getElideMeta().stream().map(it -> ":" + it).collect(Collectors.joining(" ")) + "]",
+              "                                :direct-linking " + getDirectLinking() + "}]",
+              "    " + namespaces.stream().map(it -> "(compile '" + it + ")").collect(Collectors.joining("\n    ")) + ")",
+              "  (catch Throwable e",
+              "    (.printStackTrace e)",
+              "    (System/exit 1)))",
+              "(System/exit 0)").collect(Collectors.joining("\n"));
         } catch (IOException e) {
           throw new UncheckedIOException(e);
         }
 
-        LineProcessingOutputStream stdout =
-            new LineProcessingOutputStream() {
-              @Override
-              protected void processLine(String line) {
-                System.out.print(line);
-              }
-            };
+        LineProcessingOutputStream stdout = new LineProcessingOutputStream() {
+          @Override
+          protected void processLine(String line) {
+            System.out.print(line);
+          }
+        };
 
         Set<String> sourceRoots = getSourceRoots();
 
-        // this AtomInteger use is just to get around "effectively final" requirement of anonymous classes. Should find a nicer way to handle this
+        // this AtomInteger use is just to get around "effectively final"
+        // requirement of anonymous classes. Should find a nicer way to handle
+        // this
         AtomicInteger reflectionWarningCount = new AtomicInteger();
         AtomicInteger libraryReflectionWarningCount = new AtomicInteger();
 
-        LineProcessingOutputStream stderr =
-            new LineProcessingOutputStream() {
-              @Override
-              protected void processLine(String line) {
-                if (line.startsWith(REFLECTION_WARNING_PREFIX)) {
-                  if (getReflectionWarnings().getProjectOnly()) {
-                    int colon = line.indexOf(':');
-                    String file = line.substring(REFLECTION_WARNING_PREFIX.length(), colon);
-                    boolean found =
-                        sourceRoots.stream().anyMatch(it -> new File(it, file).exists());
-                    if (found) {
-                      reflectionWarningCount.incrementAndGet();
-                      System.err.print(line);
-                    } else {
-                      libraryReflectionWarningCount.incrementAndGet();
-                    }
-                  } else {
-                    reflectionWarningCount.incrementAndGet();
-                    System.err.print(line);
-                  }
-                } else {
+        LineProcessingOutputStream stderr = new LineProcessingOutputStream() {
+          @Override
+          protected void processLine(String line) {
+            if (line.startsWith(REFLECTION_WARNING_PREFIX)) {
+              if (getReflectionWarnings().getProjectOnly()) {
+                int colon = line.indexOf(':');
+                String file = line.substring(REFLECTION_WARNING_PREFIX.length(), colon);
+                boolean found = sourceRoots.stream().anyMatch(it -> new File(it, file).exists());
+                if (found) {
+                  reflectionWarningCount.incrementAndGet();
                   System.err.print(line);
+                } else {
+                  libraryReflectionWarningCount.incrementAndGet();
                 }
+              } else {
+                reflectionWarningCount.incrementAndGet();
+                System.err.print(line);
               }
-            };
+            } else {
+              System.err.print(line);
+            }
+          }
+        };
 
         try {
           executeScript(script, stdout, stderr);
@@ -397,16 +353,13 @@ public class ClojurePlugin implements Plugin<Project> {
         }
 
         // copy to destination
-        getProject()
-            .copy(
-                spec -> {
-                  spec.from(tmpDestinationDir);
-                  spec.into(getDestinationDir());
-                });
+        getProject().copy(spec -> {
+          spec.from(tmpDestinationDir);
+          spec.into(getDestinationDir());
+        });
 
         if (libraryReflectionWarningCount.get() > 0) {
-          System.err.println(
-              libraryReflectionWarningCount + " reflection warnings from dependencies");
+          System.err.println(libraryReflectionWarningCount + " reflection warnings from dependencies");
         }
         if (getReflectionWarnings().getAsErrors() && reflectionWarningCount.get() > 0) {
           throw new ExecException(reflectionWarningCount + " reflection warnings found");
@@ -419,36 +372,31 @@ public class ClojurePlugin implements Plugin<Project> {
         if (!Files.exists(tmpDestinationDir)) {
           return;
         }
-        Files.walkFileTree(
-            tmpDestinationDir,
-            new SimpleFileVisitor<Path>() {
-              @Override
-              public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                  throws IOException {
-                Path destinationFile = destinationDir.resolve(tmpDestinationDir.relativize(file));
-                if (Files.exists(destinationFile)) {
-                  Files.delete(destinationFile);
-                }
-                return FileVisitResult.CONTINUE;
-              }
-            });
+        Files.walkFileTree(tmpDestinationDir, new SimpleFileVisitor<Path>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Path destinationFile = destinationDir.resolve(tmpDestinationDir.relativize(file));
+            if (Files.exists(destinationFile)) {
+              Files.delete(destinationFile);
+            }
+            return FileVisitResult.CONTINUE;
+          }
+        });
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
     }
 
-    private void executeScript(String script, OutputStream stdout, OutputStream stderr)
-        throws IOException {
+    private void executeScript(String script, OutputStream stdout, OutputStream stderr) throws IOException {
       Path file = Files.createTempFile(getTemporaryDir().toPath(), "clojure-compiler", ".clj");
       Files.write(file, (script + "\n").getBytes(StandardCharsets.UTF_8));
 
       JavaExecHandleBuilder exec = new JavaExecHandleBuilder(fileResolver);
       copyTo(exec);
       exec.setMain("clojure.main");
-      exec.setClasspath(
-          getClasspath()
-              .plus(new SimpleFileCollection(getSourceRootsFiles()))
-              .plus(new SimpleFileCollection(getDestinationDir())));
+      exec.setClasspath(getClasspath()
+          .plus(new SimpleFileCollection(getSourceRootsFiles()))
+          .plus(new SimpleFileCollection(getDestinationDir())));
       exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
       exec.setDefaultCharacterEncoding("UTF-8");
 
@@ -488,23 +436,18 @@ public class ClojurePlugin implements Plugin<Project> {
     }
 
     private Set<String> getSourceRoots() {
-      return getSourceRootsFiles()
-          .stream()
-          .map(
-              it -> {
-                try {
-                  return it.getCanonicalPath();
-                } catch (IOException e) {
-                  throw new UncheckedIOException(e);
-                }
-              })
-          .collect(Collectors.toSet());
+      return getSourceRootsFiles().stream().map(it -> {
+        try {
+          return it.getCanonicalPath();
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      }).collect(Collectors.toSet());
     }
 
     private List<File> getSourceRootsFiles() {
       // accessing the List<Object> field not the FileTree from getSource
-      return source
-          .stream()
+      return source.stream()
           .filter(it -> it instanceof SourceDirectorySet)
           .flatMap(it -> ((SourceDirectorySet) it).getSrcDirs().stream())
           .collect(Collectors.toList());
@@ -539,34 +482,25 @@ public class ClojurePlugin implements Plugin<Project> {
       CHAR_MAP.put('?', "_QMARK_");
     }
 
-    private static final Map<String, Character> DEMUNGE_MAP =
-        CHAR_MAP
-            .entrySet()
-            .stream()
-            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+    private static final Map<String, Character> DEMUNGE_MAP = CHAR_MAP.entrySet().stream()
+        .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
-    private static final Pattern DEMUNGE_PATTERN =
-        Pattern.compile(
-            DEMUNGE_MAP
-                .keySet()
-                .stream()
-                .sorted(Comparator.comparingInt(String::length).reversed())
-                .map(it -> "\\Q" + it + "\\E")
-                .collect(Collectors.joining("|")));
+    private static final Pattern DEMUNGE_PATTERN = Pattern.compile(DEMUNGE_MAP.keySet().stream()
+        .sorted(Comparator.comparingInt(String::length).reversed())
+        .map(it -> "\\Q" + it + "\\E")
+        .collect(Collectors.joining("|")));
 
     private static final String REFLECTION_WARNING_PREFIX = "Reflection warning, ";
 
     private static String munge(String name) {
       StringBuilder sb = new StringBuilder();
-      name.chars()
-          .forEach(
-              c -> {
-                if (CHAR_MAP.containsKey(c)) {
-                  sb.append(CHAR_MAP.get(c));
-                } else {
-                  sb.append(c);
-                }
-              });
+      name.chars().forEach(c -> {
+        if (CHAR_MAP.containsKey(c)) {
+          sb.append(CHAR_MAP.get(c));
+        } else {
+          sb.append(c);
+        }
+      });
       return sb.toString();
     }
 
@@ -843,8 +777,7 @@ public class ClojurePlugin implements Plugin<Project> {
       String namespaceVec = "'[" + String.join(" ", namespaces) + "]";
       String runnerInvocation;
       if (getJunitReport() != null) {
-        runnerInvocation =
-            "(run-tests " + namespaceVec + " \"" + getJunitReport().getAbsolutePath() + "\")";
+        runnerInvocation = "(run-tests " + namespaceVec + " \"" + getJunitReport().getAbsolutePath() + "\")";
       } else {
         runnerInvocation = "(run-tests " + namespaceVec + ")";
       }
@@ -873,8 +806,8 @@ public class ClojurePlugin implements Plugin<Project> {
     }
 
     private static String getTestRunnerScript() {
-      try (InputStream stream =
-              ClojureTestRunner.class.getResourceAsStream("/gradle_clojure/test_runner.clj");
+      try (
+          InputStream stream = ClojureTestRunner.class.getResourceAsStream("/gradle_clojure/test_runner.clj");
           Scanner scanner = new Scanner(stream)) {
         scanner.useDelimiter("\\A");
         return scanner.hasNext() ? scanner.next() : "";

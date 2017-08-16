@@ -57,7 +57,7 @@ gradlePlugin {
   plugins {
     clojurePlugin {
       id = 'gradle-clojure.clojure'
-      implementationClass = 'gradle_clojure.ClojurePlugin'
+      implementationClass = 'gradle_clojure.clojure.ClojurePlugin'
     }
   }
 }

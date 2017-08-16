@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gradle_clojure;
+package gradle_clojure.clojure.tasks.internal;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -22,7 +22,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 
-abstract class LineProcessingOutputStream extends OutputStream {
+public abstract class LineProcessingOutputStream extends OutputStream {
   private final StringBuilder line = new StringBuilder();
   private final ByteBuffer bytes = ByteBuffer.allocate(8192);
   private final CharBuffer chars = CharBuffer.allocate(8192);

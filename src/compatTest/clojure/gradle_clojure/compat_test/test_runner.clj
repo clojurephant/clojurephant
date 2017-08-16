@@ -1,4 +1,4 @@
-(ns gradle-clojure.test-runner
+(ns gradle-clojure.compat-test.test-runner
   (:require [clojure.test :as test]
             [clojure.tools.namespace.find :refer [find-namespaces]])
   (:import (java.lang.annotation Annotation)

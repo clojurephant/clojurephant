@@ -40,8 +40,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.gradle.api.GradleException;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.collections.SimpleFileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Input;
@@ -49,7 +49,6 @@ import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.AbstractCompile;
 import org.gradle.process.ExecResult;
-import org.gradle.process.internal.ExecException;
 
 import gradle_clojure.clojure.tasks.internal.LineProcessingOutputStream;
 
@@ -201,7 +200,7 @@ public class ClojureCompile extends AbstractCompile {
         System.err.println(libraryReflectionWarningCount + " reflection warnings from dependencies");
       }
       if (options.getReflectionWarnings().isAsErrors() && reflectionWarningCount.get() > 0) {
-        throw new ExecException(reflectionWarningCount + " reflection warnings found");
+        throw new GradleException(reflectionWarningCount + " reflection warnings found");
       }
     }
   }
@@ -237,10 +236,10 @@ public class ClojureCompile extends AbstractCompile {
 
       exec.setMain("clojure.main");
       exec.setClasspath(getClasspath()
-          .plus(new SimpleFileCollection(getSourceRootsFiles()))
-          .plus(new SimpleFileCollection(getDestinationDir()))
+          .plus(getProject().files(getSourceRootsFiles()))
+          .plus(getProject().files(getDestinationDir()))
           // this is just a hack for now, should pass the variable around
-          .plus(new SimpleFileCollection(new File(getTemporaryDir(), "classes"))));
+          .plus(getProject().files(new File(getTemporaryDir(), "classes"))));
       exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
       exec.setDefaultCharacterEncoding("UTF-8");
 

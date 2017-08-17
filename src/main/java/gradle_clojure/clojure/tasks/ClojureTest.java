@@ -34,27 +34,23 @@ import javax.inject.Inject;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.ConventionTask;
 import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.file.collections.SimpleFileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.JavaForkOptions;
 import org.gradle.process.ProcessForkOptions;
 import org.gradle.process.internal.DefaultJavaForkOptions;
-import org.gradle.process.internal.JavaExecHandleBuilder;
 
 public class ClojureTest extends ConventionTask implements JavaForkOptions {
   private static final Logger logger = Logging.getLogger(ClojureTest.class);
 
-  private final FileResolver fileResolver;
   private final JavaForkOptions forkOptions;
-  private FileCollection classpath = new SimpleFileCollection();
+  private FileCollection classpath = getProject().files();
   private Collection<String> namespaces = Collections.emptyList();
   private File junitReport = null;
 
   @Inject
   public ClojureTest(FileResolver fileResolver) {
-    this.fileResolver = fileResolver;
     this.forkOptions = new DefaultJavaForkOptions(fileResolver);
   }
 
@@ -91,14 +87,13 @@ public class ClojureTest extends ConventionTask implements JavaForkOptions {
     Path file = Files.createTempFile(getTemporaryDir().toPath(), "clojure-test-runner", ".clj");
     Files.write(file, (script + "\n").getBytes(StandardCharsets.UTF_8));
 
-    JavaExecHandleBuilder exec = new JavaExecHandleBuilder(fileResolver);
-    copyTo(exec);
-    exec.setMain("clojure.main");
-    exec.setClasspath(getClasspath());
-    exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
-    exec.setDefaultCharacterEncoding("UTF-8");
-
-    exec.build().start().waitForFinish().assertNormalExitValue();
+    getProject().javaexec(exec -> {
+      copyTo(exec);
+      exec.setMain("clojure.main");
+      exec.setClasspath(getClasspath());
+      exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
+      exec.setDefaultCharacterEncoding("UTF-8");
+    }).assertNormalExitValue();
   }
 
   private static String getTestRunnerScript() {

@@ -20,12 +20,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -88,49 +82,17 @@ public class ClojureCompile extends AbstractCompile {
   @TaskAction
   @Override
   public void compile() {
-    logger.info("Starting ClojureCompiler task");
-
-    File tmpDestinationDir = new File(getTemporaryDir(), "classes");
-    removeObsoleteClassFiles(getDestinationDir().toPath(), tmpDestinationDir.toPath());
-
-    try {
-      if (Files.exists(tmpDestinationDir.toPath())) {
-        Files.walkFileTree(tmpDestinationDir.toPath(), new SimpleFileVisitor<Path>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Files.delete(file);
-            return FileVisitResult.CONTINUE;
-          }
-
-          @Override
-          public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            Files.delete(dir);
-            return FileVisitResult.CONTINUE;
-          }
-        });
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-
-    tmpDestinationDir.mkdirs();
     getDestinationDir().mkdirs();
 
     if (options.isCopySourceSetToOutput()) {
       getProject().copy(spec -> {
-        spec.from(getSource()).into(tmpDestinationDir);
-      });
-      // copy to destination
-      getProject().copy(spec -> {
-        spec.from(tmpDestinationDir);
+        spec.from(getSource());
         spec.into(getDestinationDir());
       });
       return;
     }
 
     if (options.isAotCompile()) {
-      logger.info("Destination: {}", getDestinationDir());
-
       Collection<String> namespaces = getNamespaces();
       if (namespaces.isEmpty()) {
         logger.warn("No Clojure namespaces defined, skipping {}", getName());
@@ -143,7 +105,7 @@ public class ClojureCompile extends AbstractCompile {
       try {
         script = Stream.of(
             "(try",
-            "  (binding [*compile-path* \"" + tmpDestinationDir.getCanonicalPath().replace("\\", "\\\\") + "\"",
+            "  (binding [*compile-path* \"" + getDestinationDir().getCanonicalPath().replace("\\", "\\\\") + "\"",
             "            *warn-on-reflection* " + options.getReflectionWarnings().isEnabled(),
             "            *compiler-options* {:disable-locals-clearing " + options.isDisableLocalsClearing(),
             "                                :elide-meta [" + options.getElideMeta().stream().map(it -> ":" + it).collect(Collectors.joining(" ")) + "]",
@@ -201,12 +163,6 @@ public class ClojureCompile extends AbstractCompile {
         throw new UncheckedIOException(e);
       }
 
-      // copy to destination
-      getProject().copy(spec -> {
-        spec.from(tmpDestinationDir);
-        spec.into(getDestinationDir());
-      });
-
       if (libraryReflectionWarningCount.get() > 0) {
         System.err.println(libraryReflectionWarningCount + " reflection warnings from dependencies");
       }
@@ -216,31 +172,10 @@ public class ClojureCompile extends AbstractCompile {
     }
   }
 
-  private void removeObsoleteClassFiles(Path destinationDir, Path tmpDestinationDir) {
-    try {
-      if (!Files.exists(tmpDestinationDir)) {
-        return;
-      }
-      Files.walkFileTree(tmpDestinationDir, new SimpleFileVisitor<Path>() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          Path destinationFile = destinationDir.resolve(tmpDestinationDir.relativize(file));
-          if (Files.exists(destinationFile)) {
-            Files.delete(destinationFile);
-          }
-          return FileVisitResult.CONTINUE;
-        }
-      });
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
   private void executeScript(String script, OutputStream stdout, OutputStream stderr) throws IOException {
     FileCollection classpath = getClasspath()
         .plus(getProject().files(getSourceRootsFiles()))
-        // this is just a hack for now, should pass the variable around
-        .plus(getProject().files(getDestinationDir(), new File(getTemporaryDir(), "classes")));
+        .plus(getProject().files(getDestinationDir()));
 
     workerExecutor.submit(ClojureEval.class, config -> {
       config.setIsolationMode(IsolationMode.PROCESS);
@@ -253,9 +188,6 @@ public class ClojureCompile extends AbstractCompile {
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });
-
-    // TODO according to docs, we shouldn't need this, but without it our tests fail
-    workerExecutor.await();
 
     stdout.close();
     stderr.close();

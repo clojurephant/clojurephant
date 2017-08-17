@@ -43,8 +43,8 @@ import org.gradle.process.ProcessForkOptions;
 import org.gradle.process.internal.DefaultJavaForkOptions;
 import org.gradle.process.internal.JavaExecHandleBuilder;
 
-public class ClojureTestRunner extends ConventionTask implements JavaForkOptions {
-  private static final Logger logger = Logging.getLogger(ClojureTestRunner.class);
+public class ClojureTest extends ConventionTask implements JavaForkOptions {
+  private static final Logger logger = Logging.getLogger(ClojureTest.class);
 
   private final FileResolver fileResolver;
   private final JavaForkOptions forkOptions;
@@ -53,7 +53,7 @@ public class ClojureTestRunner extends ConventionTask implements JavaForkOptions
   private File junitReport = null;
 
   @Inject
-  public ClojureTestRunner(FileResolver fileResolver) {
+  public ClojureTest(FileResolver fileResolver) {
     this.fileResolver = fileResolver;
     this.forkOptions = new DefaultJavaForkOptions(fileResolver);
   }
@@ -64,7 +64,7 @@ public class ClojureTestRunner extends ConventionTask implements JavaForkOptions
 
     Collection<String> namespaces = getNamespaces();
     if (namespaces.isEmpty()) {
-      logger.info("No Clojure namespaces defined, skipping {}", getName());
+      logger.warn("No Clojure namespaces defined, skipping {}", getName());
       return;
     }
 
@@ -103,7 +103,7 @@ public class ClojureTestRunner extends ConventionTask implements JavaForkOptions
 
   private static String getTestRunnerScript() {
     try (
-        InputStream stream = ClojureTestRunner.class.getResourceAsStream("/gradle_clojure/test_runner.clj");
+        InputStream stream = ClojureTest.class.getResourceAsStream("/gradle_clojure/test_runner.clj");
         Scanner scanner = new Scanner(stream)) {
       scanner.useDelimiter("\\A");
       return scanner.hasNext() ? scanner.next() : "";

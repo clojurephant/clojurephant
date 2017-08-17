@@ -130,7 +130,7 @@ public class ClojureCompile extends AbstractCompile implements JavaForkOptions {
 
       Collection<String> namespaces = getNamespaces();
       if (namespaces.isEmpty()) {
-        logger.info("No Clojure namespaces defined, skipping {}", getName());
+        logger.warn("No Clojure namespaces defined, skipping {}", getName());
         return;
       }
 

@@ -17,21 +17,15 @@ package gradle_clojure.clojure.tasks.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.DefaultSourceDirectorySet;
-import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.file.collections.DefaultDirectoryFileTreeFactory;
+import org.gradle.api.internal.file.SourceDirectorySetFactory;
 
 import gradle_clojure.clojure.tasks.ClojureSourceSet;
 
-public class ClojureSourceSetImpl implements ClojureSourceSet {
-  private final String displayName;
-  private final FileResolver resolver;
+public class DefaultClojureSourceSet implements ClojureSourceSet {
   private final SourceDirectorySet clojure;
 
-  public ClojureSourceSetImpl(String displayName, FileResolver resolver) {
-    this.displayName = displayName;
-    this.resolver = resolver;
-    this.clojure = new DefaultSourceDirectorySet(displayName, resolver, new DefaultDirectoryFileTreeFactory());
+  public DefaultClojureSourceSet(String name, SourceDirectorySetFactory sourceDirectorySetFactory) {
+    this.clojure = sourceDirectorySetFactory.create(name);
     this.clojure.getFilter().include("**/*.clj", "**/*.cljc");
   }
 

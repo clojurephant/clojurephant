@@ -16,37 +16,37 @@
 package gradle_clojure.clojure.tasks;
 
 public class ReflectionWarnings {
-  private Boolean enabled;
-  private Boolean projectOnly;
-  private Boolean asErrors;
+  private boolean enabled;
+  private boolean projectOnly;
+  private boolean asErrors;
 
-  public ReflectionWarnings(Boolean enabled, Boolean projectOnly, Boolean asErrors) {
+  public ReflectionWarnings(boolean enabled, boolean projectOnly, boolean asErrors) {
     this.enabled = enabled;
     this.projectOnly = projectOnly;
     this.asErrors = asErrors;
   }
 
-  public Boolean getEnabled() {
+  public boolean getEnabled() {
     return enabled;
   }
 
-  public void setEnabled(Boolean enabled) {
+  public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 
-  public Boolean getProjectOnly() {
+  public boolean getProjectOnly() {
     return projectOnly;
   }
 
-  public void setProjectOnly(Boolean projectOnly) {
+  public void setProjectOnly(boolean projectOnly) {
     this.projectOnly = projectOnly;
   }
 
-  public Boolean getAsErrors() {
+  public boolean getAsErrors() {
     return asErrors;
   }
 
-  public void setAsErrors(Boolean asErrors) {
+  public void setAsErrors(boolean asErrors) {
     this.asErrors = asErrors;
   }
 }

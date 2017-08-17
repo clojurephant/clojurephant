@@ -55,6 +55,10 @@ tasks.'compatTest4.1' {
 
 gradlePlugin {
   plugins {
+    clojureBasePlugin {
+      id = 'gradle-clojure.clojure-base'
+      implementationClass = 'gradle_clojure.clojure.ClojureBasePlugin'
+    }
     clojurePlugin {
       id = 'gradle-clojure.clojure'
       implementationClass = 'gradle_clojure.clojure.ClojurePlugin'
@@ -67,6 +71,11 @@ pluginBundle {
   vcsUrl = 'https://github.com/gradle-clojure/gradle-clojure.git'
   description = 'Clojure and Clojurescript language support for Gradle'
   plugins {
+    clojureBasePlugin {
+      id = 'gradle-clojure.clojure-base'
+      displayName = 'Clojure base language plugin for Gradle'
+      tags = ['clojure', 'language']
+    }
     clojurePlugin {
       id = 'gradle-clojure.clojure'
       displayName = 'Clojure language plugin for Gradle'

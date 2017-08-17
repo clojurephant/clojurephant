@@ -49,6 +49,7 @@ import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 import gradle_clojure.clojure.tasks.internal.ClojureEval;
+import gradle_clojure.clojure.tasks.internal.ClojureRuntime;
 import gradle_clojure.clojure.tasks.internal.LineProcessingOutputStream;
 
 public class ClojureCompile extends AbstractCompile {
@@ -173,6 +174,9 @@ public class ClojureCompile extends AbstractCompile {
   }
 
   private void executeScript(String script, OutputStream stdout, OutputStream stderr) throws IOException {
+    FileCollection clojure = ClojureRuntime.findClojure(getProject(), getClasspath())
+        .orElseThrow(() -> new GradleException("No Clojure dependency found."));
+
     FileCollection classpath = getClasspath()
         .plus(getProject().files(getSourceRootsFiles()))
         .plus(getProject().files(getDestinationDir()));
@@ -187,6 +191,7 @@ public class ClojureCompile extends AbstractCompile {
         fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
+      config.classpath(clojure);
     });
 
     stdout.close();

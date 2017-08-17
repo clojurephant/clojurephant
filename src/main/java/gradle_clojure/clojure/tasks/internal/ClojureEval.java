@@ -28,17 +28,17 @@ import clojure.lang.IFn;
 
 public class ClojureEval implements Runnable {
   private final String script;
-  private final String compileClasspath;
+  private final String classpath;
 
   @Inject
-  public ClojureEval(String script, String compileClasspath) {
+  public ClojureEval(String script, String classpath) {
     this.script = script;
-    this.compileClasspath = compileClasspath;
+    this.classpath = classpath;
   }
 
   @Override
   public void run() {
-    URL[] classpathUrls = Arrays.stream(compileClasspath.split(File.pathSeparator))
+    URL[] classpathUrls = Arrays.stream(classpath.split(File.pathSeparator))
         .map(ClojureEval::parseUrl)
         .toArray(size -> new URL[size]);
 
@@ -46,7 +46,6 @@ public class ClojureEval implements Runnable {
     ClassLoader loader = new URLClassLoader(classpathUrls, parent);
 
     Thread.currentThread().setContextClassLoader(loader);
-    // eval the script
     IFn main = Clojure.var("clojure.main", "main");
     main.invoke("--eval", script);
   }
@@ -56,7 +55,13 @@ public class ClojureEval implements Runnable {
       File file = new File(path);
       return file.toURI().toURL();
     } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
+      sneakyThrows(e);
+      return null;
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Throwable> void sneakyThrows(Throwable t) throws T {
+    throw (T) t;
   }
 }

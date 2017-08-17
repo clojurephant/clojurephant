@@ -46,5 +46,5 @@ sourceSets {
 }
 
 compileSs2Clojure {
-    aotCompile = true
+    options.aotCompile = true
 }

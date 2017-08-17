@@ -15,7 +15,7 @@
  */
 package gradle_clojure.clojure.tasks;
 
-public class ReflectionWarnings {
+public final class ReflectionWarnings {
   private boolean enabled;
   private boolean projectOnly;
   private boolean asErrors;
@@ -26,7 +26,7 @@ public class ReflectionWarnings {
     this.asErrors = asErrors;
   }
 
-  public boolean getEnabled() {
+  public boolean isEnabled() {
     return enabled;
   }
 
@@ -34,7 +34,7 @@ public class ReflectionWarnings {
     this.enabled = enabled;
   }
 
-  public boolean getProjectOnly() {
+  public boolean isProjectOnly() {
     return projectOnly;
   }
 
@@ -42,7 +42,7 @@ public class ReflectionWarnings {
     this.projectOnly = projectOnly;
   }
 
-  public boolean getAsErrors() {
+  public boolean isAsErrors() {
     return asErrors;
   }
 

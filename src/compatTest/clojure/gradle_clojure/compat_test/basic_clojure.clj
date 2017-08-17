@@ -16,7 +16,7 @@
         (is (= (gradle/file-tree "src/main/clojure") (gradle/file-tree "build/classes/clojure/main")))))
 
     (testing "with AOT compile, only class files are copied to the output directory"
-      (file/write-str (gradle/file "build.gradle") "compileClojure { aotCompile = true }" :append true)
+      (file/write-str (gradle/file "build.gradle") "compileClojure { options.aotCompile = true }" :append true)
       (let [result (gradle/build "clean" "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
@@ -52,7 +52,7 @@
           (is (= (gradle/file-tree "src/main/clojure") (gradle/file-tree "build/classes/clojure/main"))))))
 
     (testing "with AOT compile"
-      (file/write-str (gradle/file "build.gradle") "compileClojure { aotCompile = true }" :append true)
+      (file/write-str (gradle/file "build.gradle") "compileClojure { options.aotCompile = true }" :append true)
 
       (testing "build is up-to-date when no input changes"
         (let [result (gradle/build "clean" "classes")]

@@ -14,7 +14,7 @@ group = 'gradle-clojure'
 
 reckon {
   normal = scopeFromProp()
-  preRelease = stageFromProp('milestone', 'rc')
+  preRelease = stageFromProp('milestone', 'rc', 'final')
 }
 
 repositories {

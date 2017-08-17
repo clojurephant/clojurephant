@@ -25,6 +25,7 @@ repositories {
 dependencies {
   // gradle
   compile gradleApi()
+  compile 'org.clojure:clojure:1.8.0'
 
   // compat testing
   compatTestCompile gradleTestKit()

@@ -40,7 +40,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.inject.Inject;
+
 import org.gradle.api.GradleException;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -48,16 +51,25 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.AbstractCompile;
-import org.gradle.process.ExecResult;
+import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkerExecutor;
 
+import gradle_clojure.clojure.tasks.internal.ClojureEval;
 import gradle_clojure.clojure.tasks.internal.LineProcessingOutputStream;
 
 public class ClojureCompile extends AbstractCompile {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
+  private final WorkerExecutor workerExecutor;
+
   private final ClojureCompileOptions options = new ClojureCompileOptions();
 
   private List<String> namespaces = Collections.emptyList();
+
+  @Inject
+  public ClojureCompile(WorkerExecutor workerExecutor) {
+    this.workerExecutor = workerExecutor;
+  }
 
   @Nested
   public ClojureCompileOptions getOptions() {
@@ -138,9 +150,8 @@ public class ClojureCompile extends AbstractCompile {
             "                                :direct-linking " + options.isDirectLinking() + "}]",
             "    " + namespaces.stream().map(it -> "(compile '" + it + ")").collect(Collectors.joining("\n    ")) + ")",
             "  (catch Throwable e",
-            "    (.printStackTrace e)",
-            "    (System/exit 1)))",
-            "(System/exit 0)").collect(Collectors.joining("\n"));
+            "    (println (.getMessage e))",
+            "    (throw e)))").collect(Collectors.joining("\n")) + "\n";
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -226,31 +237,28 @@ public class ClojureCompile extends AbstractCompile {
   }
 
   private void executeScript(String script, OutputStream stdout, OutputStream stderr) throws IOException {
-    Path file = Files.createTempFile(getTemporaryDir().toPath(), "clojure-compiler", ".clj");
-    Files.write(file, (script + "\n").getBytes(StandardCharsets.UTF_8));
+    FileCollection classpath = getClasspath()
+        .plus(getProject().files(getSourceRootsFiles()))
+        // this is just a hack for now, should pass the variable around
+        .plus(getProject().files(getDestinationDir(), new File(getTemporaryDir(), "classes")));
 
-    ExecResult result = getProject().javaexec(exec -> {
-      exec.setJvmArgs(options.getForkOptions().getJvmArgs());
-      exec.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
-      exec.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
-
-      exec.setMain("clojure.main");
-      exec.setClasspath(getClasspath()
-          .plus(getProject().files(getSourceRootsFiles()))
-          .plus(getProject().files(getDestinationDir()))
-          // this is just a hack for now, should pass the variable around
-          .plus(getProject().files(new File(getTemporaryDir(), "classes"))));
-      exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
-      exec.setDefaultCharacterEncoding("UTF-8");
-
-      exec.setStandardOutput(stdout);
-      exec.setErrorOutput(stderr);
+    workerExecutor.submit(ClojureEval.class, config -> {
+      config.setIsolationMode(IsolationMode.PROCESS);
+      config.params(script);
+      config.params(classpath.getAsPath());
+      config.forkOptions(fork -> {
+        fork.setJvmArgs(options.getForkOptions().getJvmArgs());
+        fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
+        fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+        fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
+      });
     });
+
+    // TODO according to docs, we shouldn't need this, but without it our tests fail
+    workerExecutor.await();
 
     stdout.close();
     stderr.close();
-
-    result.assertNormalExitValue();
   }
 
   public List<String> findNamespaces() {

@@ -25,7 +25,7 @@ public final class ClojureCompileOptions {
 
   private boolean aotCompile = false;
   private Boolean copySourceSetToOutput = null;
-  private ReflectionWarnings reflectionWarnings = new ReflectionWarnings(false, false, false);
+  private boolean warnOnReflection = false;
 
   private boolean disableLocalsClearing = false;
   private List<String> elideMeta = Collections.emptyList();
@@ -56,17 +56,12 @@ public final class ClojureCompileOptions {
     this.copySourceSetToOutput = copySourceSetToOutput;
   }
 
-  public ReflectionWarnings getReflectionWarnings() {
-    return reflectionWarnings;
+  public boolean isWarnOnReflection() {
+    return warnOnReflection;
   }
 
-  public void setReflectionWarnings(ReflectionWarnings reflectionWarnings) {
-    this.reflectionWarnings = reflectionWarnings;
-  }
-
-  public ClojureCompileOptions reflectionWarnings(Action<? super ReflectionWarnings> configureAction) {
-    configureAction.execute(reflectionWarnings);
-    return this;
+  public void setWarnOnReflection(boolean warnOnReflection) {
+    this.warnOnReflection = warnOnReflection;
   }
 
   public boolean isDisableLocalsClearing() {

@@ -17,7 +17,6 @@ package gradle_clojure.clojure.tasks;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -50,7 +48,6 @@ import org.gradle.workers.WorkerExecutor;
 
 import gradle_clojure.clojure.tasks.internal.ClojureEval;
 import gradle_clojure.clojure.tasks.internal.ClojureRuntime;
-import gradle_clojure.clojure.tasks.internal.LineProcessingOutputStream;
 
 public class ClojureCompile extends AbstractCompile {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
@@ -107,7 +104,7 @@ public class ClojureCompile extends AbstractCompile {
         script = Stream.of(
             "(try",
             "  (binding [*compile-path* \"" + getDestinationDir().getCanonicalPath().replace("\\", "\\\\") + "\"",
-            "            *warn-on-reflection* " + options.getReflectionWarnings().isEnabled(),
+            "            *warn-on-reflection* " + options.isWarnOnReflection(),
             "            *compiler-options* {:disable-locals-clearing " + options.isDisableLocalsClearing(),
             "                                :elide-meta [" + options.getElideMeta().stream().map(it -> ":" + it).collect(Collectors.joining(" ")) + "]",
             "                                :direct-linking " + options.isDirectLinking() + "}]",
@@ -119,83 +116,26 @@ public class ClojureCompile extends AbstractCompile {
         throw new UncheckedIOException(e);
       }
 
-      LineProcessingOutputStream stdout = new LineProcessingOutputStream() {
-        @Override
-        protected void processLine(String line) {
-          System.out.print(line);
-        }
-      };
+      FileCollection clojure = ClojureRuntime.findClojure(getProject(), getClasspath())
+          .orElseThrow(() -> new GradleException("No Clojure dependency found."));
 
-      Set<String> sourceRoots = getSourceRoots();
+      FileCollection classpath = getClasspath()
+          .plus(getProject().files(getSourceRootsFiles()))
+          .plus(getProject().files(getDestinationDir()));
 
-      // this AtomInteger use is just to get around "effectively final"
-      // requirement of anonymous classes. Should find a nicer way to handle
-      // this
-      AtomicInteger reflectionWarningCount = new AtomicInteger();
-      AtomicInteger libraryReflectionWarningCount = new AtomicInteger();
-
-      LineProcessingOutputStream stderr = new LineProcessingOutputStream() {
-        @Override
-        protected void processLine(String line) {
-          if (line.startsWith(REFLECTION_WARNING_PREFIX)) {
-            if (options.getReflectionWarnings().isProjectOnly()) {
-              int colon = line.indexOf(':');
-              String file = line.substring(REFLECTION_WARNING_PREFIX.length(), colon);
-              boolean found = sourceRoots.stream().anyMatch(it -> new File(it, file).exists());
-              if (found) {
-                reflectionWarningCount.incrementAndGet();
-                System.err.print(line);
-              } else {
-                libraryReflectionWarningCount.incrementAndGet();
-              }
-            } else {
-              reflectionWarningCount.incrementAndGet();
-              System.err.print(line);
-            }
-          } else {
-            System.err.print(line);
-          }
-        }
-      };
-
-      try {
-        executeScript(script, stdout, stderr);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
-
-      if (libraryReflectionWarningCount.get() > 0) {
-        System.err.println(libraryReflectionWarningCount + " reflection warnings from dependencies");
-      }
-      if (options.getReflectionWarnings().isAsErrors() && reflectionWarningCount.get() > 0) {
-        throw new GradleException(reflectionWarningCount + " reflection warnings found");
-      }
-    }
-  }
-
-  private void executeScript(String script, OutputStream stdout, OutputStream stderr) throws IOException {
-    FileCollection clojure = ClojureRuntime.findClojure(getProject(), getClasspath())
-        .orElseThrow(() -> new GradleException("No Clojure dependency found."));
-
-    FileCollection classpath = getClasspath()
-        .plus(getProject().files(getSourceRootsFiles()))
-        .plus(getProject().files(getDestinationDir()));
-
-    workerExecutor.submit(ClojureEval.class, config -> {
-      config.setIsolationMode(IsolationMode.PROCESS);
-      config.params(script);
-      config.params(classpath.getAsPath());
-      config.forkOptions(fork -> {
-        fork.setJvmArgs(options.getForkOptions().getJvmArgs());
-        fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
-        fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
-        fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
+      workerExecutor.submit(ClojureEval.class, config -> {
+        config.setIsolationMode(IsolationMode.PROCESS);
+        config.params(script);
+        config.params(classpath.getAsPath());
+        config.forkOptions(fork -> {
+          fork.setJvmArgs(options.getForkOptions().getJvmArgs());
+          fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
+          fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+          fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
+        });
+        config.classpath(clojure);
       });
-      config.classpath(clojure);
-    });
-
-    stdout.close();
-    stderr.close();
+    }
   }
 
   public List<String> findNamespaces() {
@@ -276,8 +216,6 @@ public class ClojureCompile extends AbstractCompile {
       .sorted(Comparator.comparingInt(String::length).reversed())
       .map(it -> "\\Q" + it + "\\E")
       .collect(Collectors.joining("|")));
-
-  private static final String REFLECTION_WARNING_PREFIX = "Reflection warning, ";
 
   private static String munge(String name) {
     StringBuilder sb = new StringBuilder();

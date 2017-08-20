@@ -20,12 +20,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,7 +34,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.inject.Inject;
+
 import org.gradle.api.GradleException;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -48,16 +45,26 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.AbstractCompile;
-import org.gradle.process.ExecResult;
+import org.gradle.workers.IsolationMode;
+import org.gradle.workers.WorkerExecutor;
 
+import gradle_clojure.clojure.tasks.internal.ClojureEval;
+import gradle_clojure.clojure.tasks.internal.ClojureRuntime;
 import gradle_clojure.clojure.tasks.internal.LineProcessingOutputStream;
 
 public class ClojureCompile extends AbstractCompile {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
+  private final WorkerExecutor workerExecutor;
+
   private final ClojureCompileOptions options = new ClojureCompileOptions();
 
   private List<String> namespaces = Collections.emptyList();
+
+  @Inject
+  public ClojureCompile(WorkerExecutor workerExecutor) {
+    this.workerExecutor = workerExecutor;
+  }
 
   @Nested
   public ClojureCompileOptions getOptions() {
@@ -76,49 +83,17 @@ public class ClojureCompile extends AbstractCompile {
   @TaskAction
   @Override
   public void compile() {
-    logger.info("Starting ClojureCompiler task");
-
-    File tmpDestinationDir = new File(getTemporaryDir(), "classes");
-    removeObsoleteClassFiles(getDestinationDir().toPath(), tmpDestinationDir.toPath());
-
-    try {
-      if (Files.exists(tmpDestinationDir.toPath())) {
-        Files.walkFileTree(tmpDestinationDir.toPath(), new SimpleFileVisitor<Path>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Files.delete(file);
-            return FileVisitResult.CONTINUE;
-          }
-
-          @Override
-          public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            Files.delete(dir);
-            return FileVisitResult.CONTINUE;
-          }
-        });
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-
-    tmpDestinationDir.mkdirs();
     getDestinationDir().mkdirs();
 
     if (options.isCopySourceSetToOutput()) {
       getProject().copy(spec -> {
-        spec.from(getSource()).into(tmpDestinationDir);
-      });
-      // copy to destination
-      getProject().copy(spec -> {
-        spec.from(tmpDestinationDir);
+        spec.from(getSource());
         spec.into(getDestinationDir());
       });
       return;
     }
 
     if (options.isAotCompile()) {
-      logger.info("Destination: {}", getDestinationDir());
-
       Collection<String> namespaces = getNamespaces();
       if (namespaces.isEmpty()) {
         logger.warn("No Clojure namespaces defined, skipping {}", getName());
@@ -131,16 +106,15 @@ public class ClojureCompile extends AbstractCompile {
       try {
         script = Stream.of(
             "(try",
-            "  (binding [*compile-path* \"" + tmpDestinationDir.getCanonicalPath().replace("\\", "\\\\") + "\"",
+            "  (binding [*compile-path* \"" + getDestinationDir().getCanonicalPath().replace("\\", "\\\\") + "\"",
             "            *warn-on-reflection* " + options.getReflectionWarnings().isEnabled(),
             "            *compiler-options* {:disable-locals-clearing " + options.isDisableLocalsClearing(),
             "                                :elide-meta [" + options.getElideMeta().stream().map(it -> ":" + it).collect(Collectors.joining(" ")) + "]",
             "                                :direct-linking " + options.isDirectLinking() + "}]",
             "    " + namespaces.stream().map(it -> "(compile '" + it + ")").collect(Collectors.joining("\n    ")) + ")",
             "  (catch Throwable e",
-            "    (.printStackTrace e)",
-            "    (System/exit 1)))",
-            "(System/exit 0)").collect(Collectors.joining("\n"));
+            "    (println (.getMessage e))",
+            "    (throw e)))").collect(Collectors.joining("\n")) + "\n";
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -190,12 +164,6 @@ public class ClojureCompile extends AbstractCompile {
         throw new UncheckedIOException(e);
       }
 
-      // copy to destination
-      getProject().copy(spec -> {
-        spec.from(tmpDestinationDir);
-        spec.into(getDestinationDir());
-      });
-
       if (libraryReflectionWarningCount.get() > 0) {
         System.err.println(libraryReflectionWarningCount + " reflection warnings from dependencies");
       }
@@ -205,52 +173,29 @@ public class ClojureCompile extends AbstractCompile {
     }
   }
 
-  private void removeObsoleteClassFiles(Path destinationDir, Path tmpDestinationDir) {
-    try {
-      if (!Files.exists(tmpDestinationDir)) {
-        return;
-      }
-      Files.walkFileTree(tmpDestinationDir, new SimpleFileVisitor<Path>() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          Path destinationFile = destinationDir.resolve(tmpDestinationDir.relativize(file));
-          if (Files.exists(destinationFile)) {
-            Files.delete(destinationFile);
-          }
-          return FileVisitResult.CONTINUE;
-        }
-      });
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
   private void executeScript(String script, OutputStream stdout, OutputStream stderr) throws IOException {
-    Path file = Files.createTempFile(getTemporaryDir().toPath(), "clojure-compiler", ".clj");
-    Files.write(file, (script + "\n").getBytes(StandardCharsets.UTF_8));
+    FileCollection clojure = ClojureRuntime.findClojure(getProject(), getClasspath())
+        .orElseThrow(() -> new GradleException("No Clojure dependency found."));
 
-    ExecResult result = getProject().javaexec(exec -> {
-      exec.setJvmArgs(options.getForkOptions().getJvmArgs());
-      exec.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
-      exec.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+    FileCollection classpath = getClasspath()
+        .plus(getProject().files(getSourceRootsFiles()))
+        .plus(getProject().files(getDestinationDir()));
 
-      exec.setMain("clojure.main");
-      exec.setClasspath(getClasspath()
-          .plus(getProject().files(getSourceRootsFiles()))
-          .plus(getProject().files(getDestinationDir()))
-          // this is just a hack for now, should pass the variable around
-          .plus(getProject().files(new File(getTemporaryDir(), "classes"))));
-      exec.setArgs(Arrays.asList("-i", file.toAbsolutePath().toString()));
-      exec.setDefaultCharacterEncoding("UTF-8");
-
-      exec.setStandardOutput(stdout);
-      exec.setErrorOutput(stderr);
+    workerExecutor.submit(ClojureEval.class, config -> {
+      config.setIsolationMode(IsolationMode.PROCESS);
+      config.params(script);
+      config.params(classpath.getAsPath());
+      config.forkOptions(fork -> {
+        fork.setJvmArgs(options.getForkOptions().getJvmArgs());
+        fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
+        fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+        fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
+      });
+      config.classpath(clojure);
     });
 
     stdout.close();
     stderr.close();
-
-    result.assertNormalExitValue();
   }
 
   public List<String> findNamespaces() {

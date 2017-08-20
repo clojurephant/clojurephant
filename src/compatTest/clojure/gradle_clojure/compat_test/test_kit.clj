@@ -33,7 +33,7 @@
 (defn- runner [args]
   (-> (GradleRunner/create)
       (.withProjectDir (-> *project-dir* .toFile))
-      (.withArguments (into-array String args))
+      (.withArguments (into-array String (conj args "--stacktrace")))
       (.withPluginClasspath)
       (.forwardOutput)))
 

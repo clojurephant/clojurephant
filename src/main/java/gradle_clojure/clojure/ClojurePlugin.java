@@ -42,6 +42,7 @@ public class ClojurePlugin implements Plugin<Project> {
       ClojureCompile compile = (ClojureCompile) project.getTasks().getByName(javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME).getCompileTaskName("clojure"));
       test.getConventionMapping().map("classpath", sourceSet::getRuntimeClasspath);
       test.getConventionMapping().map("namespaces", compile::findNamespaces);
+      test.dependsOn(compile);
     });
   }
 

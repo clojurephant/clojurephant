@@ -40,5 +40,5 @@ sourceSets {
 }
 
 compileCljSSClojure {
-    aotCompile = true
+    options.aotCompile = true
 }

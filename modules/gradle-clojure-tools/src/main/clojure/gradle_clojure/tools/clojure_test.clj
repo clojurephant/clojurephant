@@ -21,12 +21,6 @@
     [clojure.test.junit])
   (:import (java.io File)))
 
-(defn- exit-code
-  [summary]
-  (if (clojure.test/successful? summary)
-    0
-    1))
-
 (let [plain-report clojure.test/report
       junit-report clojure.test.junit/junit-report]
   (defn- junit-logging-report-fn [plain-test-out]
@@ -36,9 +30,9 @@
         (plain-report m)))))
 
 (defn- run-tests-with-junit-report
-  [^String junit-report-filename & ns-syms]
+  [^File junit-report-filename & ns-syms]
 
-  (when-let [report-dir (.getParentFile (File. junit-report-filename))]
+  (when-let [report-dir (.getParentFile junit-report-filename)]
     (.mkdirs report-dir))
 
   (let [plain-test-out clojure.test/*test-out*]
@@ -51,14 +45,12 @@
 (defn run-tests*
   [ns-syms runner-fn]
   (apply require ns-syms)
-  (->> ns-syms
-       (apply runner-fn)
-       (exit-code)
-       (System/exit)))
+  (let [summary (apply runner-fn ns-syms)]
+    (if-not (clojure.test/successful? summary)
+      (throw (ex-info (str "One or more tests failed: " summary) {})))))
 
-(defn run-tests
-  ([ns-syms]
-   (run-tests* ns-syms clojure.test/run-tests))
-
-  ([ns-syms ^String junit-report-filename]
-   (run-tests* ns-syms (partial run-tests-with-junit-report junit-report-filename))))
+(defn run-tests [ns-names ^File junit-report-filename]
+  (let [ns-syms (map symbol ns-names)]
+    (if junit-report-filename
+      (run-tests* ns-syms (partial run-tests-with-junit-report junit-report-filename))
+      (run-tests* ns-syms clojure.test/run-tests))))

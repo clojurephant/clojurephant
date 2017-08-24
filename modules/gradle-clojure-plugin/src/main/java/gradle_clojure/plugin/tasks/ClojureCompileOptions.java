@@ -15,12 +15,13 @@
  */
 package gradle_clojure.plugin.tasks;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
 import org.gradle.api.Action;
 
-public final class ClojureCompileOptions {
+public final class ClojureCompileOptions implements Serializable {
   private final ClojureForkOptions forkOptions = new ClojureForkOptions();
 
   private boolean aotCompile = false;

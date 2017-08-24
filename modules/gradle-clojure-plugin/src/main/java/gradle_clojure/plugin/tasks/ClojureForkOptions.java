@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gradle_clojure.clojure.tasks;
+package gradle_clojure.plugin.tasks;
 
-import org.gradle.api.Action;
-import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.tasks.compile.BaseForkOptions;
 
-public interface ClojureSourceSet {
-  SourceDirectorySet getClojure();
-
-  ClojureSourceSet clojure(Action<? super SourceDirectorySet> configureAction);
+public class ClojureForkOptions extends BaseForkOptions {
 }

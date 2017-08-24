@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gradle_clojure.clojure;
+package gradle_clojure.plugin;
 
 import javax.inject.Inject;
 
@@ -25,9 +25,9 @@ import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.internal.SourceSetUtil;
 
-import gradle_clojure.clojure.tasks.ClojureCompile;
-import gradle_clojure.clojure.tasks.ClojureSourceSet;
-import gradle_clojure.clojure.tasks.internal.DefaultClojureSourceSet;
+import gradle_clojure.plugin.tasks.ClojureCompile;
+import gradle_clojure.plugin.tasks.ClojureSourceSet;
+import gradle_clojure.plugin.internal.DefaultClojureSourceSet;
 
 public class ClojureBasePlugin implements Plugin<Project> {
   private final SourceDirectorySetFactory sourceDirectorySetFactory;

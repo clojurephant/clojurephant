@@ -1,101 +1,38 @@
 plugins {
-  id 'java'
-  id 'gradle-clojure.clojure' version '0.1.0-rc.2'
-  id 'maven-publish'
   id 'org.ajoberstar.grgit' version '2.0.0'
   id 'org.ajoberstar.reckon' version '0.2.1'
-  id 'org.ajoberstar.stutter' version '0.2.0'
   id 'com.diffplug.gradle.spotless' version '3.4.1'
-  id 'java-gradle-plugin'
-  id 'com.gradle.plugin-publish' version '0.9.7'
 }
-
-group = 'gradle-clojure'
 
 reckon {
   normal = scopeFromProp()
   preRelease = stageFromProp('milestone', 'rc', 'final')
 }
 
-repositories {
-  jcenter()
-  maven { url = 'https://clojars.org/repo' }
-}
+allprojects {
+  apply plugin: 'com.diffplug.gradle.spotless'
 
-dependencies {
-  // gradle
-  compile gradleApi()
-  compileOnly 'org.clojure:clojure:1.8.0'
+  group = 'gradle-clojure'
 
-  // compat testing
-  compatTestCompile gradleTestKit()
-  compatTestCompile 'org.clojure:clojure:1.8.0'
-  compatTestCompile 'org.clojure:tools.namespace:0.2.11'
-  compatTestCompile 'junit:junit:4.12'
-  compatTestCompile 'org.ajoberstar:ike.cljj:0.4.0'
-}
-
-stutter {
-  supports '4.1'
-}
-
-plugins.withId('eclipse') {
-  eclipse.classpath.plusConfigurations += [configurations.compatTestCompile]
-}
-
-// BEGIN Hacky way to run clojure.test through JUnit4
-compileCompatTestClojure {
-  aotCompile = true
-}
-
-tasks.'compatTest4.1' {
-  systemProperty 'clojure.test.dirs', 'src/compatTest/clojure'
-  systemProperty 'stutter.projects', 'src/compatTest/projects'
-}
-// END Hacky way to run clojure.test through JUnit4
-
-gradlePlugin {
-  plugins {
-    clojureBasePlugin {
-      id = 'gradle-clojure.clojure-base'
-      implementationClass = 'gradle_clojure.clojure.ClojureBasePlugin'
-    }
-    clojurePlugin {
-      id = 'gradle-clojure.clojure'
-      implementationClass = 'gradle_clojure.clojure.ClojurePlugin'
-    }
+  repositories {
+    jcenter()
+    maven { url = 'https://clojars.org/repo' }
   }
-}
 
-pluginBundle {
-  website = 'https://github.com/gradle-clojure/gradle-clojure'
-  vcsUrl = 'https://github.com/gradle-clojure/gradle-clojure.git'
-  description = 'Clojure and Clojurescript language support for Gradle'
-  plugins {
-    clojureBasePlugin {
-      id = 'gradle-clojure.clojure-base'
-      displayName = 'Clojure base language plugin for Gradle'
-      tags = ['clojure', 'language']
+  plugins.withId('java') {
+    // ensure consistent formatting
+    spotless {
+      java {
+        eclipse().configFile rootProject.file('gradle/eclipse-java-google-style-nowrap.xml')
+        licenseHeaderFile file('gradle/HEADER')
+      }
+      format('gradle') {
+        target '**/*.gradle'
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+      }
     }
-    clojurePlugin {
-      id = 'gradle-clojure.clojure'
-      displayName = 'Clojure language plugin for Gradle'
-      tags = ['clojure', 'language']
-    }
-  }
-}
-
-// ensure consistent formatting
-spotless {
-  java {
-    eclipse().configFile 'gradle/eclipse-java-google-style-nowrap.xml'
-    licenseHeaderFile file('gradle/HEADER')
-  }
-  format('gradle') {
-    target '**/*.gradle'
-    trimTrailingWhitespace()
-    indentWithSpaces(2)
-    endWithNewline()
   }
 }
 

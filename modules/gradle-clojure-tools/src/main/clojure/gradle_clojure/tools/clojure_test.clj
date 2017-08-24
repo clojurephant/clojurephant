@@ -14,7 +14,7 @@
 ; limitations under the License.
 ;
 
-(ns gradle-clojure.test-runner
+(ns gradle-clojure.tools.clojure-test
   (:require
     [clojure.java.io]
     [clojure.test]

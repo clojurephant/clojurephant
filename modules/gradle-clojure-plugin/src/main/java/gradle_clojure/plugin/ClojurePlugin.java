@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gradle_clojure.clojure;
+package gradle_clojure.plugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -22,8 +22,8 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 
-import gradle_clojure.clojure.tasks.ClojureCompile;
-import gradle_clojure.clojure.tasks.ClojureTest;
+import gradle_clojure.plugin.tasks.ClojureCompile;
+import gradle_clojure.plugin.tasks.ClojureTest;
 
 public class ClojurePlugin implements Plugin<Project> {
   @Override

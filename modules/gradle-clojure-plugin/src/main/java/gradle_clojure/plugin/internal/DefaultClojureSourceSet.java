@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gradle_clojure.clojure.tasks.internal;
+package gradle_clojure.plugin.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 
-import gradle_clojure.clojure.tasks.ClojureSourceSet;
+import gradle_clojure.plugin.tasks.ClojureSourceSet;
 
 public class DefaultClojureSourceSet implements ClojureSourceSet {
   private final SourceDirectorySet clojure;

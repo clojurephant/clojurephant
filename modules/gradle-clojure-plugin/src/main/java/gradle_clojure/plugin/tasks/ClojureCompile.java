@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gradle_clojure.clojure.tasks;
+package gradle_clojure.plugin.tasks;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,9 +48,9 @@ import org.gradle.api.tasks.compile.AbstractCompile;
 import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
-import gradle_clojure.clojure.tasks.internal.ClojureEval;
-import gradle_clojure.clojure.tasks.internal.ClojureRuntime;
-import gradle_clojure.clojure.tasks.internal.LineProcessingOutputStream;
+import gradle_clojure.plugin.internal.ClojureEval;
+import gradle_clojure.plugin.internal.ClojureRuntime;
+import gradle_clojure.tools.internal.LineProcessingOutputStream;
 
 public class ClojureCompile extends AbstractCompile {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gradle_clojure.clojure.tasks;
+package gradle_clojure.plugin.tasks;
 
 public final class ReflectionWarnings {
   private boolean enabled;

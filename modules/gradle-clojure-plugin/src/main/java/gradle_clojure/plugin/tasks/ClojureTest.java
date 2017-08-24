@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gradle_clojure.clojure.tasks;
+package gradle_clojure.plugin.tasks;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,7 +98,7 @@ public class ClojureTest extends ConventionTask implements JavaForkOptions {
 
   private static String getTestRunnerScript() {
     try (
-        InputStream stream = ClojureTest.class.getResourceAsStream("/gradle_clojure/test_runner.clj");
+        InputStream stream = ClojureTest.class.getResourceAsStream("/gradle_clojure/tools/clojure_test.clj");
         Scanner scanner = new Scanner(stream)) {
       scanner.useDelimiter("\\A");
       return scanner.hasNext() ? scanner.next() : "";

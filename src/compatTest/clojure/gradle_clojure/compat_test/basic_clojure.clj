@@ -1,83 +1,105 @@
 (ns gradle-clojure.compat-test.basic-clojure
-  (:require [clojure.test :refer :all]
-            [gradle-clojure.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file]
+  (:require [clojure.set :as set]
             [clojure.string :as str]
-            [clojure.set :as set])
+            [clojure.test :refer :all]
+            [gradle-clojure.compat-test.test-kit :as gradle]
+            [ike.cljj.file :as file])
   (:import [org.gradle.testkit.runner TaskOutcome]))
 
 (deftest basic-build
-  (gradle/with-project "BasicClojureProjectTest"
-    (testing "without AOT compile, only source files are copied to the output directory"
-      (let [result (gradle/build "clean" "check")]
+  (testing "without AOT compile, only source files are copied to the output directory"
+    (gradle/with-project "BasicClojureProjectTest"
+      (let [result (gradle/build "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":testClojure") .getOutcome)))
-        (is (= (gradle/file-tree "src/main/clojure") (gradle/file-tree "build/classes/clojure/main")))))
+        (gradle/verify-compilation-without-aot "src/main/clojure" "build/classes/clojure/main"))))
 
-    (testing "with AOT compile, only class files are copied to the output directory"
-      (file/write-str (gradle/file "build.gradle") "compileClojure { options.aotCompile = true }" :append true)
-      (let [result (gradle/build "clean" "check")]
+  (testing "with AOT compile, only class files are copied to the output directory"
+    (gradle/with-project "BasicClojureProjectTest"
+      (let [result (gradle/build "-DaotCompile=true" "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":testClojure") .getOutcome)))
-        (is (empty? (set/intersection (gradle/file-tree "src/main/clojure") (gradle/file-tree "build/classes/clojure/main"))))
-        (is (every? #(-> % .getFileName str (str/ends-with? ".class")) (gradle/file-tree "build/classes/clojure/main")))))))
+        (gradle/verify-compilation-with-aot "src/main/clojure" "build/classes/clojure/main"))))
+
+  (testing "stale output files are cleaned"
+    (gradle/with-project "BasicClojureProjectTest"
+      (let [result (gradle/build "classes")]
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
+        (gradle/verify-compilation-without-aot "src/main/clojure" "build/classes/clojure/main"))
+
+      (file/delete (gradle/file "src/main/clojure/basic_project/utils.clj"))
+      (let [result (gradle/build "compileClojure")]
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
+        (gradle/verify-compilation-without-aot "src/main/clojure" "build/classes/clojure/main")))))
 
 (deftest clojure-test-fail
-  (gradle/with-project "TestFailureFailsBuildTest"
-    (testing "clojure.test failures cause the build to fail"
+  (testing "clojure.test failures cause the build to fail"
+    (gradle/with-project "TestFailureFailsBuildTest"
       (let [result (gradle/build-and-fail "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
         (is (= TaskOutcome/FAILED (some-> result (.task ":testClojure") .getOutcome)))))))
 
 (deftest incremental-build
-  (gradle/with-project "IncrementalCompilationTest"
-    (testing "without AOT compile"
+  (doseq [aot-enabled? [false]]
+    (let [aot-compile-opt (format "-DaotCompile=%b" aot-enabled?)
+          verify-compilation (if aot-enabled?
+                               gradle/verify-compilation-with-aot
+                               gradle/verify-compilation-without-aot)]
 
-      (testing "build is up-to-date when no input changes"
-        (let [result (gradle/build "clean" "classes")]
-          (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome))))
-        (let [result (gradle/build "classes")]
-          (is (= TaskOutcome/UP_TO_DATE (some-> result (.task ":compileClojure") .getOutcome)))
-          (is (= (gradle/file-tree "src/main/clojure") (gradle/file-tree "build/classes/clojure/main")))))
+      (testing (format "aotCompile = %b" aot-enabled?)
 
-      (testing "build reruns when input changes"
-        (let [result (gradle/build "clean" "classes")]
-          (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome))))
-        (file/write-str (gradle/file "src/main/clojure/basic_project/utils.clj") "(ns basic-project.utils) (defn ping [] \"pong\")" :append true)
-        (let [result (gradle/build "classes")]
-          (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
-          (is (= (gradle/file-tree "src/main/clojure") (gradle/file-tree "build/classes/clojure/main"))))))
+        (testing "build is up-to-date when no input changes"
+          (gradle/with-project "IncrementalCompilationTest"
+            (let [result (gradle/build aot-compile-opt "clean" "classes")]
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleA:compileClojure") .getOutcome)))
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleB:compileClojure") .getOutcome)))
+              (verify-compilation "moduleA/src/main/clojure" "moduleA/build/classes/clojure/main")
+              (verify-compilation "moduleB/src/main/clojure" "moduleB/build/classes/clojure/main"))
+            (let [result (gradle/build aot-compile-opt "classes")]
+              (is (= TaskOutcome/UP_TO_DATE (some-> result (.task ":moduleA:compileClojure") .getOutcome)))
+              (is (= TaskOutcome/UP_TO_DATE (some-> result (.task ":moduleB:compileClojure") .getOutcome)))
+              (verify-compilation "moduleA/src/main/clojure" "moduleA/build/classes/clojure/main")
+              (verify-compilation "moduleB/src/main/clojure" "moduleB/build/classes/clojure/main"))))
 
-    (testing "with AOT compile"
-      (file/write-str (gradle/file "build.gradle") "compileClojure { options.aotCompile = true }" :append true)
+        (testing "change in a leaf module"
+          (gradle/with-project "IncrementalCompilationTest"
+            (let [result (gradle/build aot-compile-opt "clean" "classes")]
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleA:compileClojure") .getOutcome)))
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleB:compileClojure") .getOutcome)))
+              (verify-compilation "moduleA/src/main/clojure" "moduleA/build/classes/clojure/main")
+              (verify-compilation "moduleB/src/main/clojure" "moduleB/build/classes/clojure/main"))
 
-      (testing "build is up-to-date when no input changes"
-        (let [result (gradle/build "clean" "classes")]
-          (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome))))
-        (let [result (gradle/build "classes")]
-          (is (= TaskOutcome/UP_TO_DATE (some-> result (.task ":compileClojure") .getOutcome)))
-          (is (empty? (set/intersection (gradle/file-tree "src/main/clojure") (gradle/file-tree "build/classes/clojure/main"))))
-          (is (every? #(-> % .getFileName str (str/ends-with? ".class")) (gradle/file-tree "build/classes/clojure/main")))))
+            (file/write-str (gradle/file "moduleB/src/main/clojure/module_b/utils.clj") "(ns module-b.utils) (defn ping [] \"pong\")" :append true)
+            (let [result (gradle/build aot-compile-opt "classes")]
+              (is (= TaskOutcome/UP_TO_DATE (some-> result (.task ":moduleA:compileClojure") .getOutcome)))
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleB:compileClojure") .getOutcome)))
+              (verify-compilation "moduleA/src/main/clojure" "moduleA/build/classes/clojure/main")
+              (verify-compilation "moduleB/src/main/clojure" "moduleB/build/classes/clojure/main"))))
 
-      (testing "build reruns when input changes"
-        (let [result (gradle/build "clean" "classes")]
-          (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome))))
-        (file/write-str (gradle/file "src/main/clojure/basic_project/utils.clj") "(ns basic-project.utils) (defn ping [] \"pong\")" :append true)
-        (let [result (gradle/build "classes")]
-          (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
-          (is (empty? (set/intersection (gradle/file-tree "src/main/clojure") (gradle/file-tree "build/classes/clojure/main"))))
-          (is (every? #(-> % .getFileName str (str/ends-with? ".class")) (gradle/file-tree "build/classes/clojure/main"))))))))
+        (testing "change in module used in another module"
+          (gradle/with-project "IncrementalCompilationTest"
+            (let [result (gradle/build aot-compile-opt "clean" "classes")]
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleA:compileClojure") .getOutcome)))
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleB:compileClojure") .getOutcome)))
+              (verify-compilation "moduleA/src/main/clojure" "moduleA/build/classes/clojure/main")
+              (verify-compilation "moduleB/src/main/clojure" "moduleB/build/classes/clojure/main"))
+
+            (file/write-str (gradle/file "moduleA/src/main/clojure/module_a/utils.clj") "(ns module-a.utils) (defn ping [] \"pong\")" :append true)
+            (let [result (gradle/build aot-compile-opt "classes")]
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleA:compileClojure") .getOutcome)))
+              (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleB:compileClojure") .getOutcome)))
+              (verify-compilation "moduleA/src/main/clojure" "moduleA/build/classes/clojure/main")
+              (verify-compilation "moduleB/src/main/clojure" "moduleB/build/classes/clojure/main"))))))))
 
 (deftest multiple-source-sets
-  (gradle/with-project "MultipleSourceSetsTest"
-    (testing "with multiple source sets, each gets its own set of tasks to compile the corresponding code"
+  (testing "with multiple source sets, each gets its own set of tasks to compile the corresponding code"
+    (gradle/with-project "MultipleSourceSetsTest"
       (let [result (gradle/build "clean" "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileSs1Clojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileSs2Clojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
         (is (= (gradle/file-tree "src/ss1/clojure") (gradle/file-tree "build/classes/clojure/ss1")))
-        (is (empty? (set/intersection (gradle/file-tree "src/ss2/clojure") (gradle/file-tree "build/classes/clojure/ss2"))))
-        (is (every? #(-> % .getFileName str (str/ends-with? ".class")) (gradle/file-tree "build/classes/clojure/ss2")))))))
+        (gradle/verify-compilation-with-aot "src/ss2/clojure" "build/classes/clojure/ss2")))))

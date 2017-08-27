@@ -14,9 +14,8 @@
 ; limitations under the License.
 ;
 
-(ns cljSS.core
-  (:import (javaSS Example1 Example2)))
+(ns module-b.core
+  (:require [module-a.core :as module-a]))
 
-(defn test-all []
-  (.test (Example1.))
-  (.test (Example2.)))
+(defn welcome [name]
+  (module-a/hello name))

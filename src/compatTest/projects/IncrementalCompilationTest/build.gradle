@@ -15,13 +15,17 @@
  */
 
 plugins {
-    id 'gradle-clojure.clojure'
+  id "gradle-clojure.clojure" apply false
 }
 
-repositories {
+subprojects {
+  apply plugin: 'gradle-clojure.clojure'
+
+  repositories {
     mavenCentral()
-}
+  }
 
-dependencies {
-    compile 'org.clojure:clojure:1.8.0'
+  compileClojure {
+    options.aotCompile = Boolean.getBoolean("aotCompile")
+  }
 }

@@ -1,7 +1,9 @@
 (ns gradle-clojure.compat-test.test-kit
-  (:require [ike.cljj.file :as file]
-            [clojure.test :refer :all])
-  (:import [org.gradle.testkit.runner GradleRunner BuildResult BuildTask TaskOutcome]))
+  (:require [clojure.set :as set]
+            [clojure.string :as str]
+            [clojure.test :refer :all]
+            [ike.cljj.file :as file])
+  (:import [org.gradle.testkit.runner BuildResult BuildTask GradleRunner TaskOutcome]))
 
 (defn setup-project [name]
   (println "*** " name " ***")
@@ -29,6 +31,15 @@
                  (filter file/file?)
                  (map (fn [f] (.relativize root f))))]
     (into #{} xf (file/walk root))))
+
+(defn verify-compilation-without-aot
+  [src-dir dst-dir]
+  (is (= (file-tree src-dir) (file-tree dst-dir))))
+
+(defn verify-compilation-with-aot
+  [src-dir dst-dir]
+  (is (empty? (set/intersection (file-tree src-dir) (file-tree dst-dir))))
+  (is (every? #(-> % .getFileName str (str/ends-with? ".class")) (file-tree dst-dir))))
 
 (defn- runner [args]
   (-> (GradleRunner/create)

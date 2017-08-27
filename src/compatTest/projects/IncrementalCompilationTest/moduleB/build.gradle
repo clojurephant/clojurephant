@@ -13,19 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-plugins {
-    id 'gradle-clojure.clojure'
-}
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    compile 'org.clojure:clojure:1.8.0'
-}
-
-compileClojure {
-  options.aotCompile = Boolean.getBoolean("aotCompile")
+  compile 'org.clojure:clojure:1.8.0'
+  compile project(':moduleA')
 }

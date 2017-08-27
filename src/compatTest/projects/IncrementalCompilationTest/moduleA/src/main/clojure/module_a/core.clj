@@ -14,7 +14,7 @@
 ; limitations under the License.
 ;
 
-(ns basic-project.core)
+(ns module-a.core)
 
 (defprotocol ITest)
 

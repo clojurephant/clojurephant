@@ -12,11 +12,26 @@ reckon {
 allprojects {
   apply plugin: 'com.diffplug.gradle.spotless'
 
-  group = 'gradle-clojure'
+  group = 'io.github.gradle-clojure'
 
   repositories {
     jcenter()
     maven { url = 'https://clojars.org/repo' }
+  }
+
+  plugins.withId('maven-publish') {
+    publishing {
+      repositories {
+        maven {
+          name = 'bintray'
+          url = 'https://api.bintray.com/maven/gradle-clojure/maven/gradle-clojure/;publish=1'
+          credentials {
+            username = System.env['BINTRAY_USER']
+            password = System.env['BINTRAY_KEY']
+          }
+        }
+      }
+    }
   }
 
   plugins.withId('java') {

@@ -63,7 +63,7 @@ public class ClojureWorkerExecutor {
 
   private FileCollection resolveShim() {
     Dependency shimImpl = project.getDependencies().create("org.projectodd.shimdandy:shimdandy-impl:" + SHIMDANDY_VERSION);
-    Dependency tools = project.getDependencies().create("gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
+    Dependency tools = project.getDependencies().create("io.github.gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
     return project.getConfigurations().detachedConfiguration(shimImpl, tools);
   }
 

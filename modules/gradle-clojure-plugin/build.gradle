@@ -7,13 +7,11 @@ plugins {
   id 'com.gradle.plugin-publish' version '0.9.7'
 }
 
-configurations {
-  bundle
-}
-
 dependencies {
   // gradle
   compile gradleApi()
+
+  // clojure runtime
   compileOnly 'org.clojure:clojure:1.8.0'
   compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.0'
 
@@ -56,21 +54,13 @@ tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
 }
 // END Hacky way to run clojure.test through JUnit4
 
-publishing {
-  publications {
-    main(MavenPublication) {
-      from components.java
-    }
-  }
-}
-
 gradlePlugin {
   plugins {
-    clojureBasePlugin {
+    clojureBase {
       id = 'gradle-clojure.clojure-base'
       implementationClass = 'gradle_clojure.plugin.ClojureBasePlugin'
     }
-    clojurePlugin {
+    clojure {
       id = 'gradle-clojure.clojure'
       implementationClass = 'gradle_clojure.plugin.ClojurePlugin'
     }
@@ -82,15 +72,20 @@ pluginBundle {
   vcsUrl = 'https://github.com/gradle-clojure/gradle-clojure.git'
   description = 'Clojure and Clojurescript language support for Gradle'
   plugins {
-    clojureBasePlugin {
+    clojureBase {
       id = 'gradle-clojure.clojure-base'
       displayName = 'Clojure base language plugin for Gradle'
       tags = ['clojure', 'language']
     }
-    clojurePlugin {
+    clojure {
       id = 'gradle-clojure.clojure'
       displayName = 'Clojure language plugin for Gradle'
       tags = ['clojure', 'language']
     }
+  }
+  mavenCoordinates {
+    groupId = project.group
+    artifactId = project.name
+    version = project.version
   }
 }

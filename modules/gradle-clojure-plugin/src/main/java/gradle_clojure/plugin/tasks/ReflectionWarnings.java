@@ -16,6 +16,7 @@
 package gradle_clojure.plugin.tasks;
 
 import java.io.Serializable;
+import org.gradle.api.tasks.Input;
 
 public final class ReflectionWarnings implements Serializable {
   private boolean enabled;
@@ -28,6 +29,7 @@ public final class ReflectionWarnings implements Serializable {
     this.asErrors = asErrors;
   }
 
+  @Input
   public boolean isEnabled() {
     return enabled;
   }
@@ -36,6 +38,7 @@ public final class ReflectionWarnings implements Serializable {
     this.enabled = enabled;
   }
 
+  @Input
   public boolean isProjectOnly() {
     return projectOnly;
   }
@@ -44,6 +47,7 @@ public final class ReflectionWarnings implements Serializable {
     this.projectOnly = projectOnly;
   }
 
+  @Input
   public boolean isAsErrors() {
     return asErrors;
   }

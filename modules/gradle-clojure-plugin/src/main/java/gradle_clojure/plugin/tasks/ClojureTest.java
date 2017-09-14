@@ -29,7 +29,7 @@ import org.gradle.api.internal.ConventionTask;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.process.JavaForkOptions;
 import org.gradle.process.ProcessForkOptions;
 import org.gradle.process.internal.DefaultJavaForkOptions;
@@ -76,6 +76,7 @@ public class ClojureTest extends ConventionTask implements JavaForkOptions {
     });
   }
 
+  @Classpath
   public FileCollection getClasspath() {
     return classpath;
   }
@@ -84,6 +85,7 @@ public class ClojureTest extends ConventionTask implements JavaForkOptions {
     this.classpath = classpath;
   }
 
+  @Input
   public Collection<String> getNamespaces() {
     return namespaces;
   }
@@ -92,6 +94,8 @@ public class ClojureTest extends ConventionTask implements JavaForkOptions {
     this.namespaces = namespaces;
   }
 
+  @Optional
+  @OutputFile
   public File getJunitReport() {
     return junitReport;
   }
@@ -144,10 +148,12 @@ public class ClojureTest extends ConventionTask implements JavaForkOptions {
     return forkOptions.getEnableAssertions();
   }
 
+  @Input
   public Map<String, Object> getEnvironment() {
     return forkOptions.getEnvironment();
   }
 
+  @Input
   public String getExecutable() {
     return forkOptions.getExecutable();
   }
@@ -168,6 +174,7 @@ public class ClojureTest extends ConventionTask implements JavaForkOptions {
     return forkOptions.getSystemProperties();
   }
 
+  @Internal
   public File getWorkingDir() {
     return forkOptions.getWorkingDir();
   }

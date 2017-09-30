@@ -1,0 +1,91 @@
+plugins {
+  id 'java'
+  id 'gradle-clojure.clojure' version '0.1.0'
+  id 'maven-publish'
+  id 'org.ajoberstar.stutter' version '0.2.0'
+  id 'java-gradle-plugin'
+  id 'com.gradle.plugin-publish' version '0.9.7'
+}
+
+dependencies {
+  // gradle
+  compile gradleApi()
+
+  // clojure runtime
+  compileOnly 'org.clojure:clojure:1.8.0'
+  compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.0'
+
+  // compat testing
+  compatTestCompile gradleTestKit()
+  compatTestCompile 'org.clojure:clojure:1.8.0'
+  compatTestCompile 'org.clojure:tools.namespace:0.2.11'
+  compatTestCompile 'junit:junit:4.12'
+  compatTestCompile 'org.ajoberstar:ike.cljj:0.4.0'
+}
+
+task writeProperties(type: WriteProperties) {
+  outputFile = "${buildDir}/gradle-clojure.properties"
+  property 'version', version
+}
+
+processResources {
+  from writeProperties
+}
+
+stutter {
+  supports '4.1'
+}
+
+plugins.withId('eclipse') {
+  eclipse.classpath.plusConfigurations += [configurations.compatTestCompile]
+}
+
+// BEGIN Hacky way to run clojure.test through JUnit4
+compileCompatTestClojure {
+  aotCompile = true
+}
+
+tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
+  dependsOn ':modules:gradle-clojure-tools:publishToMavenLocal'
+
+  inputs.dir 'src/compatTest/projects'
+  systemProperty 'clojure.test.dirs', 'src/compatTest/clojure'
+  systemProperty 'stutter.projects', 'src/compatTest/projects'
+}
+// END Hacky way to run clojure.test through JUnit4
+
+gradlePlugin {
+  plugins {
+    clojureBase {
+      id = 'gradle-clojure.clojure-base'
+      implementationClass = 'gradle_clojure.plugin.ClojureBasePlugin'
+    }
+    clojure {
+      id = 'gradle-clojure.clojure'
+      implementationClass = 'gradle_clojure.plugin.ClojurePlugin'
+    }
+  }
+}
+
+pluginBundle {
+  website = 'https://github.com/gradle-clojure/gradle-clojure'
+  vcsUrl = 'https://github.com/gradle-clojure/gradle-clojure.git'
+  description = 'Clojure and Clojurescript language support for Gradle'
+  plugins {
+    clojureBase {
+      id = 'gradle-clojure.clojure-base'
+      displayName = 'Clojure base language plugin for Gradle'
+      tags = ['clojure', 'language']
+    }
+    clojure {
+      id = 'gradle-clojure.clojure'
+      displayName = 'Clojure language plugin for Gradle'
+      tags = ['clojure', 'language']
+    }
+  }
+  mavenCoordinates {
+    groupId = project.group
+    artifactId = project.name
+    version = project.version
+  }
+}

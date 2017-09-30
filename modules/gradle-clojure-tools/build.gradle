@@ -1,0 +1,22 @@
+plugins {
+  id 'java'
+  id 'gradle-clojure.clojure' version '0.1.0'
+  id 'maven-publish'
+}
+
+dependencies {
+  // gradle
+  compileOnly gradleApi()
+
+  // clojure runtime
+  compileOnly 'org.clojure:clojure:1.8.0'
+  compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.0'
+}
+
+publishing {
+  publications {
+    main(MavenPublication) {
+      from components.java
+    }
+  }
+}

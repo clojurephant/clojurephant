@@ -33,7 +33,7 @@ processResources {
 }
 
 stutter {
-  supports '4.1'
+  supports '4.1', '4.2', '4.2.1', '4.3-rc-1'
 }
 
 plugins.withId('eclipse') {
@@ -53,6 +53,14 @@ tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
   systemProperty 'stutter.projects', 'src/compatTest/projects'
 }
 // END Hacky way to run clojure.test through JUnit4
+
+publishing {
+  publications {
+    pluginMaven(MavenPublication) {
+      artifact sourcesJar
+    }
+  }
+}
 
 gradlePlugin {
   plugins {

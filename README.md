@@ -45,10 +45,10 @@ plugins {
 }
 
 compileClojure {
-  aotCompile = true            // Defaults to false
-  copySourceToOutput = false   // Defaults to !aotCompile
+  options.aotCompile = true            // Defaults to false
+  options.copySourceToOutput = false   // Defaults to !aotCompile
 
-  reflectionWarnings {
+  options.reflectionWarnings {
     enabled = true             // Defaults to false
     projectOnly = true         // Only show warnings from your project, not dependencies - default false
     asErrors = true            // Treat reflection warnings as errors and fail the build
@@ -56,18 +56,15 @@ compileClojure {
   }
 
   // Compiler options for AOT
-  disableLocalsClearing = true                 // Defaults to false
-  elideMeta = ['doc', 'file', 'line', 'added'] // Defaults to []
-  directLinking = true                         // Defaults to false
+  options.disableLocalsClearing = true                 // Defaults to false
+  options.elideMeta = ['doc', 'file', 'line', 'added'] // Defaults to []
+  options.directLinking = true                         // Defaults to false
 
-  // compileClojure implements the standard JavaForkOptions interface, and thus supports the
-  // standard Gradle mechanisms for configuring a Java process:
-  // systemProperty systemProperties minHeapSize maxHeapSize
-  // jvmArgs bootstrapClasspath classpath enableAssertions debug environment
-
-  systemProperty 'java.awt.headless', true
-  maxHeapSize '2048m'
-  jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
+  // compileClojure provides fork options to customize the Java process for compilation
+  options.forkOptions {
+    memoryMaximumSize = '2048m'
+    jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
+  }
 }
 
 compileTestClojure {

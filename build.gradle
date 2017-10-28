@@ -35,6 +35,8 @@ allprojects {
   }
 
   plugins.withId('java') {
+    sourceCompatibility = '1.8'
+
     task sourcesJar(type: Jar) {
       from sourceSets.main.allSource
       classifier = 'sources'

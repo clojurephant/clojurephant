@@ -42,6 +42,10 @@ public class ClojureWorkerExecutor {
     this.workerExecutor = workerExecutor;
   }
 
+  public void await() {
+    workerExecutor.await();
+  }
+
   public void submit(Action<ClojureWorkerConfiguration> action) {
     ClojureWorkerConfiguration config = new ClojureWorkerConfiguration();
     action.execute(config);
@@ -81,7 +85,7 @@ public class ClojureWorkerExecutor {
     private FileCollection classpath;
     private String namespace;
     private String function;
-    private Object[] args;
+    private Object[] args = new Object[0];
     private List<Action<JavaForkOptions>> configureFork = new ArrayList<>();
 
     public FileCollection getClasspath() {
@@ -123,6 +127,5 @@ public class ClojureWorkerExecutor {
     public void forkOptions(Action<JavaForkOptions> configureFork) {
       this.configureFork.add(configureFork);
     }
-
   }
 }

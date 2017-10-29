@@ -40,8 +40,8 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
-public class ClojureRepl extends DefaultTask {
-  private static final Logger logger = Logging.getLogger(ClojureRepl.class);
+public class ClojureSocketRepl extends DefaultTask {
+  private static final Logger logger = Logging.getLogger(ClojureSocketRepl.class);
 
   private final ClojureWorkerExecutor workerExecutor;
 
@@ -50,7 +50,7 @@ public class ClojureRepl extends DefaultTask {
   private int port = -1;
 
   @Inject
-  public ClojureRepl(WorkerExecutor workerExecutor) {
+  public ClojureSocketRepl(WorkerExecutor workerExecutor) {
     this.workerExecutor = new ClojureWorkerExecutor(getProject(), workerExecutor);
   }
 
@@ -85,7 +85,7 @@ public class ClojureRepl extends DefaultTask {
   private void start() {
     workerExecutor.submit(config -> {
       config.setClasspath(getClasspath());
-      config.setNamespace("gradle-clojure.tools.repl");
+      config.setNamespace("gradle-clojure.tools.clojure-socket-repl");
       config.setFunction("start!");
       config.setArgs(port);
       config.forkOptions(fork -> {
@@ -97,26 +97,17 @@ public class ClojureRepl extends DefaultTask {
     });
   }
 
-  private boolean isRunning() {
-    return sendMessage("(+ 1 1)");
-  }
-
   private void stop() {
-    sendMessage("(gradle-clojure.tools.repl/stop!)");
-  }
-
-  private boolean sendMessage(String message) {
     try (
         SocketChannel socket = SocketChannel.open();
         PrintWriter writer = new PrintWriter(Channels.newWriter(socket, StandardCharsets.UTF_8.name()), true);
         BufferedReader reader = new BufferedReader(Channels.newReader(socket, StandardCharsets.UTF_8.name()))) {
       socket.connect(new InetSocketAddress("localhost", port));
 
-      writer.println(message);
+      writer.println("(gradle-clojure.tools.clojure-socket-repl/stop!)");
       reader.readLine();
-      return true;
     } catch (IOException e) {
-      return false;
+      // bury
     }
   }
 
@@ -125,7 +116,7 @@ public class ClojureRepl extends DefaultTask {
     return forkOptions;
   }
 
-  public ClojureRepl forkOptions(Action<? super ClojureForkOptions> configureAction) {
+  public ClojureSocketRepl forkOptions(Action<? super ClojureForkOptions> configureAction) {
     configureAction.execute(forkOptions);
     return this;
   }

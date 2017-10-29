@@ -32,6 +32,7 @@ import org.gradle.workers.WorkerExecutor;
 
 public class ClojureWorkerExecutor {
   private static final String SHIMDANDY_VERSION = "1.2.0";
+  private static final String NREPL_VERSION = "0.2.12";
   private static final String GRADLE_CLOJURE_VERSION = getVersion();
 
   private final Project project;
@@ -68,7 +69,8 @@ public class ClojureWorkerExecutor {
   private FileCollection resolveShim() {
     Dependency shimImpl = project.getDependencies().create("org.projectodd.shimdandy:shimdandy-impl:" + SHIMDANDY_VERSION);
     Dependency tools = project.getDependencies().create("io.github.gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
-    return project.getConfigurations().detachedConfiguration(shimImpl, tools);
+    Dependency nrepl = project.getDependencies().create("org.clojure:tools.nrepl:" + NREPL_VERSION);
+    return project.getConfigurations().detachedConfiguration(shimImpl, tools, nrepl);
   }
 
   private static String getVersion() {

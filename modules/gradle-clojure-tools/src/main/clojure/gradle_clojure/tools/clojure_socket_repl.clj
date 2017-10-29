@@ -1,4 +1,4 @@
-(ns gradle-clojure.tools.repl
+(ns gradle-clojure.tools.clojure-socket-repl
   (:require [clojure.core.server :as server]))
 
 (def stopper (atom nil))

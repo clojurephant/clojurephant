@@ -21,9 +21,12 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -32,8 +35,12 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.testing.Test;
 
 import gradle_clojure.plugin.tasks.ClojureCompile;
+import gradle_clojure.plugin.tasks.ClojureSocketRepl;
+import gradle_clojure.plugin.tasks.ClojureNRepl;
 
 public class ClojurePlugin implements Plugin<Project> {
+  private static final String DEV_SOURCE_SET_NAME = "dev";
+
   @Override
   public void apply(Project project) {
     project.getPlugins().apply(ClojureBasePlugin.class);
@@ -41,6 +48,7 @@ public class ClojurePlugin implements Plugin<Project> {
 
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
     configureTestDefaults(project, javaConvention);
+    configureDev(project, javaConvention);
   }
 
   private void configureTestDefaults(Project project, JavaPluginConvention javaConvention) {
@@ -62,6 +70,26 @@ public class ClojurePlugin implements Plugin<Project> {
       };
 
       compile.getConventionMapping().map("namespaces", namespaces);
+    });
+  }
+
+  private void configureDev(Project project, JavaPluginConvention javaConvention) {
+    SourceSet test = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
+    SourceSet dev = javaConvention.getSourceSets().create(DEV_SOURCE_SET_NAME);
+    dev.setCompileClasspath(project.files(test.getOutput(), project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName())));
+    dev.setRuntimeClasspath(project.files(dev.getOutput(), test.getOutput(), project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
+
+    Stream.<Function<SourceSet, String>>of(SourceSet::getCompileConfigurationName, SourceSet::getImplementationConfigurationName, SourceSet::getRuntimeConfigurationName, SourceSet::getRuntimeOnlyConfigurationName).forEach(getter -> {
+      Configuration devConf = project.getConfigurations().getByName(getter.apply(dev));
+      Configuration testConf = project.getConfigurations().getByName(getter.apply(test));
+      devConf.extendsFrom(testConf);
+    });
+
+    project.getTasks().create("repl", ClojureSocketRepl.class, task -> {
+      task.setClasspath(dev.getRuntimeClasspath());
+    });
+    project.getTasks().create("nrepl", ClojureNRepl.class, task -> {
+      task.setClasspath(dev.getRuntimeClasspath());
     });
   }
 }

@@ -33,7 +33,7 @@ processResources {
 }
 
 stutter {
-  supports '4.1', '4.2', '4.2.1', '4.3-rc-1'
+  supports '4.1', '4.2', '4.2.1', '4.3'
 }
 
 plugins.withId('eclipse') {

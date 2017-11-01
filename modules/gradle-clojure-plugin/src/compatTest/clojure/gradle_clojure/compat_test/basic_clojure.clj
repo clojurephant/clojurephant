@@ -12,7 +12,7 @@
       (let [result (gradle/build "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":testClojure") .getOutcome)))
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":test") .getOutcome)))
         (gradle/verify-compilation-without-aot "src/main/clojure" "build/classes/clojure/main"))))
 
   (testing "with AOT compile, only class files are copied to the output directory"
@@ -20,7 +20,7 @@
       (let [result (gradle/build "-DaotCompile=true" "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":testClojure") .getOutcome)))
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":test") .getOutcome)))
         (gradle/verify-compilation-with-aot "src/main/clojure" "build/classes/clojure/main"))))
 
   (testing "stale output files are cleaned"
@@ -53,13 +53,27 @@
           (is (= TaskOutcome/FAILED (some-> result (.task ":compileClojure") .getOutcome)))
           (is (str/includes? (.getOutput result) "Reflection warning, basic_project/core.clj:26")))))))
 
-(deftest clojure-test-fail
+(deftest clojure-test
   (testing "clojure.test failures cause the build to fail"
     (gradle/with-project "TestFailureFailsBuildTest"
       (let [result (gradle/build-and-fail "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
-        (is (= TaskOutcome/FAILED (some-> result (.task ":testClojure") .getOutcome)))))))
+        (is (= TaskOutcome/FAILED (some-> result (.task ":test") .getOutcome)))
+        (is (str/includes? (.getOutput result) "3 tests completed, 2 failed")))))
+  (testing "tests can be filtered by namespace via command line"
+    (gradle/with-project "TestFailureFailsBuildTest"
+      (let [result (gradle/build-and-fail "test" "--tests=basic-project.core-test2")]
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
+        (is (= TaskOutcome/FAILED (some-> result (.task ":test") .getOutcome)))
+        (is (str/includes? (.getOutput result) "2 tests completed, 1 failed")))))
+  (testing "tests can be filtered by test name via command line"
+    (gradle/with-project "TestFailureFailsBuildTest"
+      (let [result (gradle/build "test" "--tests=basic-project.core-test2.test-hello")]
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":test") .getOutcome)))))))
 
 (deftest incremental-build
   (doseq [aot-enabled? [false]]

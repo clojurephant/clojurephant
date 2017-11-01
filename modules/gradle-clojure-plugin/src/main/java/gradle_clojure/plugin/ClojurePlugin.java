@@ -15,15 +15,23 @@
  */
 package gradle_clojure.plugin;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.internal.SourceSetUtil;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.testing.Test;
 
 import gradle_clojure.plugin.tasks.ClojureCompile;
-import gradle_clojure.plugin.tasks.ClojureTest;
 
 public class ClojurePlugin implements Plugin<Project> {
   @Override
@@ -33,23 +41,27 @@ public class ClojurePlugin implements Plugin<Project> {
 
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
     configureTestDefaults(project, javaConvention);
-    configureTest(project);
   }
 
   private void configureTestDefaults(Project project, JavaPluginConvention javaConvention) {
-    project.getTasks().withType(ClojureTest.class, test -> {
+    project.getTasks().withType(Test.class, test -> {
       SourceSet sourceSet = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
-      ClojureCompile compile = (ClojureCompile) project.getTasks().getByName(javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME).getCompileTaskName("clojure"));
-      test.getConventionMapping().map("classpath", sourceSet::getRuntimeClasspath);
-      test.getConventionMapping().map("namespaces", compile::findNamespaces);
-      test.dependsOn(compile);
-    });
-  }
+      ClojureCompile compile = (ClojureCompile) project.getTasks().getByName(sourceSet.getCompileTaskName("clojure"));
 
-  private void configureTest(Project project) {
-    ClojureTest test = project.getTasks().create("testClojure", ClojureTest.class);
-    test.setDescription("Runs the clojure.test tests");
-    test.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
-    project.getTasks().getByName(JavaBasePlugin.CHECK_TASK_NAME).dependsOn(test);
+      compile.getOptions().setAotCompile(true);
+      compile.getOptions().forkOptions(fork -> {
+        String namespaces = String.join(File.pathSeparator, compile.findNamespaces());
+        fork.setJvmArgs(Arrays.asList("-Dgradle-clojure.test-namespaces=" + namespaces));
+      });
+
+      Callable<?> namespaces = () -> {
+        List<String> nses = new ArrayList<>();
+        nses.add("gradle-clojure.tools.clojure-test-junit4");
+        nses.addAll(compile.findNamespaces());
+        return nses;
+      };
+
+      compile.getConventionMapping().map("namespaces", namespaces);
+    });
   }
 }

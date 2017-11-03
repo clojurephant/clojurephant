@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.gradle.api.Action;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 
 public final class ClojureCompileOptions implements Serializable {

@@ -15,12 +15,8 @@
  */
 package gradle_clojure.plugin.internal;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -30,10 +26,11 @@ import org.gradle.process.JavaForkOptions;
 import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
+import static gradle_clojure.plugin.internal.PluginMetadata.GRADLE_CLOJURE_VERSION;
+
 public class ClojureWorkerExecutor {
   private static final String SHIMDANDY_VERSION = "1.2.0";
   private static final String NREPL_VERSION = "0.2.12";
-  private static final String GRADLE_CLOJURE_VERSION = getVersion();
 
   private final Project project;
   private final WorkerExecutor workerExecutor;
@@ -71,16 +68,6 @@ public class ClojureWorkerExecutor {
     Dependency tools = project.getDependencies().create("io.github.gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
     Dependency nrepl = project.getDependencies().create("org.clojure:tools.nrepl:" + NREPL_VERSION);
     return project.getConfigurations().detachedConfiguration(shimImpl, tools, nrepl);
-  }
-
-  private static String getVersion() {
-    try (InputStream stream = ClojureWorkerExecutor.class.getResourceAsStream("/gradle-clojure.properties")) {
-      Properties props = new Properties();
-      props.load(stream);
-      return props.getProperty("version");
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
   }
 
   public static class ClojureWorkerConfiguration {

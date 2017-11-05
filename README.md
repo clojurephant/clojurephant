@@ -7,11 +7,18 @@
 
 A Gradle plugin providing support for the Clojure and Clojurescript languages.
 
-### Current Features
+**NOTE:** gradle-clojure should not be considered stable until 1.0.0. Until then, minor versions (e.g. 0.1.0 to 0.2.0) will likely contain breaking changes.
 
-- Clojure compilation
-- Packaging Clojure code (or AOT compiled classes) into a JAR
-- Running clojure.test tests
+### Clojure Features
+
+- Packaging Clojure code (and/or AOT compiled classes) into a JAR
+- AOT compilation
+- Running clojure.test tests (integrated into Gradle's [Test task](https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html))
+- Running an nREPL server
+
+### ClojureScript Features
+
+_Coming soon_
 
 ## Why should do you care?
 
@@ -29,61 +36,39 @@ This plugin assumes you're using a sane layout for your Clojure code - namespace
 to your source code layout, and one namespace per file. The plugin uses the filenames to
 calculate the namespaces involved, it does not parse the files looking for `ns` forms.
 
-This plugin currently only implements compilation and test running. More features may be added,
-but features provided by Gradle itself will not be (uberjarring, project publishing). I don't
-use those features myself, examples of build script snippets to perform them for the doc would
-be very welcome.
-
-There is currently no functionality for running a REPL - you'll need to run an application which
-starts an nREPL server, or something similar.
-
 ### Quick Start
+
+Download [the sample project](https://github.com/gradle-clojure/gradle-clojure-samples) for the basic structure.
+
+#### Common Commands
+
+- `./gradlew test` Executes your clojure.test tests (and any other JUnit tests in your build).
+- `./gradlew clojureRepl` Starts an nREPL server (on a random port by default).
+
+**build.gradle**
 
 ```groovy
 plugins {
   id "gradle-clojure.clojure" version "<version>"
 }
 
-compileClojure {
-  options.aotCompile = true            // Defaults to false
-  options.copySourceToOutput = false   // Defaults to !aotCompile
+dependencies {
+  // whatever version of clojure you prefer (older versions may not be compatible)
+  compile 'org.clojure:clojure:1.8.0'
+  // and any other dependencies you want on the compile classpath
+  // compile 'group:artifact:version'
 
-  options.reflectionWarnings {
-    enabled = true             // Defaults to false
-    projectOnly = true         // Only show warnings from your project, not dependencies - default false
-    asErrors = true            // Treat reflection warnings as errors and fail the build
-                               // If projectOnly is true, only warnings from your project are errors.
-  }
+  // needed for test integration
+  testCompile 'junit:junit:4.12'
+  // and any other test-specific dependencies
+  // testCompile 'group:artifact:version'
 
-  // Compiler options for AOT
-  options.disableLocalsClearing = true                 // Defaults to false
-  options.elideMeta = ['doc', 'file', 'line', 'added'] // Defaults to []
-  options.directLinking = true                         // Defaults to false
-
-  // compileClojure provides fork options to customize the Java process for compilation
-  options.forkOptions {
-    memoryMaximumSize = '2048m'
-    jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
-  }
-}
-
-compileTestClojure {
-  // compileTestClojure accepts the same options as compileClojure, but you're unlikely to AOT
-  // compile your tests
-
-  // Select the files for testing using the standard Gradle include/exclude mechanisms
-  exclude 'cursive/**/*generative*'
-}
-
-testClojure {
-  // Standard JVM execution options here for test process
-  systemProperty 'java.awt.headless', true
-
-  // Specifying junitReport will trigger JUnit XML report generation
-  // in addition to standard console output (turned off by default)
-  junitReport = file("$buildDir/reports/junit-report.xml")
+  // dependencies for REPL use only
+  dev 'org.clojure:tools.namespace:0.3.0-alpha4'
 }
 ```
+
+See all available options in the [docs](docs/README.md).
 
 ## Getting help
 

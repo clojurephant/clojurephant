@@ -84,6 +84,8 @@ public class ClojurePlugin implements Plugin<Project> {
     });
 
     project.getTasks().create("clojureRepl", ClojureNRepl.class, task -> {
+      task.setGroup("run");
+      task.setDescription("Starts an nREPL server.");
       task.setClasspath(dev.getRuntimeClasspath());
     });
   }

@@ -2,11 +2,12 @@
 
 ## Submitting a bug report
 
-_Coming soon_
+Create a new issue and fill out the template.
 
 ## Submitting a feature request
 
-_Coming soon_
+Create a new issue and delete the template, filling in the details of the feature
+you'd like added.
 
 ## Development setup
 
@@ -14,10 +15,6 @@ _Coming soon_
 - Have a Java 8 or higher JDK installed.
 - If using, Intellij or Eclipse, see the [google-java-format](https://github.com/google/google-java-format) README for instructions for installing a plugin to format your code consistently.
 - Run `./gradlew check` to validate the current tests.
-
-## Making changes
-
-_Coming soon_
 
 ## Code Style
 

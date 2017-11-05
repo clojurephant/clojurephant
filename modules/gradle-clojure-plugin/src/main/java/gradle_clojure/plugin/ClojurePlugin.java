@@ -46,30 +46,28 @@ public class ClojurePlugin implements Plugin<Project> {
     project.getPlugins().apply(JavaPlugin.class);
 
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-    configureTestDefaults(project, javaConvention);
+    configureTest(project, javaConvention);
     configureDev(project, javaConvention);
   }
 
-  private void configureTestDefaults(Project project, JavaPluginConvention javaConvention) {
-    project.getTasks().withType(Test.class, test -> {
-      SourceSet sourceSet = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
-      ClojureCompile compile = (ClojureCompile) project.getTasks().getByName(sourceSet.getCompileTaskName("clojure"));
+  private void configureTest(Project project, JavaPluginConvention javaConvention) {
+    SourceSet sourceSet = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
+    ClojureCompile compile = (ClojureCompile) project.getTasks().getByName(sourceSet.getCompileTaskName("clojure"));
 
-      compile.getOptions().setAotCompile(true);
-      compile.getOptions().forkOptions(fork -> {
-        String namespaces = String.join(File.pathSeparator, compile.findNamespaces());
-        fork.setJvmArgs(Arrays.asList("-Dgradle-clojure.test-namespaces=" + namespaces));
-      });
-
-      Callable<?> namespaces = () -> {
-        List<String> nses = new ArrayList<>();
-        nses.add("gradle-clojure.tools.clojure-test-junit4");
-        nses.addAll(compile.findNamespaces());
-        return nses;
-      };
-
-      compile.getConventionMapping().map("namespaces", namespaces);
+    compile.getOptions().setAotCompile(true);
+    compile.getOptions().forkOptions(fork -> {
+      String namespaces = String.join(File.pathSeparator, compile.findNamespaces());
+      fork.setJvmArgs(Arrays.asList("-Dgradle-clojure.test-namespaces=" + namespaces));
     });
+
+    Callable<?> namespaces = () -> {
+      List<String> nses = new ArrayList<>();
+      nses.add("gradle-clojure.tools.clojure-test-junit4");
+      nses.addAll(compile.findNamespaces());
+      return nses;
+    };
+
+    compile.getConventionMapping().map("namespaces", namespaces);
   }
 
   private void configureDev(Project project, JavaPluginConvention javaConvention) {

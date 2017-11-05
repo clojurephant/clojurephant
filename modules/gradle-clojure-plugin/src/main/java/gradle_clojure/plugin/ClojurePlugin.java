@@ -35,7 +35,6 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.testing.Test;
 
 import gradle_clojure.plugin.tasks.ClojureCompile;
-import gradle_clojure.plugin.tasks.ClojureSocketRepl;
 import gradle_clojure.plugin.tasks.ClojureNRepl;
 
 public class ClojurePlugin implements Plugin<Project> {
@@ -86,10 +85,7 @@ public class ClojurePlugin implements Plugin<Project> {
       devConf.extendsFrom(testConf);
     });
 
-    project.getTasks().create("repl", ClojureSocketRepl.class, task -> {
-      task.setClasspath(dev.getRuntimeClasspath());
-    });
-    project.getTasks().create("nrepl", ClojureNRepl.class, task -> {
+    project.getTasks().create("clojureRepl", ClojureNRepl.class, task -> {
       task.setClasspath(dev.getRuntimeClasspath());
     });
   }

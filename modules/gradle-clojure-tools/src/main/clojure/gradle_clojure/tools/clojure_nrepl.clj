@@ -10,6 +10,8 @@
                         :port control-port
                         :accept 'gradle-clojure.tools.clojure-nrepl/stop!})
   (let [server (nrepl/start-server :port repl-port)]
+    (println "nREPL server started on port " repl-port)
+    (println "Enter Ctrl-D to stop the REPL.")
     (deref (deref stopper))
     (server/stop-server "control")
     (nrepl/stop-server server)))

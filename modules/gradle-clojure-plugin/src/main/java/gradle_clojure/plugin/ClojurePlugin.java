@@ -75,7 +75,7 @@ public class ClojurePlugin implements Plugin<Project> {
     SourceSet test = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
     SourceSet dev = javaConvention.getSourceSets().create(DEV_SOURCE_SET_NAME);
     dev.setCompileClasspath(project.files(test.getOutput(), main.getOutput(), project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName())));
-    dev.setRuntimeClasspath(project.files(dev.getAllSource().getSourceDirectories(), dev.getOutput(), test.getAllSource().getSourceDirectories(), test.getOutput(), main.getAllSource().getSourceDirectories(), main.getOutput(), project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
+    dev.setRuntimeClasspath(project.files(dev.getAllSource().getSourceDirectories(), test.getAllSource().getSourceDirectories(), main.getAllSource().getSourceDirectories(), project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
 
     Stream.<Function<SourceSet, String>>of(SourceSet::getCompileConfigurationName, SourceSet::getImplementationConfigurationName, SourceSet::getRuntimeConfigurationName, SourceSet::getRuntimeOnlyConfigurationName).forEach(getter -> {
       Configuration devConf = project.getConfigurations().getByName(getter.apply(dev));

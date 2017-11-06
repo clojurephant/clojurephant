@@ -72,8 +72,6 @@ public class ClojureNRepl extends DefaultTask {
     }
 
     start();
-    logger.lifecycle("nREPL server started on port " + port);
-    logger.lifecycle("Enter Ctrl-D to stop the REPL.");
     while (true) {
       try {
         int c = System.in.read();

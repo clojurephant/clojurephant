@@ -46,7 +46,7 @@ plugins {
 
 compileClojure {
   options.aotCompile = true            // Defaults to false
-  options.copySourceToOutput = false   // Defaults to !aotCompile
+  options.copySourceSetToOutput = false   // Defaults to !aotCompile
 
   options.reflectionWarnings {
     enabled = true             // Defaults to false

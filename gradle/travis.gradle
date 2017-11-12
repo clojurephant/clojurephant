@@ -1,0 +1,11 @@
+allprojects {
+  tasks.withType(Test) {
+    testLogging {
+      events 'failed'
+      showExceptions = true
+      showCauses = true
+      showStackTraces = true
+      exceptionFormat 'full'
+    }
+  }
+}

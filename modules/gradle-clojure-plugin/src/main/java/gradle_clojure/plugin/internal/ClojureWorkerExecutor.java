@@ -32,6 +32,7 @@ import org.gradle.workers.WorkerExecutor;
 
 public class ClojureWorkerExecutor {
   private static final String SHIMDANDY_VERSION = "1.2.0";
+  private static final String NREPL_VERSION = "0.2.12";
   private static final String GRADLE_CLOJURE_VERSION = getVersion();
 
   private final Project project;
@@ -40,6 +41,10 @@ public class ClojureWorkerExecutor {
   public ClojureWorkerExecutor(Project project, WorkerExecutor workerExecutor) {
     this.project = project;
     this.workerExecutor = workerExecutor;
+  }
+
+  public void await() {
+    workerExecutor.await();
   }
 
   public void submit(Action<ClojureWorkerConfiguration> action) {
@@ -64,7 +69,8 @@ public class ClojureWorkerExecutor {
   private FileCollection resolveShim() {
     Dependency shimImpl = project.getDependencies().create("org.projectodd.shimdandy:shimdandy-impl:" + SHIMDANDY_VERSION);
     Dependency tools = project.getDependencies().create("io.github.gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
-    return project.getConfigurations().detachedConfiguration(shimImpl, tools);
+    Dependency nrepl = project.getDependencies().create("org.clojure:tools.nrepl:" + NREPL_VERSION);
+    return project.getConfigurations().detachedConfiguration(shimImpl, tools, nrepl);
   }
 
   private static String getVersion() {
@@ -81,7 +87,7 @@ public class ClojureWorkerExecutor {
     private FileCollection classpath;
     private String namespace;
     private String function;
-    private Object[] args;
+    private Object[] args = new Object[0];
     private List<Action<JavaForkOptions>> configureFork = new ArrayList<>();
 
     public FileCollection getClasspath() {
@@ -123,6 +129,5 @@ public class ClojureWorkerExecutor {
     public void forkOptions(Action<JavaForkOptions> configureFork) {
       this.configureFork.add(configureFork);
     }
-
   }
 }

@@ -27,19 +27,6 @@ dependencies {
     compile 'org.clojure:clojure:1.8.0'
 }
 
-sourceSets {
-    javaSS {
-        compileClasspath += configurations.compile
-        runtimeClasspath += configurations.compile
-    }
-    cljSS {
-        compileClasspath += configurations.compile
-        runtimeClasspath += configurations.compile
-        compileClasspath += javaSS.output
-        runtimeClasspath += javaSS.output
-    }
-}
-
-compileCljSSClojure {
+compileClojure {
     options.aotCompile = true
 }

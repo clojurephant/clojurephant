@@ -64,6 +64,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
       // instead of convention mapping
       compile.getConventionMapping().map("classpath", () -> {
         return sourceSet.getCompileClasspath()
+          .plus(project.files(sourceSet.getJava().getOutputDir()))
           .plus(project.files(sourceSet.getOutput().getResourcesDir()));
       });
       // TODO switch to provider
@@ -71,6 +72,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
 
       SourceSetUtil.configureOutputDirectoryForSourceSet(sourceSet, clojureSourceSet.getClojure(), compile, project);
 
+      compile.dependsOn(project.getTasks().getByName(sourceSet.getCompileJavaTaskName()));
       compile.dependsOn(project.getTasks().getByName(sourceSet.getProcessResourcesTaskName()));
       project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compile);
     });

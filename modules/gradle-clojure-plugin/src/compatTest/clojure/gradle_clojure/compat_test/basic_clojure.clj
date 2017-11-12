@@ -136,3 +136,12 @@
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
         (is (= (gradle/file-tree "src/ss1/clojure") (gradle/file-tree "build/classes/clojure/ss1")))
         (gradle/verify-compilation-with-aot "src/ss2/clojure" "build/classes/clojure/ss2")))))
+
+(deftest lein-build
+  (testing "with Lein dir structure, tasks function as normal"
+    (gradle/with-project "LeinClojureProjectTest"
+      (let [result (gradle/build "check")]
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
+        (is (= TaskOutcome/SUCCESS (some-> result (.task ":test") .getOutcome)))
+        (gradle/verify-compilation-without-aot "src" "build/classes/clojure/main")))))

@@ -147,4 +147,6 @@
                 `(gen-class :name ~(with-meta (symbol ns#) {'org.junit.runner.RunWith 'gradle_clojure.tools.ClojureTestRunner})))
               nses))))
 
-(gen-runners (string/split (System/getProperty "gradle-clojure.test-namespaces") (re-pattern (File/pathSeparator))))
+(gen-runners (some-> (System/getProperty "gradle-clojure.test-namespaces")
+                     (not-empty)
+                     (string/split (re-pattern (File/pathSeparator)))))

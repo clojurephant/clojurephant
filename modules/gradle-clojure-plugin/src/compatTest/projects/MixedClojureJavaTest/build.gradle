@@ -28,8 +28,12 @@ sourceSets {
   main.compileClasspath += pre.output
 }
 
+configurations {
+  preCompile.extendsFrom compile
+}
+
 dependencies {
-  preCompile 'org.clojure:clojure:1.8.0'
+  compile 'org.clojure:clojure:1.8.0'
 }
 
 compilePreClojure {

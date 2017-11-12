@@ -14,7 +14,7 @@ When applied this plugin:
 - Applies `gradle-clojure.clojure-base`
 - Applies `java` (i.e. you'll get Java compilation support and `main` and `test` source sets).
 - Configures the `compileTestClojure` task to AOT compile in order to generate stub classes with JUnit runners.
-- Adds a `dev` source set for use by the REPL. It's classpath includes the `main` and `test` classpaths.
+- Adds a `dev` source set for use by the REPL. Its classpath includes the `main` and `test` classpaths.
 - Adds a `clojureRepl` to start an nREPL server using the `dev` classpath.
 
 ## Project Layout
@@ -93,3 +93,59 @@ clojureRepl {
   }
 }
 ```
+
+## Polyglot Projects
+
+### Clojure that depends on Java
+
+You can compile Clojure code that depends on Java out of the box. Just put your
+Java code in the same source set as the Clojure code:
+
+```
+<project>/
+  src/
+    main/
+      java/
+        sample_java/
+          Sample.java
+      clojure/
+        sample_clojure/
+          core.clj
+```
+
+### Java that depends on Clojure
+
+This requires introducing another source set for the Clojure code.
+
+```
+<project>/
+  src/
+    main/
+      java/
+        sample_java/
+          Sample.java
+    pre/
+      clojure/
+        sample_clojure/
+          core.clj
+```
+
+**build.gradle**
+
+```groovy
+// plugins, etc...
+
+sourceSets {
+  pre
+  main.compileClasspath += pre.output
+}
+
+configurations {
+  preCompile.extendsFrom compile
+}
+
+// dependencies, etc...
+```
+
+**NOTE:** you could be more thorough in your configuration to get all of the
+configurations to line up as you expect, but this covers the main use case.

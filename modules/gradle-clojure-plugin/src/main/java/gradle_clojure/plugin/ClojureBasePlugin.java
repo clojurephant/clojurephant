@@ -64,8 +64,8 @@ public class ClojureBasePlugin implements Plugin<Project> {
       // instead of convention mapping
       compile.getConventionMapping().map("classpath", () -> {
         return sourceSet.getCompileClasspath()
-          .plus(project.files(sourceSet.getJava().getOutputDir()))
-          .plus(project.files(sourceSet.getOutput().getResourcesDir()));
+            .plus(project.files(sourceSet.getJava().getOutputDir()))
+            .plus(project.files(sourceSet.getOutput().getResourcesDir()));
       });
       // TODO switch to provider
       compile.getConventionMapping().map("namespaces", compile::findNamespaces);

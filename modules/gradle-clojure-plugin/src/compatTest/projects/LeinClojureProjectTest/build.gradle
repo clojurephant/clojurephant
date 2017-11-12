@@ -23,10 +23,16 @@ repositories {
   mavenLocal()
 }
 
+sourceSets {
+  main.clojure.srcDirs = ['src']
+  test.clojure.srcDirs = ['test']
+}
+
 dependencies {
     compile 'org.clojure:clojure:1.8.0'
+    testCompile 'junit:junit:4.12'
 }
 
 compileClojure {
-    options.aotCompile = true
+  options.aotCompile = Boolean.getBoolean("aotCompile")
 }

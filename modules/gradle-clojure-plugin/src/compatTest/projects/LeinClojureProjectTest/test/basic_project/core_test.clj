@@ -14,6 +14,12 @@
 ; limitations under the License.
 ;
 
-(ns clj-example.core)
+(ns basic-project.core-test
+  (:require [basic-project.core :refer [hello]]
+            [clojure.test :refer :all]))
 
-(defn test [])
+(deftest test-hello
+  (is (= "Hello World" (hello "World"))))
+
+(deftest test-hello2
+  (is (= "Hello World!" (hello "World"))))

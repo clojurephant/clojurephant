@@ -23,23 +23,23 @@ repositories {
   mavenLocal()
 }
 
-dependencies {
-    compile 'org.clojure:clojure:1.8.0'
-}
-
 sourceSets {
-    cljSS {
-        compileClasspath += configurations.compile
-        runtimeClasspath += configurations.compile
-    }
-    javaSS {
-        compileClasspath += configurations.compile
-        runtimeClasspath += configurations.compile
-        compileClasspath += cljSS.output
-        runtimeClasspath += cljSS.output
-    }
+  pre
+  main.compileClasspath += pre.output
 }
 
-compileCljSSClojure {
+configurations {
+  preCompile.extendsFrom compile
+}
+
+dependencies {
+  compile 'org.clojure:clojure:1.8.0'
+}
+
+compilePreClojure {
     options.aotCompile = true
+}
+
+jar {
+  from sourceSets.pre.output
 }

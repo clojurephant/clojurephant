@@ -55,10 +55,6 @@ public class ClojurePlugin implements Plugin<Project> {
     ClojureCompile compile = (ClojureCompile) project.getTasks().getByName(sourceSet.getCompileTaskName("clojure"));
 
     compile.getOptions().setAotCompile(true);
-    compile.getOptions().forkOptions(fork -> {
-      String namespaces = String.join(File.pathSeparator, compile.findNamespaces());
-      fork.setJvmArgs(Arrays.asList("-Dgradle-clojure.test-namespaces=" + namespaces));
-    });
 
     Callable<?> namespaces = () -> {
       List<String> nses = new ArrayList<>();

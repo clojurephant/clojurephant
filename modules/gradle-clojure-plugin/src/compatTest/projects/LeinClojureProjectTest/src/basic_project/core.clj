@@ -14,8 +14,7 @@
 ; limitations under the License.
 ;
 
-(ns basic-project.core
-  (:require [clojure.java.io :as io]))
+(ns basic-project.core)
 
 (defprotocol ITest)
 
@@ -25,5 +24,3 @@
 
 (defn bad [name]
   (.endsWith name " Smith"))
-
-(println (slurp (io/resource "file.txt")))

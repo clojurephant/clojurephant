@@ -2,6 +2,8 @@
   (:import [gradle_clojure.tools.internal LineProcessingWriter]
            [java.io File]))
 
+(def ^:dynamic *namespaces*)
+
 (def reflection (atom {:total 0 :project 0 :library 0}))
 
 (defn processor [source-dirs]
@@ -22,7 +24,8 @@
 
 (defn compiler [source-dirs destination-dir compile-options namespaces]
   (try
-    (binding [*err* (LineProcessingWriter. *err* (processor source-dirs))
+    (binding [*namespaces* (seq namespaces)
+              *err* (LineProcessingWriter. *err* (processor source-dirs))
               *compile-path* (.getAbsolutePath destination-dir)
               *warn-on-reflection* (-> compile-options .getReflectionWarnings .isEnabled)
               *compiler-options* {:disable-locals-clearing (.isDisableLocalsClearing compile-options)

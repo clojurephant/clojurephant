@@ -140,8 +140,9 @@
 (deftest lein-build
   (testing "with Lein dir structure, tasks function as normal"
     (gradle/with-project "LeinClojureProjectTest"
-      (let [result (gradle/build "check")]
+      (let [result (gradle/build-and-fail "check")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileTestClojure") .getOutcome)))
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":test") .getOutcome)))
+        (is (= TaskOutcome/FAILED (some-> result (.task ":test") .getOutcome)))
+        (is (str/includes? (.getOutput result) "2 tests completed, 1 failed"))
         (gradle/verify-compilation-without-aot "src" "build/classes/clojure/main")))))

@@ -20,3 +20,6 @@
 
 (deftest test-hello
   (is (= "Hello World" (hello "World"))))
+
+(deftest test-hello2
+  (is (= "Hello World!" (hello "World"))))

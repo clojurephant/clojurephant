@@ -1,10 +1,10 @@
 plugins {
   id 'java'
-  id 'gradle-clojure.clojure' version '0.1.0'
+  id 'gradle-clojure.clojure'
   id 'maven-publish'
-  id 'org.ajoberstar.stutter' version '0.2.0'
+  id 'org.ajoberstar.stutter'
   id 'java-gradle-plugin'
-  id 'com.gradle.plugin-publish' version '0.9.7'
+  id 'com.gradle.plugin-publish'
 }
 
 dependencies {
@@ -40,9 +40,9 @@ plugins.withId('eclipse') {
   eclipse.classpath.plusConfigurations += [configurations.compatTestCompile]
 }
 
-// BEGIN Hacky way to run clojure.test through JUnit4
 compileCompatTestClojure {
-  aotCompile = true
+  options.aotCompile = true
+  namespaces = ['gradle-clojure.tools.clojure-test-junit4'] + findNamespaces()
 }
 
 tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
@@ -52,7 +52,6 @@ tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
   systemProperty 'clojure.test.dirs', 'src/compatTest/clojure'
   systemProperty 'stutter.projects', 'src/compatTest/projects'
 }
-// END Hacky way to run clojure.test through JUnit4
 
 publishing {
   publications {

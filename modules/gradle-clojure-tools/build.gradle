@@ -1,6 +1,6 @@
 plugins {
   id 'java'
-  id 'gradle-clojure.clojure' version '0.1.0'
+  id 'gradle-clojure.clojure'
   id 'maven-publish'
 }
 

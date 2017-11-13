@@ -2,6 +2,10 @@ plugins {
   id 'org.ajoberstar.grgit' version '2.0.0'
   id 'org.ajoberstar.reckon' version '0.2.1'
   id 'com.diffplug.gradle.spotless' version '3.6.0'
+
+  id 'gradle-clojure.clojure' version '0.3.0-rc.3' apply false
+  id 'org.ajoberstar.stutter' version '0.2.0' apply false
+  id 'com.gradle.plugin-publish' version '0.9.9' apply false
 }
 
 reckon {
@@ -56,8 +60,4 @@ allprojects {
       }
     }
   }
-}
-
-wrapper {
-  gradleVersion = '4.3-rc-1'
 }

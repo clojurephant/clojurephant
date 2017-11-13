@@ -4,6 +4,9 @@ dist: trusty
 jdk:
   - oraclejdk8
   - oraclejdk9
+branches:
+  only:
+    - master
 cache:
   directories:
     - $HOME/.gradle/caches/

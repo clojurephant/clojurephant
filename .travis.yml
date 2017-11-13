@@ -1,5 +1,5 @@
 language: java
-sudo: false
+sudo: required
 dist: trusty
 jdk:
   - oraclejdk8
@@ -8,4 +8,4 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
-script: ./gradlew -I gradle/travis.gradle check --stacktrace
+script: ./gradlew -I gradle/travis.gradle check

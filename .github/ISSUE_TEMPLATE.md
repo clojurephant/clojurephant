@@ -6,7 +6,7 @@ _explain what you think should have happened_
 
 ## Current Behavior
 
-_explain what you did happen_
+_explain what did happen_
 
 ## Environment
 
@@ -15,6 +15,7 @@ _explain what you did happen_
 | gradle-clojure | _fill in_ |
 | Gradle         | _fill in_ |
 | Java           | _fill in_ |
+| OS             | _fill in_ |
 
 <!-- the output of ./gradlew --version can be used for all but the gradle-clojure version -->
 

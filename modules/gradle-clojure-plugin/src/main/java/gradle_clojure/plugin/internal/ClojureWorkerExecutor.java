@@ -70,7 +70,7 @@ public class ClojureWorkerExecutor {
     Dependency shimImpl = project.getDependencies().create("org.projectodd.shimdandy:shimdandy-impl:" + SHIMDANDY_VERSION);
     Dependency tools = project.getDependencies().create("io.github.gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
     Dependency nrepl = project.getDependencies().create("org.clojure:tools.nrepl:" + NREPL_VERSION);
-    return project.getConfigurations().detachedConfiguration(shimImpl, tools, nrepl);
+    return project.getConfigurations().detachedConfiguration(shimImpl, tools, nrepl).setTransitive(false);
   }
 
   private static String getVersion() {

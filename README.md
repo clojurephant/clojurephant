@@ -1,6 +1,6 @@
 # gradle-clojure
 
-[![Bintray](https://img.shields.io/bintray/v/gradle-clojure/maven/gradle-clojure.svg?style=flat-square)](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
+[![Download](https://api.bintray.com/packages/gradle-clojure/maven/gradle-clojure/images/download.svg) ](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
 [![Travis](https://img.shields.io/travis/gradle-clojure/gradle-clojure.svg?style=flat-square)](https://travis-ci.org/gradle-clojure/gradle-clojure)
 [![GitHub license](https://img.shields.io/github/license/gradle-clojure/gradle-clojure.svg?style=flat-square)](https://github.com/gradle-clojure/gradle-clojure/blob/master/LICENSE)
 

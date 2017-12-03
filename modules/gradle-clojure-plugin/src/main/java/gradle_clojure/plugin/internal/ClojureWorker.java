@@ -109,7 +109,7 @@ public class ClojureWorker implements Runnable {
             .map(safe(URI::toURL))
             .toArray(size -> new URL[size]);
 
-        URLClassLoader loader = new URLClassLoader(classpathUrls, ClojureWorker.class.getClassLoader());
+        URLClassLoader loader = new ClojureWorkerClassLoader(classpathUrls, ClojureWorker.class.getClassLoader());
         ClojureRuntimeShim shim = ClojureRuntimeShim.newRuntime(loader, "gradle-clojure");
         return new ClojureRuntime(loader, shim, classFiles);
       } else {

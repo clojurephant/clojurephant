@@ -44,7 +44,7 @@ public class ClojureWorkerClassLoader extends URLClassLoader {
     if (clazz == null) {
       try {
         clazz = this.findClass(name);
-      } catch (ClassNotFoundException | NoClassDefFoundError e) {
+      } catch (ClassNotFoundException | NoClassDefFoundError | SecurityException e) {
         if (clazz == null && allowedClass(name)) {
           clazz = this.getParent().loadClass(name);
         }

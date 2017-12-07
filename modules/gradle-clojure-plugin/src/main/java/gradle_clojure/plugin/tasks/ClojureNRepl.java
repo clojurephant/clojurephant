@@ -72,19 +72,7 @@ public class ClojureNRepl extends DefaultTask {
     }
 
     start();
-    while (true) {
-      try {
-        int c = System.in.read();
-        if (c == -1 || c == 4) {
-          // Stop on Ctrl-D or EOF
-          stop();
-          break;
-        }
-      } catch (IOException e) {
-        stop();
-        throw new UncheckedIOException(e);
-      }
-    }
+    stopOnSignal();
     workerExecutor.await();
   }
 
@@ -101,6 +89,29 @@ public class ClojureNRepl extends DefaultTask {
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });
+  }
+
+  /**
+   * Waits for a EOF (CTRL+D) signal from System.in. When received it will stop the NREPL server.
+   * Using a separate thread, since this loop can prevent seeing errors during REPL startup.
+   */
+  private void stopOnSignal() {
+    Runnable waitLoop = () -> {
+      while (true) {
+        try {
+          int c = System.in.read();
+          if (c == -1 || c == 4) {
+            // Stop on Ctrl-D or EOF
+            stop();
+            break;
+          }
+        } catch (IOException e) {
+          stop();
+          throw new UncheckedIOException(e);
+        }
+      }
+    };
+    new Thread(waitLoop).start();
   }
 
   private void stop() {

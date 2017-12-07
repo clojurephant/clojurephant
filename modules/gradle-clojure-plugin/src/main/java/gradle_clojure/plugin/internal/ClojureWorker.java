@@ -33,8 +33,6 @@ import javax.inject.Inject;
 import org.projectodd.shimdandy.ClojureRuntimeShim;
 
 public class ClojureWorker implements Runnable {
-  private static ClojureRuntime existingRuntime;
-
   private final String namespace;
   private final String function;
   private final Object[] args;
@@ -48,30 +46,26 @@ public class ClojureWorker implements Runnable {
 
   @Override
   public void run() {
-    ClojureRuntime runtime = ClojureRuntime.get(existingRuntime);
-    ClojureRuntimeShim shim = runtime.getShim();
+    try (ClojureRuntime runtime = ClojureRuntime.get()) {
+      ClojureRuntimeShim shim = runtime.getShim();
 
-    // (require namespace)
-    shim.require(namespace);
+      // (require namespace)
+      shim.require(namespace);
 
-    // (apply namespace/function args)
-    Object sym = shim.invoke("clojure.core/symbol", namespace, function);
-    Object var = shim.invoke("clojure.core/find-var", sym);
-    shim.invoke("clojure.core/apply", var, args);
-
-    // save for possible reuse next time
-    existingRuntime = runtime;
+      // (apply namespace/function args)
+      Object sym = shim.invoke("clojure.core/symbol", namespace, function);
+      Object var = shim.invoke("clojure.core/find-var", sym);
+      shim.invoke("clojure.core/apply", var, args);
+    }
   }
 
   private static class ClojureRuntime implements AutoCloseable {
     private final URLClassLoader loader;
     private final ClojureRuntimeShim shim;
-    private final Set<Path> classFiles;
 
-    private ClojureRuntime(URLClassLoader loader, ClojureRuntimeShim shim, Set<Path> classFiles) {
+    private ClojureRuntime(URLClassLoader loader, ClojureRuntimeShim shim) {
       this.loader = loader;
       this.shim = shim;
-      this.classFiles = classFiles;
     }
 
     public ClojureRuntimeShim getShim() {
@@ -88,34 +82,17 @@ public class ClojureWorker implements Runnable {
       }
     }
 
-    public static ClojureRuntime get(ClojureRuntime runtime) {
+    public static ClojureRuntime get() {
       String[] classpathElements = System.getProperty("shim.classpath").split(File.pathSeparator);
-      Set<Path> classFiles = Arrays.stream(classpathElements)
+      URL[] classpathUrls = Arrays.stream(classpathElements)
           .map(Paths::get)
-          .filter(Files::isDirectory)
-          .flatMap(safe(Files::walk))
-          .filter(path -> path.getFileName().toString().endsWith(".class"))
-          .collect(Collectors.toSet());
+          .map(Path::toUri)
+          .map(safe(URI::toURL))
+          .toArray(size -> new URL[size]);
 
-      if (runtime == null || !classFiles.containsAll(runtime.classFiles)) {
-        System.out.println("Creating fresh Clojure runtime.");
-        if (runtime != null) {
-          runtime.close();
-        }
-
-        URL[] classpathUrls = Arrays.stream(classpathElements)
-            .map(Paths::get)
-            .map(Path::toUri)
-            .map(safe(URI::toURL))
-            .toArray(size -> new URL[size]);
-
-        URLClassLoader loader = new URLClassLoader(classpathUrls, ClojureWorker.class.getClassLoader());
-        ClojureRuntimeShim shim = ClojureRuntimeShim.newRuntime(loader, "gradle-clojure");
-        return new ClojureRuntime(loader, shim, classFiles);
-      } else {
-        System.out.println("Reusing existing Clojure runtime.");
-        return runtime;
-      }
+      URLClassLoader loader = new ClojureWorkerClassLoader(classpathUrls, ClojureWorker.class.getClassLoader());
+      ClojureRuntimeShim shim = ClojureRuntimeShim.newRuntime(loader, "gradle-clojure");
+      return new ClojureRuntime(loader, shim);
     }
 
     private static <T, R> Function<T, R> safe(FunctionThrows<T, R> fun) {

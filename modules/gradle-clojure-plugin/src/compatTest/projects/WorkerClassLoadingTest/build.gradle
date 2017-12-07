@@ -1,0 +1,27 @@
+plugins {
+    id 'gradle-clojure.clojure'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile "org.clojure:clojure:1.8.0"
+    compile "org.clojure:java.classpath:0.2.3"
+}
+
+import gradle_clojure.plugin.tasks.ClojureExec
+
+task leakingGuava(type: ClojureExec) {
+  classpath = configurations[sourceSets.main.compileClasspathConfigurationName].plus(files('src/main/clojure'))
+  namespace = 'sample.core'
+  function = 'leaking-guava'
+}
+
+task leakingClojure(type: ClojureExec) {
+  classpath = configurations[sourceSets.main.compileClasspathConfigurationName].plus(files('src/main/clojure'))
+  namespace = 'sample.core'
+  function = 'leaking-clojure'
+}

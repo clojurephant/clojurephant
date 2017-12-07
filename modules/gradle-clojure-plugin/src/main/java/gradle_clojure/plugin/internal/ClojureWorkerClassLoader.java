@@ -93,6 +93,7 @@ public class ClojureWorkerClassLoader extends URLClassLoader {
         "java.",
         "javax.",
         "jdk.",
+        "sun.reflect.",
         "com.sun.",
         "org.ietf.",
         "org.omg.",

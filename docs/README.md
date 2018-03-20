@@ -1,10 +1,6 @@
 # gradle-clojure
 
-- [New to Gradle?](new-gradle.md) (in progress)
-- [New to Clojure?](new-clojure.md) (TBD)
-- [Migrating from Leiningen](migrate-lein.md) (TBD)
-- [Migrating from Boot](migrate-boot.md) (TBD)
-- [Frequently Asked Questions](faq.md)
+{% include nav.md %}
 
 ## gradle-clojure.clojure-base
 

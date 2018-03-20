@@ -1,6 +1,6 @@
 # Frequently Asked Questions
 
-_Placeholder_
+{% include nav.md %}
 
 ## How do I get dependencies from Clojars?
 

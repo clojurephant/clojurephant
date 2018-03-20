@@ -1,5 +1,7 @@
 # New Gradle Users
 
+{% include nav.md %}
+
 **NOTE** This example assumes Gradle 4 or higher.
 
 [Gradle](https://docs.gradle.org/4.5.1/userguide/userguide.html) is a build automation tool in the same space as Maven, Leiningen, and Boot. Gradle is primarily targeted at projects using the JVM, but has plugins for many other languages. (Now including Clojure!)

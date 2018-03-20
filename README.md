@@ -65,7 +65,7 @@ dependencies {
   // testCompile 'group:artifact:version'
 
   // dependencies for REPL use only
-  dev 'org.clojure:tools.namespace:0.3.0-alpha4'
+  devCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
 }
 ```
 

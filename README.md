@@ -83,4 +83,6 @@ See the [guidelines](.github/CONTRIBUTING.md) for details on how you can contrib
 
 This project started from the [cursive.clojure](https://github.com/cursive-ide/gradle-clojure) plugin by Colin Fleming (@cmf, original author) and Piotrek Bzdyl (@pbzdyl).
 
-Also thanks to John Szakmeister (@jszakmeister) for organizing a call with Gradle to get us started in the right direction.
+Thanks to John Szakmeister (@jszakmeister) for organizing a call with Gradle to get us started in the right direction.
+
+Thanks to all [our contributors](https://github.com/gradle-clojure/gradle-clojure/graphs/contributors).

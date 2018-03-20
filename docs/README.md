@@ -1,5 +1,11 @@
 # gradle-clojure
 
+- [New to Gradle?](new-gradle.md) (in progress)
+- [New to Clojure?](new-clojure.md) (TBD)
+- [Migrating from Leiningen](migrate-lein.md) (TBD)
+- [Migrating from Boot](migrate-boot.md) (TBD)
+- [Frequently Asked Questions](faq.md)
+
 ## gradle-clojure.clojure-base
 
 It's unlikely you will apply this plugin directly. However, if you do, here's what you'll get:

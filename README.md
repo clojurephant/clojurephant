@@ -69,7 +69,7 @@ dependencies {
 }
 ```
 
-See all available options in the [docs](docs/README.md).
+See all available options in the [docs](https://gradle-clojure.github.io).
 
 ## Getting help
 

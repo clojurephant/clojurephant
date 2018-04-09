@@ -61,6 +61,13 @@ tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
   inputs.dir 'src/compatTest/projects'
   systemProperty 'clojure.test.dirs', 'src/compatTest/clojure'
   systemProperty 'stutter.projects', 'src/compatTest/projects'
+
+  // Forces a new Test worker for each test class
+  // This seems to kill of TestKit workers faster, which is needed in memory
+  // pressured CI systems
+  if (System.env['CI']) {
+    forkEvery = 1
+  }
 }
 
 publishing {

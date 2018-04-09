@@ -65,17 +65,4 @@ allprojects {
       }
     }
   }
-
-  if (System.env['CI']) {
-    tasks.withType(Test) {
-      testLogging {
-        events 'failed'
-        showExceptions = true
-        showStackTraces = true
-        showCauses = true
-        exceptionFormat 'full'
-        showStandardStreams = true
-      }
-    }
-  }
 }

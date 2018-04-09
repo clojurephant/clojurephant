@@ -1,23 +1,20 @@
-/*
- * Copyright 2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package gradle_clojure.plugin.tasks;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UncheckedIOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.nio.channels.Channels;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 
 import javax.inject.Inject;
 
+import gradle_clojure.plugin.internal.ClojureWorkerExecutor;
 import org.gradle.api.Action;
+import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -25,20 +22,7 @@ import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.DefaultTask;
 import org.gradle.workers.WorkerExecutor;
-
-import gradle_clojure.plugin.internal.ClojureWorkerExecutor;
-
-import java.net.ServerSocket;
-import java.nio.channels.Channels;
-import java.nio.channels.SocketChannel;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.io.BufferedReader;
-import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 
 public class ClojureNRepl extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureNRepl.class);

@@ -1,20 +1,24 @@
 plugins {
   id 'org.ajoberstar.grgit' version '2.1.1'
-  id 'org.ajoberstar.reckon' version '0.3.2'
+  id 'org.ajoberstar.reckon' version '0.5.0'
   id 'com.diffplug.gradle.spotless' version '3.10.0'
 
   id 'gradle-clojure.clojure' version '0.3.1' apply false
-  id 'org.ajoberstar.stutter' version '0.2.1' apply false
+  id 'org.ajoberstar.stutter' version '0.3.0' apply false
   id 'com.gradle.plugin-publish' version '0.9.10' apply false
+
+  // TODO remove when Gradle dependency locking is available
+  id 'nebula.dependency-lock' version '5.0.4' apply false
 }
 
 reckon {
   normal = scopeFromProp()
-  preRelease = stageFromProp('milestone', 'rc', 'final')
+  preRelease = stageFromProp('beta', 'rc', 'final')
 }
 
 allprojects {
   apply plugin: 'com.diffplug.gradle.spotless'
+  apply plugin: 'nebula.dependency-lock'
 
   group = 'io.github.gradle-clojure'
 
@@ -49,8 +53,9 @@ allprojects {
     // ensure consistent formatting
     spotless {
       java {
-        eclipse().configFile rootProject.file('gradle/eclipse-java-google-style-nowrap.xml')
-        licenseHeaderFile file('gradle/HEADER')
+        importOrder 'java', 'javax', ''
+        removeUnusedImports()
+        eclipse().configFile rootProject.file('gradle/eclipse-java-formatter.xml')
       }
       format('gradle') {
         target '**/*.gradle'

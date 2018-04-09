@@ -71,7 +71,7 @@ allprojects {
       testLogging {
         events 'failed'
         showExceptions = true
-        showStacktraces = true
+        showStackTraces = true
         showCauses = true
         exceptionFormat 'full'
         showStandardStreams = true

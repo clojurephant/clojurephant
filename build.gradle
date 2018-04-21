@@ -38,6 +38,14 @@ allprojects {
             password = System.env['BINTRAY_KEY']
           }
         }
+        maven {
+          name = 'clojars'
+          url = 'https://clojars.org/repo'
+          credentials {
+            username = System.env['CLOJARS_USER']
+            password = System.env['CLOJARS_PASSWORD']
+          }
+        }
       }
     }
   }

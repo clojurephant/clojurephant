@@ -21,7 +21,7 @@ A Gradle plugin providing support for the Clojure and Clojurescript languages.
 
 _Coming soon_
 
-## Why should do you care?
+## Why should you care?
 
 The goal is to provide the same creature comforts that [Leiningen](http://leiningen.org/) and [Boot](http://boot-clj.com/) do for Clojure/Clojurescript development, while also leveraging Gradle's unique features:
 

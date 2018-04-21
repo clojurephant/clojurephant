@@ -34,7 +34,7 @@
       (doseq [namespace namespaces]
         (compile (symbol namespace))))
     (if (reflection? compile-options)
-      (throw (ex-info (str "ERROR: Reflection warnings found: " @reflection) {})))
+      (throw (ex-info (str "Reflection warnings found: " @reflection) {})))
     (catch Throwable e
       (binding [*out* *err*]
         (loop [ex e]

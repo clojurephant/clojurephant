@@ -1,25 +1,11 @@
-<!-- Delete all of this is this is a feature request -->
+## Expected Behavior (Bugs or Features)
 
-## Expected Behavior
+<!-- If you're reporting a bug, explain what should have happened -->
+<!-- If you're suggesting a feature, how should it work? -->
 
-_explain what you think should have happened_
+## Current Behavior (Bugs)
 
-## Current Behavior
-
-_explain what did happen_
-
-## Environment
-
-| **Component**  | **Version** |
-|----------------|-------------|
-| gradle-clojure | _fill in_ |
-| Gradle         | _fill in_ |
-| Java           | _fill in_ |
-| OS             | _fill in_ |
-
-<!-- the output of ./gradlew --version can be used for all but the gradle-clojure version -->
-
-## Logs
+<!-- If you're reporting a bug, what happened instead of expected behavior -->
 
 <!--
   Helpful flags for providing detailed output:
@@ -29,8 +15,22 @@ _explain what did happen_
     --debug (if something really bad happens)
 -->
 
-**Switches used:** _e.g. --info --stacktrace_
+## Context (Bugs and Features)
 
-```
-<paste your output here>
-```
+<!-- How does this bug or feature impact your workflow? i.e. What's the value? -->
+<!-- Link to any relevant discussions in other issues or forums, as applicable -->
+
+## Steps to reproduce (Bugs)
+
+<!-- If reporting a bug, provide steps to recreate and ideally a reproducible sample project -->
+
+## Environment (Bugs)
+
+<!-- A build scan -- https://scans.gradle.com/get-started -- is an ideal way to provide environment info -->
+<!-- If a build scan isn't feasible, the output of ./gradlew --version can be used for all but the gradle-clojure version -->
+
+- **Build scan URL:**
+- **gradle-clojure version:**
+- **Gradle version:**
+- **Java version:**
+- **OS version:**

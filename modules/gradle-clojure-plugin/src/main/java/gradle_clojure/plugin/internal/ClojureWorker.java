@@ -1,7 +1,6 @@
 package gradle_clojure.plugin.internal;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -74,9 +73,13 @@ public class ClojureWorker implements Runnable {
     public void close() {
       try {
         shim.close();
-        loader.close();
-      } catch (IOException e) {
+      } catch (Throwable t) {
         // don't care
+      }
+      try {
+        loader.close();
+      } catch (Throwable t) {
+        // double don't care
       }
     }
 

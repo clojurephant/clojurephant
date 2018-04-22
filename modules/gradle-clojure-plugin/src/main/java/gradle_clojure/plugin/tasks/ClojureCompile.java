@@ -19,6 +19,7 @@ import java.util.stream.StreamSupport;
 import javax.inject.Inject;
 
 import gradle_clojure.plugin.internal.ClojureWorkerExecutor;
+import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
@@ -36,18 +37,23 @@ public class ClojureCompile extends AbstractCompile {
 
   private final ClojureWorkerExecutor workerExecutor;
 
-  private final ClojureCompileOptions options = new ClojureCompileOptions();
+  private final ClojureCompileOptions options;
 
   private List<String> namespaces = Collections.emptyList();
 
   @Inject
   public ClojureCompile(WorkerExecutor workerExecutor) {
     this.workerExecutor = new ClojureWorkerExecutor(getProject(), workerExecutor);
+    this.options = new ClojureCompileOptions();
   }
 
   @Nested
   public ClojureCompileOptions getOptions() {
     return options;
+  }
+
+  public void options(Action<? super ClojureCompileOptions> configureAction) {
+    configureAction.execute(options);
   }
 
   @Input

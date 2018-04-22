@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
@@ -26,6 +27,17 @@ public final class ClojureCompileOptions implements Serializable {
 
   public ClojureCompileOptions forkOptions(Action<? super ClojureForkOptions> configureAction) {
     configureAction.execute(forkOptions);
+    return this;
+  }
+
+  /*
+   * We only have this variant (instead of just Action) since Gradle doesn't currently (as of 4.7)
+   * instrument Action methods on nested config objects
+   */
+  public ClojureCompileOptions forkOptions(Closure<?> configureAction) {
+    configureAction.setResolveStrategy(Closure.DELEGATE_FIRST);
+    configureAction.setDelegate(forkOptions);
+    configureAction.call(forkOptions);
     return this;
   }
 
@@ -58,6 +70,17 @@ public final class ClojureCompileOptions implements Serializable {
 
   public ClojureCompileOptions reflectionWarnings(Action<? super ReflectionWarnings> configureAction) {
     configureAction.execute(reflectionWarnings);
+    return this;
+  }
+
+  /*
+   * We only have this variant (instead of just Action) since Gradle doesn't currently (as of 4.7)
+   * instrument Action methods on nested config objects
+   */
+  public ClojureCompileOptions reflectionWarnings(Closure<?> configureAction) {
+    configureAction.setResolveStrategy(Closure.DELEGATE_FIRST);
+    configureAction.setDelegate(reflectionWarnings);
+    configureAction.call(reflectionWarnings);
     return this;
   }
 

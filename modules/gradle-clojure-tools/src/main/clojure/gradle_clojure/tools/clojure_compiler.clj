@@ -1,4 +1,5 @@
 (ns gradle-clojure.tools.clojure-compiler
+  (:require [gradle-clojure.tools.logger :refer [log]])
   (:import [gradle_clojure.tools.internal LineProcessingWriter]
            [java.io File]))
 
@@ -32,6 +33,7 @@
                                   :elide-meta (into [] (map keyword) (.getElideMeta compile-options))
                                   :direct-linking (.isDirectLinking compile-options)}]
       (doseq [namespace namespaces]
+        (log :debug "Compiling %s" namespace)
         (compile (symbol namespace))))
     (if (reflection? compile-options)
       (throw (ex-info (str "Reflection warnings found: " @reflection) {})))
@@ -39,6 +41,6 @@
       (binding [*out* *err*]
         (loop [ex e]
           (if-let [msg (and ex (.getMessage ex))]
-            (println "ERROR: " (-> ex .getClass .getCanonicalName) " " msg)
+            (log :error msg)
             (recur (.getCause ex)))))
       (throw e))))

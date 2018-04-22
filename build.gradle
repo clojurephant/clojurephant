@@ -20,7 +20,10 @@ allprojects {
 
   repositories {
     jcenter()
-    maven { url = 'https://repo.clojars.org' }
+    maven {
+      name = 'Clojars'
+      url = 'https://repo.clojars.org/'
+    }
   }
 }
 
@@ -108,7 +111,7 @@ allprojects {
 ///////////////////////////////////////////////////////////////////////////////
 allprojects {
   apply plugin: 'com.diffplug.gradle.spotless'
-  
+
   plugins.withId('java') {
     spotless {
       java {

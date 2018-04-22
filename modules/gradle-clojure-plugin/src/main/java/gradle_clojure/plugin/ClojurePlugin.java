@@ -36,6 +36,7 @@ public class ClojurePlugin implements Plugin<Project> {
 
     Callable<?> namespaces = () -> {
       List<String> nses = new ArrayList<>();
+      nses.add("gradle-clojure.tools.logger");
       nses.add("gradle-clojure.tools.clojure-test-junit4");
       nses.addAll(compile.findNamespaces());
       return nses;

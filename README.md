@@ -3,7 +3,6 @@
 [![Download](https://api.bintray.com/packages/gradle-clojure/maven/gradle-clojure/images/download.svg) ](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
 [![CircleCI](https://circleci.com/gh/gradle-clojure/gradle-clojure.svg?style=svg)](https://circleci.com/gh/gradle-clojure/gradle-clojure)
 
-
 ## What is this?
 
 A Gradle plugin providing support for the Clojure and Clojurescript languages.

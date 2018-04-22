@@ -5,12 +5,15 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.logging.LogLevel;
 import org.gradle.process.JavaForkOptions;
 import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
@@ -41,7 +44,14 @@ public class ClojureWorkerExecutor {
       worker.setIsolationMode(IsolationMode.PROCESS);
       worker.params(config.getNamespace(), config.getFunction(), config.getArgs());
       config.getConfigureFork().forEach(worker::forkOptions);
-      worker.forkOptions(fork -> fork.systemProperty("shim.classpath", realClasspath.getAsPath()));
+      worker.forkOptions(fork -> {
+        fork.systemProperty("shim.classpath", realClasspath.getAsPath());
+        // allow level to come from either a project property or whatever level Gradle is set to
+        String logLevel = Optional.ofNullable(project.findProperty("gradle-clojure.tools.logger.level"))
+            .map(Object::toString)
+            .orElseGet(this::getGradleLogLevel);
+        fork.systemProperty("gradle-clojure.tools.logger.level", logLevel);
+      });
       worker.classpath(resolveWorker());
     });
   }
@@ -56,6 +66,15 @@ public class ClojureWorkerExecutor {
     Dependency tools = project.getDependencies().create("io.github.gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
     Dependency nrepl = project.getDependencies().create("org.clojure:tools.nrepl:" + NREPL_VERSION);
     return project.getConfigurations().detachedConfiguration(shimImpl, tools, nrepl).setTransitive(false);
+  }
+
+  private String getGradleLogLevel() {
+    return Stream.of(LogLevel.DEBUG, LogLevel.INFO, LogLevel.LIFECYCLE, LogLevel.WARN, LogLevel.QUIET, LogLevel.ERROR)
+        .filter(project.getLogger()::isEnabled)
+        .map(LogLevel::toString)
+        .map(String::toLowerCase)
+        .findFirst()
+        .orElse("info");
   }
 
   private static String getVersion() {

@@ -1,7 +1,8 @@
 (ns gradle-clojure.tools.clojure-test-junit4
   (:require [clojure.string :as string]
             [clojure.test :as test]
-            [clojure.main :as main])
+            [clojure.main :as main]
+            [gradle-clojure.tools.logger :refer [log]])
   (:import [java.lang.annotation Annotation]
            [org.junit.runner Description]
            [org.junit.runner.notification Failure]
@@ -144,7 +145,9 @@
   (let [nses (eval namespaces)]
     `(do
        ~@(map (fn [ns#]
-                (println ns#)
+                (log :debug "Generating JUnit 4 runner for %s" ns#)
                 `(gen-class :name ~(with-meta (symbol ns#) {'org.junit.runner.RunWith 'gradle_clojure.tools.ClojureTestRunner})))
               nses))))
-(gen-runners (remove #{"gradle-clojure.tools.clojure-test-junit4"} gradle-clojure.tools.clojure-compiler/*namespaces*))
+(gen-runners (remove #{"gradle-clojure.tools.clojure-test-junit4"
+                       "gradle-clojure.tools.logger"})
+             gradle-clojure.tools.clojure-compiler/*namespaces*)

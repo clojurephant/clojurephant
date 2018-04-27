@@ -20,7 +20,7 @@ allprojects {
 
   repositories {
     jcenter()
-    maven { url = 'https://clojars.org/repo' }
+    maven { url = 'https://repo.clojars.org' }
   }
 }
 
@@ -61,7 +61,7 @@ allprojects {
         }
         maven {
           name = 'clojars'
-          url = 'https://clojars.org/repo'
+          url = 'https://repo.clojars.org'
           credentials {
             username = System.env['CLOJARS_USER']
             password = System.env['CLOJARS_PASSWORD']

@@ -7,15 +7,32 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
 import org.projectodd.shimdandy.ClojureRuntimeShim;
 
 public class ClojureWorker implements Runnable {
+  private static final Set<String> CLASSLOADER_WHITELIST = Stream.of(
+      // shimdandy api is loaded outside the shim
+      "org.projectodd.shimdandy.",
+      // base java classes
+      "java.",
+      "javax.",
+      "jdk.",
+      "sun.",
+      "com.sun.",
+      "org.ietf.",
+      "org.omg.",
+      "org.w3c.",
+      "org.xml.").collect(Collectors.toSet());
+
   private static final UUID workerId = UUID.randomUUID();
   private static final AtomicInteger workerUseCounter = new AtomicInteger(0);
 
@@ -91,7 +108,8 @@ public class ClojureWorker implements Runnable {
           .map(safe(URI::toURL))
           .toArray(size -> new URL[size]);
 
-      URLClassLoader loader = new ClojureWorkerClassLoader(classpathUrls, ClojureWorker.class.getClassLoader());
+      URLClassLoader parent = new WhitelistClassLoader(CLASSLOADER_WHITELIST, ClojureWorker.class.getClassLoader());
+      URLClassLoader loader = new URLClassLoader(classpathUrls, parent);
       ClojureRuntimeShim shim = ClojureRuntimeShim.newRuntime(loader, "gradle-clojure");
       return new ClojureRuntime(loader, shim);
     }

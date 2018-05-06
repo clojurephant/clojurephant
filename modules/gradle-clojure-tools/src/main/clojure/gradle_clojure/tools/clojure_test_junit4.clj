@@ -1,10 +1,12 @@
 (ns gradle-clojure.tools.clojure-test-junit4
   (:require [clojure.string :as string]
             [clojure.test :as test]
-            [clojure.main :as main])
+            [clojure.main :as main]
+            [gradle-clojure.tools.logger :refer [log]])
   (:import [java.lang.annotation Annotation]
            [org.junit.runner Description]
-           [org.junit.runner.notification Failure]
+           [org.junit.runner.notification Failure RunNotifier]
+           [org.junit.runner.manipulation Filter]
            [java.io File]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -13,17 +15,19 @@
 (defrecord Test [description namespace var])
 (defrecord Suite [description namespace tests])
 
+(def ^"[Ljava.lang.annotation.Annotation;" empty-annotation (into-array Annotation []))
+
 (defn- var-test [var]
   (let [namespace (-> var meta :ns)
         suite (-> namespace str)
         test (-> var meta :name name)
-        description (Description/createTestDescription suite test (into-array Annotation []))]
+        description (Description/createTestDescription suite test empty-annotation)]
     (->Test description namespace var)))
 
 (defn- test? [var]
   (-> var meta :test))
 
-(defn- ns-suite [clazz]
+(defn- ns-suite [^Class clazz]
   (let [root-description (Description/createSuiteDescription clazz)
         ns-sym (-> clazz .getCanonicalName main/demunge symbol)]
     (require ns-sym)
@@ -36,8 +40,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Execution
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def ^:dynamic *notifier* nil)
-(def ^:dynamic *description* nil)
+(def ^:dynamic ^RunNotifier *notifier* nil)
+(def ^:dynamic ^Description *description* nil)
 
 (defmulti report :type)
 
@@ -125,13 +129,13 @@
 (defn -init [clazz]
   [[] (atom (ns-suite clazz))])
 
-(defn -getDescription [this]
+(defn -getDescription [^gradle_clojure.tools.ClojureTestRunner this]
   (-> this .suite deref :description))
 
-(defn -run [this notifier]
+(defn -run [^gradle_clojure.tools.ClojureTestRunner this notifier]
   (run-suite (-> this .suite deref) notifier))
 
-(defn -filter [this desc-filter]
+(defn -filter [^gradle_clojure.tools.ClojureTestRunner this ^Filter desc-filter]
   (letfn [(run? [test] (->> test :description (.shouldRun desc-filter)))
           (trim-tests [tests] (filter run? tests))
           (trim-suite [suite] (update suite :tests trim-tests))]
@@ -144,7 +148,9 @@
   (let [nses (eval namespaces)]
     `(do
        ~@(map (fn [ns#]
-                (println ns#)
+                (log :debug "Generating JUnit 4 runner for %s" ns#)
                 `(gen-class :name ~(with-meta (symbol ns#) {'org.junit.runner.RunWith 'gradle_clojure.tools.ClojureTestRunner})))
               nses))))
-(gen-runners (remove #{"gradle-clojure.tools.clojure-test-junit4"} gradle-clojure.tools.clojure-compiler/*namespaces*))
+(gen-runners (remove #{"gradle-clojure.tools.clojure-test-junit4"
+                       "gradle-clojure.tools.logger"})
+             gradle-clojure.tools.clojure-compiler/*namespaces*)

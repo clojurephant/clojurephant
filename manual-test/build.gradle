@@ -1,0 +1,17 @@
+buildscript {
+  dependencies {
+    // this will be substituted for the composite build
+    classpath 'io.github.gradle-clojure:gradle-clojure-plugin:0.0.0'
+  }
+}
+
+apply plugin: 'gradle-clojure.clojure'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'org.clojure:clojure:1.9.0'
+  testCompile 'junit:junit:4.12'
+}

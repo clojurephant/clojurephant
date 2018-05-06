@@ -7,7 +7,7 @@
   (:import [org.gradle.testkit.runner TaskOutcome]))
 
 (deftest incremental-build
-  (doseq [aot-enabled? [false]]
+  (doseq [aot-enabled? [true false]]
     (let [aot-compile-opt (format "-DaotCompile=%b" aot-enabled?)
           verify-compilation (if aot-enabled?
                                gradle/verify-compilation-with-aot

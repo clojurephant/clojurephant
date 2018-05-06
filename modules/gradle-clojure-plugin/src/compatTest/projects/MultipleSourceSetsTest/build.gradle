@@ -14,11 +14,13 @@ dependencies {
 
 sourceSets {
     ss1 {
+      compileClasspath += configurations.compile
+      runtimeClasspath += configurations.compile
     }
     ss2 {
         compileClasspath += configurations.compile
-        compileClasspath += ss1.output
         runtimeClasspath += configurations.compile
+        compileClasspath += ss1.output
         runtimeClasspath += ss1.output
     }
     test {

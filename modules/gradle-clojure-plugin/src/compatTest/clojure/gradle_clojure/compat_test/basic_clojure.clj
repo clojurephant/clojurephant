@@ -32,7 +32,11 @@
       (file/delete (gradle/file "src/main/clojure/basic_project/utils.clj"))
       (let [result (gradle/build "compileClojure")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
-        (gradle/verify-compilation-without-aot "src/main/clojure" "build/classes/clojure/main")))))
+        (gradle/verify-compilation-without-aot "src/main/clojure" "build/classes/clojure/main"))
+
+      (file/delete (gradle/file "src/main/clojure/basic_project/boom.clj"))
+      (let [result (gradle/build-and-fail "compileClojure")]
+        (is (= TaskOutcome/FAILED (some-> result (.task ":compileClojure") .getOutcome)))))))
 
 (deftest multiple-source-sets
   (testing "with multiple source sets, each gets its own set of tasks to compile the corresponding code"

@@ -70,9 +70,11 @@ public class ClojureCompile extends AbstractCompile {
     if (!getProject().delete(getDestinationDir())) {
       throw new GradleException("Cannot clean destination directory: " + getDestinationDir().getAbsolutePath());
     }
-
     if (!getDestinationDir().mkdirs()) {
       throw new GradleException("Cannot create destination directory: " + getDestinationDir().getAbsolutePath());
+    }
+    if (!getProject().delete(getTemporaryDir())) {
+      throw new GradleException("Cannot clean temporary directory: " + getTemporaryDir().getAbsolutePath());
     }
 
     if (options.isCopySourceSetToOutput()) {
@@ -80,35 +82,36 @@ public class ClojureCompile extends AbstractCompile {
         spec.from(getSource());
         spec.into(getDestinationDir());
       });
+    }
+
+    Collection<String> namespaces = getNamespaces();
+    if (namespaces.isEmpty()) {
+      logger.warn("No Clojure namespaces defined, skipping {}", getName());
       return;
     }
 
-    if (options.isAotCompile()) {
-      Collection<String> namespaces = getNamespaces();
-      if (namespaces.isEmpty()) {
-        logger.warn("No Clojure namespaces defined, skipping {}", getName());
-        return;
-      }
+    logger.info("Compiling {}", String.join(", ", namespaces));
 
-      logger.info("Compiling {}", String.join(", ", namespaces));
+    // for non-aot compile we still want to compile as verification, but classes shouldn't be included
+    // as an output
+    File compileOutputDir = options.isAotCompile() ? getDestinationDir() : getTemporaryDir();
 
-      FileCollection classpath = getClasspath()
-          .plus(getProject().files(getSourceRootsFiles()))
-          .plus(getProject().files(getDestinationDir()));
+    FileCollection classpath = getClasspath()
+        .plus(getProject().files(getSourceRootsFiles()))
+        .plus(getProject().files(compileOutputDir));
 
-      workerExecutor.submit(config -> {
-        config.setClasspath(classpath);
-        config.setNamespace("gradle-clojure.tools.clojure-compiler");
-        config.setFunction("compiler");
-        config.setArgs(getSourceRoots(), getDestinationDir(), getOptions(), namespaces);
-        config.forkOptions(fork -> {
-          fork.setJvmArgs(options.getForkOptions().getJvmArgs());
-          fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
-          fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
-          fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
-        });
+    workerExecutor.submit(config -> {
+      config.setClasspath(classpath);
+      config.setNamespace("gradle-clojure.tools.clojure-compiler");
+      config.setFunction("compiler");
+      config.setArgs(getSourceRoots(), compileOutputDir, getOptions(), namespaces);
+      config.forkOptions(fork -> {
+        fork.setJvmArgs(options.getForkOptions().getJvmArgs());
+        fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
+        fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+        fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
-    }
+    });
   }
 
   public List<String> findNamespaces() {

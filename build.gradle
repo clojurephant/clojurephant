@@ -90,7 +90,7 @@ reckonTagCreate.doFirst {
   }
 
   // if making a final release, ensure we made an rc first
-  if (!version.contains('-')) {
+  if (!version.toString().contains('-')) {
     def head = grgit.head()
     def tagsOnHead = grgit.tag.list().findAll { it.commit == head }
     if (!tagsOnHead.find { it.name.startsWith('${version}-rc.') }) {

@@ -152,5 +152,5 @@
                 `(gen-class :name ~(with-meta (symbol ns#) {'org.junit.runner.RunWith 'gradle_clojure.tools.ClojureTestRunner})))
               nses))))
 (gen-runners (remove #{"gradle-clojure.tools.clojure-test-junit4"
-                       "gradle-clojure.tools.logger"})
-             gradle-clojure.tools.clojure-compiler/*namespaces*)
+                       "gradle-clojure.tools.logger"}
+                     gradle-clojure.tools.clojure-compiler/*namespaces*))

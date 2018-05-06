@@ -26,7 +26,6 @@ import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.AbstractCompile;
@@ -137,7 +136,6 @@ public class ClojureCompile extends AbstractCompile {
     }
   }
 
-  @Internal
   private Set<String> getSourceRoots() {
     return getSourceRootsFiles().stream().map(it -> {
       try {
@@ -148,7 +146,6 @@ public class ClojureCompile extends AbstractCompile {
     }).collect(Collectors.toSet());
   }
 
-  @Internal
   private List<File> getSourceRootsFiles() {
     // accessing the List<Object> field not the FileTree from getSource
     return source.stream()

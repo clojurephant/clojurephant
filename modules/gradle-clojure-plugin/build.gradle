@@ -40,10 +40,6 @@ stutter {
   java(9) {
     compatibleRange '4.2.1'
   }
-  java(10) {
-    compatibleRange '4.2.1'
-    incompatible '4.7-rc-1'
-  }
 }
 
 plugins.withId('eclipse') {

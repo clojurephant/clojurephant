@@ -1,6 +1,7 @@
 package javaSS;
 
 public class Example1 {
-    public void test() {
+    public String test() {
+      return "Example1";
     }
 }

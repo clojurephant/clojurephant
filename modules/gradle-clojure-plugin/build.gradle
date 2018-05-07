@@ -17,6 +17,7 @@ dependencies {
 
   // compat testing
   compatTestCompile gradleTestKit()
+  compatTestCompile project(':modules:gradle-clojure-tools')
   compatTestCompile 'org.clojure:clojure:1.9.0'
   compatTestCompile 'org.clojure:tools.namespace:0.2.11'
   compatTestCompile 'junit:junit:4.12'

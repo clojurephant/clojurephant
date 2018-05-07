@@ -13,7 +13,7 @@ dependencies {
 
   // clojure runtime
   compileOnly 'org.clojure:clojure:1.9.0'
-  compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.0'
+  compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.1'
 
   // compat testing
   compatTestCompile gradleTestKit()

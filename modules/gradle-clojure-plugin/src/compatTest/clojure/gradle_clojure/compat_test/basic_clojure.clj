@@ -38,6 +38,16 @@
       (let [result (gradle/build-and-fail "compileClojure")]
         (is (= TaskOutcome/FAILED (some-> result (.task ":compileClojure") .getOutcome)))))))
 
+(deftest no-clojure
+  (testing "without Clojure on classpath, build fails"
+    (gradle/with-project "BasicClojureProjectTest"
+      (file/write-str (gradle/file "build.gradle") (str/replace (file/read-str (gradle/file "build.gradle"))
+                                                                #"compile 'org.clojure:clojure:1.8.0'"
+                                                                ""))
+      (let [result (gradle/build-and-fail "clean" "check")]
+        (is (= TaskOutcome/FAILED (some-> result (.task ":compileClojure") .getOutcome)))
+        (is (str/includes? (.getOutput result) "ClassNotFoundException"))))))
+
 (deftest multiple-source-sets
   (testing "with multiple source sets, each gets its own set of tasks to compile the corresponding code"
     (gradle/with-project "MultipleSourceSetsTest"

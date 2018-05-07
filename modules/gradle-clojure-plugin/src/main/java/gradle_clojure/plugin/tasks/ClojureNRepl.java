@@ -22,6 +22,7 @@ import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.options.Option;
 import org.gradle.workers.WorkerExecutor;
 
 public class ClojureNRepl extends DefaultTask {
@@ -135,5 +136,10 @@ public class ClojureNRepl extends DefaultTask {
 
   public void setPort(int port) {
     this.port = port;
+  }
+
+  @Option(option = "port", description = "Port the nREPL server should listen on.")
+  public void setPort(String port) {
+    setPort(Integer.parseInt(port));
   }
 }

@@ -42,10 +42,9 @@ public class ClojureWorkerExecutor {
     FileCollection realClasspath = config.getClasspath().plus(resolveShim());
     workerExecutor.submit(ClojureWorker.class, worker -> {
       worker.setIsolationMode(IsolationMode.PROCESS);
-      worker.params(config.getNamespace(), config.getFunction(), config.getArgs());
+      worker.params(config.getNamespace(), config.getFunction(), config.getArgs(), realClasspath.getFiles());
       config.getConfigureFork().forEach(worker::forkOptions);
       worker.forkOptions(fork -> {
-        fork.systemProperty("shim.classpath", realClasspath.getAsPath());
         // allow level to come from either a project property or whatever level Gradle is set to
         String logLevel = Optional.ofNullable(project.findProperty("gradle-clojure.tools.logger.level"))
             .map(Object::toString)

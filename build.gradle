@@ -135,11 +135,6 @@ allprojects {
 if (System.env['CI']) {
   allprojects {
     tasks.withType(Test) {
-      // Forces a new Test worker for each test class
-      // This seems to kill of TestKit workers faster, which is needed in memory
-      // pressured CI systems
-      forkEvery = 1
-
       // End tests fast when a failure is found
       failFast = true
 

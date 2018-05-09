@@ -36,7 +36,7 @@
               (verify-compilation "moduleA/src/main/clojure" "moduleA/build/classes/clojure/main")
               (verify-compilation "moduleB/src/main/clojure" "moduleB/build/classes/clojure/main"))
 
-            (file/write-str (gradle/file "moduleB/src/main/clojure/module_b/utils.clj") "(ns module-b.utils) (defn ping [] \"pong\")" :append true)
+            (file/write-str (gradle/file "moduleB/src/main/clojure/module_b/utils.clj") "(ns module-b.utils) (defn ping [] \"pong\")")
             (let [result (gradle/build aot-compile-opt "classes")]
               (is (= TaskOutcome/UP_TO_DATE (some-> result (.task ":moduleA:compileClojure") .getOutcome)))
               (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleB:compileClojure") .getOutcome)))
@@ -51,7 +51,7 @@
               (verify-compilation "moduleA/src/main/clojure" "moduleA/build/classes/clojure/main")
               (verify-compilation "moduleB/src/main/clojure" "moduleB/build/classes/clojure/main"))
 
-            (file/write-str (gradle/file "moduleA/src/main/clojure/module_a/utils.clj") "(ns module-a.utils) (defn ping [] \"pong\")" :append true)
+            (file/write-str (gradle/file "moduleA/src/main/clojure/module_a/utils.clj") "(ns module-a.utils) (defn ping [] \"pong\")")
             (let [result (gradle/build aot-compile-opt "classes")]
               (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleA:compileClojure") .getOutcome)))
               (is (= TaskOutcome/SUCCESS (some-> result (.task ":moduleB:compileClojure") .getOutcome)))

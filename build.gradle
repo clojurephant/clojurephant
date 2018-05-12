@@ -140,6 +140,9 @@ if (System.env['CI']) {
       // pressured CI systems
       forkEvery = 1
 
+      // End tests fast when a failure is found
+      failFast = true
+
       // Makes progress more clear in CI
       testLogging {
         events 'passed', 'failed'

@@ -11,7 +11,7 @@ defaults: &defaults
         at: '.'
     - run:
         name: Compile and test
-        command: ./gradlew clean check --continue
+        command: ./gradlew clean check
     - save_cache:
         paths:
           - '~/.gradle/caches'

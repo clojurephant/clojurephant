@@ -61,6 +61,7 @@ tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
   inputs.dir 'src/compatTest/projects'
   systemProperty 'clojure.test.dirs', 'src/compatTest/clojure'
   systemProperty 'stutter.projects', 'src/compatTest/projects'
+  systemProperty 'org.gradle.testkit.dir', file('build/stutter-test-kit').absolutePath
 }
 
 publishing {

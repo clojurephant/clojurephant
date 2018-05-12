@@ -48,27 +48,31 @@ When applied this plugin:
 
 ### ClojureCompile
 
+The compile task will always compile your sources. However, only when `aotCompile` is `true` will they be included in the output of your project. This allows you to verify your code compiles and/or doesn't have reflection warnings, even if you don't want to release the AOT compiled code.
+
 ```groovy
 compileClojure {
-  options.aotCompile = true            // Defaults to false
-  options.copySourceSetToOutput = false   // Defaults to !aotCompile
+  options {
+    aotCompile = true            // Defaults to false
+    copySourceSetToOutput = false   // Defaults to !aotCompile
 
-  options.reflectionWarnings {
-    enabled = true             // Defaults to false
-    projectOnly = true         // Only show warnings from your project, not dependencies - default false
-    asErrors = true            // Treat reflection warnings as errors and fail the build
-                               // If projectOnly is true, only warnings from your project are errors.
-  }
+    reflectionWarnings {
+      enabled = true             // Defaults to false
+      projectOnly = true         // Only show warnings from your project, not dependencies - default false
+      asErrors = true            // Treat reflection warnings as errors and fail the build
+                                 // If projectOnly is true, only warnings from your project are errors.
+    }
 
-  // Compiler options for AOT
-  options.disableLocalsClearing = true                 // Defaults to false
-  options.elideMeta = ['doc', 'file', 'line', 'added'] // Defaults to []
-  options.directLinking = true                         // Defaults to false
+    // Compiler options for AOT
+    disableLocalsClearing = true                 // Defaults to false
+    elideMeta = ['doc', 'file', 'line', 'added'] // Defaults to []
+    directLinking = true                         // Defaults to false
 
-  // compileClojure provides fork options to customize the Java process for compilation
-  options.forkOptions {
-    memoryMaximumSize = '2048m'
-    jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
+    // compileClojure provides fork options to customize the Java process for compilation
+    forkOptions {
+      memoryMaximumSize = '2048m'
+      jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
+    }
   }
 }
 ```

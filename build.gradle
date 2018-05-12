@@ -128,3 +128,22 @@ allprojects {
     }
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// CI Settings
+///////////////////////////////////////////////////////////////////////////////
+if (System.env['CI']) {
+  allprojects {
+    tasks.withType(Test) {
+      // Forces a new Test worker for each test class
+      // This seems to kill of TestKit workers faster, which is needed in memory
+      // pressured CI systems
+      forkEvery = 1
+
+      // Makes progress more clear in CI
+      testLogging {
+        events 'passed', 'failed'
+      }
+    }
+  }
+}

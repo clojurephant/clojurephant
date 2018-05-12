@@ -19,7 +19,7 @@ import org.gradle.workers.IsolationMode;
 import org.gradle.workers.WorkerExecutor;
 
 public class ClojureWorkerExecutor {
-  private static final String SHIMDANDY_VERSION = "1.2.0";
+  private static final String SHIMDANDY_VERSION = "1.2.1";
   private static final String NREPL_VERSION = "0.2.12";
   private static final String GRADLE_CLOJURE_VERSION = getVersion();
 

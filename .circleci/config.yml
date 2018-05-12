@@ -19,6 +19,9 @@ defaults: &defaults
     - store_test_results:
         path: '~/gradle-test-results'
         when: always
+    - store_artifacts:
+        path: 'build/distributions/test-kit-results.zip'
+        when: always
 branches-and-tags: &branches-and-tags
   filters:
     branches:

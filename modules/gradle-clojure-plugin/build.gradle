@@ -35,11 +35,14 @@ processResources {
 
 stutter {
   includeActiveRc = true
+  // Given how long the tests take, do something more "sparse" instead of all versions we support
   java(8) {
-    compatibleRange '4.1'
+    compatible '4.1'
+    compatibleRange '4.7'
   }
   java(9) {
-    compatibleRange '4.2.1'
+    compatible '4.2.1'
+    compatibleRange '4.7'
   }
 }
 

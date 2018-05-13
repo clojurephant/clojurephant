@@ -5,12 +5,25 @@
 
 (def stopper (atom nil))
 
-(defn start! [repl-port control-port]
+(defn resolve-fn [qname]
+  (let [sym (symbol qname)
+        ns-sym (symbol (namespace sym))]
+    (require ns-sym)
+    (if-let [resolved (resolve sym)]
+      resolved
+      (throw (ex-info "Could not resolve function." {:name qname})))))
+
+(defn make-handler [handler middleware]
+  (if handler
+    (resolve-fn handler)
+    (apply nrepl/default-handler (map resolve-fn middleware))))
+
+(defn start! [repl-port control-port handler]
   (reset! stopper (promise))
   (server/start-server {:name "control"
                         :port control-port
                         :accept 'gradle-clojure.tools.clojure-nrepl/stop!})
-  (let [server (nrepl/start-server :port repl-port)]
+  (let [server (nrepl/start-server :bind "localhost" :port repl-port :handler handler)]
     (println "nREPL server started on port " repl-port)
     (println "Enter Ctrl-D to stop the REPL.")
     (deref (deref stopper))
@@ -23,5 +36,5 @@
   (deliver @stopper "stop"))
 
 (defn -main [& args]
-  (let [[repl-port control-port] (edn/read)]
-    (start! repl-port control-port)))
+  (let [[repl-port control-port handler middleware] (edn/read)]
+    (start! repl-port control-port (make-handler handler middleware))))

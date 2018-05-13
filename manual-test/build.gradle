@@ -18,4 +18,9 @@ repositories {
 dependencies {
   compile 'org.clojure:clojure:1.8.0'
   testCompile 'junit:junit:4.12'
+  devCompile 'cider:cider-nrepl:0.17.0'
+}
+
+clojureRepl {
+  handler = 'cider.nrepl/cider-nrepl-handler'
 }

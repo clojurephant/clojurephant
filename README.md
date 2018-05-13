@@ -12,9 +12,10 @@ A Gradle plugin providing support for the Clojure and Clojurescript languages.
 ### Clojure Features
 
 - Packaging Clojure code (and/or AOT compiled classes) into a JAR
+- Package an Uberjar (via the Gradle [Shadow plugin](http://imperceptiblethoughts.com/shadow/))
 - AOT compilation
 - Running clojure.test tests (integrated into Gradle's [Test task](https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html))
-- Running an nREPL server
+- Running an nREPL server (supports custom middlewares or handler)
 
 ### ClojureScript Features
 

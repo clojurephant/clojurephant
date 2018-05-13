@@ -9,6 +9,11 @@ import java.net.ServerSocket;
 import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -37,6 +42,8 @@ public class ClojureNRepl extends DefaultTask {
   private FileCollection classpath;
   private int port = -1;
   private int controlPort = -1;
+  private String handler;
+  private List<String> middleware = new ArrayList<>();
 
   @Inject
   public ClojureNRepl(WorkerExecutor workerExecutor) {
@@ -67,7 +74,7 @@ public class ClojureNRepl extends DefaultTask {
     Action<ClojureExecSpec> action = spec -> {
       spec.setClasspath(getClasspath());
       spec.setMain("gradle-clojure.tools.clojure-nrepl");
-      spec.setArgs(port, controlPort);
+      spec.setArgs(port, controlPort, handler, middleware);
       spec.forkOptions(fork -> {
         fork.setJvmArgs(getForkOptions().getJvmArgs());
         fork.setMinHeapSize(getForkOptions().getMemoryInitialSize());
@@ -147,5 +154,30 @@ public class ClojureNRepl extends DefaultTask {
   @Option(option = "port", description = "Port the nREPL server should listen on.")
   public void setPort(String port) {
     setPort(Integer.parseInt(port));
+  }
+
+  @org.gradle.api.tasks.Optional
+  @Input
+  public String getHandler() {
+    return handler;
+  }
+
+  @Option(option = "handler", description = "Qualified name of nREPL handler function.")
+  public void setHandler(String handler) {
+    this.handler = handler;
+  }
+
+  @Input
+  public List<String> getMiddleware() {
+    return middleware;
+  }
+
+  @Option(option = "middleware", description = "Qualified names of nREPL middleware functions.")
+  public void setMiddleware(List<String> middleware) {
+    this.middleware = Optional.ofNullable(middleware).orElse(Collections.emptyList());
+  }
+
+  public void middleware(String... middleware) {
+    Arrays.stream(middleware).forEach(this.middleware::add);
   }
 }

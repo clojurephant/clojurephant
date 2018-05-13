@@ -12,13 +12,13 @@ dependencies {
   compile gradleApi()
 
   // clojure runtime
-  compileOnly 'org.clojure:clojure:1.9.0'
+  compileOnly 'org.clojure:clojure:1.8.0'
   compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.1'
+  compile 'us.bpsm:edn-java:0.5.0'
 
   // compat testing
   compatTestCompile gradleTestKit()
-  compatTestCompile project(':modules:gradle-clojure-tools')
-  compatTestCompile 'org.clojure:clojure:1.9.0'
+  compatTestCompile 'org.clojure:clojure:1.8.0'
   compatTestCompile 'org.clojure:tools.namespace:0.2.11'
   compatTestCompile 'junit:junit:4.12'
   compatTestCompile 'org.ajoberstar:ike.cljj:0.4.0'

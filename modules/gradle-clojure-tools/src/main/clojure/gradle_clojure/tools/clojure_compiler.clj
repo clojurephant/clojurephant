@@ -1,5 +1,6 @@
 (ns gradle-clojure.tools.clojure-compiler
-  (:require [gradle-clojure.tools.logger :refer [log]])
+  (:require [gradle-clojure.tools.logger :refer [log]]
+            [clojure.edn :as edn])
   (:import [gradle_clojure.tools.internal LineProcessingWriter]
            [java.io File]))
 
@@ -16,31 +17,28 @@
           (swap! reflection update :project inc)
           (swap! reflection update :library inc))))))
 
-(defn reflection? [compile-options]
-  (let [opts (.getReflectionWarnings compile-options)]
-    (cond
-      (not (.isAsErrors opts)) false
-      (.isProjectOnly opts) (< 0 (:project @reflection))
-      :else (< 0 (:total @reflection)))))
+(defn reflection? [config]
+  (cond
+    (not (-> config :reflection-warnings :as-errors)) false
+    (-> config :reflection-warnings :project-only) (< 0 (:project @reflection))
+    :else (< 0 (:total @reflection))))
 
-(defn compiler [source-dirs destination-dir compile-options namespaces]
-  (try
-    (binding [*namespaces* (seq namespaces)
-              *err* (LineProcessingWriter. *err* (processor source-dirs))
-              *compile-path* (.getAbsolutePath destination-dir)
-              *warn-on-reflection* (-> compile-options .getReflectionWarnings .isEnabled)
-              *compiler-options* {:disable-locals-clearing (.isDisableLocalsClearing compile-options)
-                                  :elide-meta (into [] (map keyword) (.getElideMeta compile-options))
-                                  :direct-linking (.isDirectLinking compile-options)}]
-      (doseq [namespace namespaces]
-        (log :debug "Compiling %s" namespace)
-        (compile (symbol namespace))))
-    (if (reflection? compile-options)
-      (throw (ex-info (str "Reflection warnings found: " @reflection) {})))
-    (catch Throwable e
-      (binding [*out* *err*]
+(defn -main [& args]
+  (let [config (first (edn/read))]
+    (try
+      (binding [*namespaces* (seq (:namespaces config))
+                *err* (LineProcessingWriter. *err* (processor (:source-dirs config)))
+                *compile-path* (:destination-dir config)
+                *warn-on-reflection* (-> config :reflection-warnings :enabled)
+                *compiler-options* (:compiler-options config)]
+        (doseq [namespace (:namespaces config)]
+          (log :debug "Compiling %s" namespace)
+          (compile (symbol namespace))))
+      (if (reflection? config)
+        (throw (ex-info (str "Reflection warnings found: " @reflection) {})))
+      (catch Throwable e
         (loop [ex e]
           (if-let [msg (and ex (.getMessage ex))]
             (log :error msg)
-            (recur (.getCause ex)))))
-      (throw e))))
+            (recur (.getCause ex))))
+        (throw e)))))

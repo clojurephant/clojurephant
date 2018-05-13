@@ -7,7 +7,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import gradle_clojure.plugin.internal.ClojureWorkerExecutor;
+import gradle_clojure.plugin.internal.ClojureExecutor;
+import gradle_clojure.plugin.internal.ExperimentalSettings;
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
@@ -20,16 +22,15 @@ import org.gradle.workers.WorkerExecutor;
 public class ClojureExec extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureExec.class);
 
-  private final ClojureWorkerExecutor workerExecutor;
+  private final ClojureExecutor clojureExecutor;
 
   private FileCollection classpath;
-  private String namespace;
-  private String function;
+  private String main;
   private List<Object> args = new ArrayList<>();
 
   @Inject
   public ClojureExec(WorkerExecutor workerExecutor) {
-    this.workerExecutor = new ClojureWorkerExecutor(getProject(), workerExecutor);
+    this.clojureExecutor = new ClojureExecutor(getProject(), workerExecutor);
   }
 
   @Classpath
@@ -42,21 +43,12 @@ public class ClojureExec extends DefaultTask {
   }
 
   @Input
-  public String getNamespace() {
-    return namespace;
+  public String getMain() {
+    return main;
   }
 
-  public void setNamespace(String namespace) {
-    this.namespace = namespace;
-  }
-
-  @Input
-  public String getFunction() {
-    return function;
-  }
-
-  public void setFunction(String function) {
-    this.function = function;
+  public void setMain(String main) {
+    this.main = main;
   }
 
   @Input
@@ -74,14 +66,18 @@ public class ClojureExec extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    workerExecutor.submit(config -> {
-      config.setClasspath(getClasspath());
-      config.setNamespace(getNamespace());
-      config.setFunction(getFunction());
-      config.setArgs(getArgs().toArray(new Object[getArgs().size()]));
-      config.forkOptions(fork -> {
+    Action<ClojureExecSpec> action = spec -> {
+      spec.setClasspath(getClasspath());
+      spec.setMain(getMain());
+      spec.setArgs(getArgs().toArray(new Object[getArgs().size()]));
+      spec.forkOptions(fork -> {
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
-    });
+    };
+    if (ExperimentalSettings.isUseWorkers()) {
+      clojureExecutor.submit(action);
+    } else {
+      clojureExecutor.exec(action);
+    }
   }
 }

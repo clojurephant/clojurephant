@@ -8,7 +8,7 @@ buildscript {
 apply plugin: 'gradle-clojure.clojure'
 
 repositories {
-  mavenCentral()
+  jcenter()
 }
 
 dependencies {

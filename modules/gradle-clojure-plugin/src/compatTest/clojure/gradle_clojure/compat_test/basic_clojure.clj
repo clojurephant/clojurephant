@@ -46,4 +46,4 @@
                                                                 ""))
       (let [result (gradle/build-and-fail "clean" "check")]
         (is (= TaskOutcome/FAILED (some-> result (.task ":compileClojure") .getOutcome)))
-        (is (str/includes? (.getOutput result) "ClassNotFoundException"))))))
+        (is (str/includes? (.getOutput result) "Could not find or load main class clojure.main"))))))

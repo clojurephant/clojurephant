@@ -1,7 +1,7 @@
-(ns sample.core
+(ns sample.guava
   (:require [clojure.java.classpath :as cp]))
 
-(defn leaking-guava []
+(defn -main [& args]
   (try
     (if (eval '(com.google.common.base.Objects/equal "1" "2"))
       (throw (ex-info "Incorrectly found objects to be equal" {}))
@@ -14,12 +14,3 @@
                        :guava-loader (eval '(-> (com.google.common.base.Functions/identity) (class) (.getClassLoader)))})))
     (catch ClassNotFoundException e
       (println "Guava was not found on the classpath"))))
-
-(defn leaking-clojure []
-  (let [clojure (->> (cp/classpath)
-                     (map #(.getName %))
-                     (filter #(re-matches #"clojure-\d+\.\d+\.\d+\.jar" %))
-                     (into []))]
-    (if (= 1 (count clojure))
-      (println "Only one version of clojure on the classpath")
-      (throw (ex-info "Multiple versions of clojure on the classpath" {:clojure clojure})))))

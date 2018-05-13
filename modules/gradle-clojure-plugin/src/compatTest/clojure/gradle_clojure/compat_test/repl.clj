@@ -6,7 +6,7 @@
             [ike.cljj.file :as file]
             [clojure.tools.nrepl :as repl])
   (:import [org.gradle.testkit.runner TaskOutcome]
-           [gradle_clojure.tools.internal LineProcessingWriter]))
+           [gradle_clojure.compat_test LineProcessingWriter]))
 
 (defn parse-port [port]
   (fn [line]
@@ -20,7 +20,7 @@
       (.forwardStdOutput runner writer)
       (.forwardStdError runner writer)
       (try
-        (.buildAndFail runner)
+        (.build runner)
         (finally
           (deliver port :build-failed))))))
 

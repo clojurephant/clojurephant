@@ -1,6 +1,7 @@
 (ns gradle-clojure.tools.clojure-nrepl
   (:require [clojure.tools.nrepl.server :as nrepl]
-            [clojure.core.server :as server]))
+            [clojure.core.server :as server]
+            [clojure.edn :as edn]))
 
 (def stopper (atom nil))
 
@@ -14,8 +15,13 @@
     (println "Enter Ctrl-D to stop the REPL.")
     (deref (deref stopper))
     (server/stop-server "control")
-    (nrepl/stop-server server)))
+    (nrepl/stop-server server)
+    (shutdown-agents)))
 
 (defn stop! []
   ; message doesn't matter, we're just letting them know it's done
   (deliver @stopper "stop"))
+
+(defn -main [& args]
+  (let [[repl-port control-port] (edn/read)]
+    (start! repl-port control-port)))

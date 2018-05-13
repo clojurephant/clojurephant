@@ -167,6 +167,4 @@ if (System.env['CI']) {
       task.finalizedBy rootProject.tasks.testKitZip
     }
   }
-
-
 }

@@ -9,10 +9,12 @@ import java.net.ServerSocket;
 import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
-import gradle_clojure.plugin.internal.ClojureWorkerExecutor;
+import gradle_clojure.plugin.internal.ClojureExecutor;
+import gradle_clojure.plugin.internal.ExperimentalSettings;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
@@ -28,7 +30,8 @@ import org.gradle.workers.WorkerExecutor;
 public class ClojureNRepl extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureNRepl.class);
 
-  private final ClojureWorkerExecutor workerExecutor;
+  private final ClojureExecutor clojureExecutor;
+  private final AtomicBoolean failed = new AtomicBoolean(false);
 
   private ClojureForkOptions forkOptions = new ClojureForkOptions();
   private FileCollection classpath;
@@ -37,11 +40,11 @@ public class ClojureNRepl extends DefaultTask {
 
   @Inject
   public ClojureNRepl(WorkerExecutor workerExecutor) {
-    this.workerExecutor = new ClojureWorkerExecutor(getProject(), workerExecutor);
+    this.clojureExecutor = new ClojureExecutor(getProject(), workerExecutor);
   }
 
   @TaskAction
-  public void run() {
+  public void run() throws InterruptedException {
     if (port < 0) {
       try (ServerSocket socket = new ServerSocket(0)) {
         port = socket.getLocalPort();
@@ -56,24 +59,28 @@ public class ClojureNRepl extends DefaultTask {
       throw new UncheckedIOException(e);
     }
 
-    start();
     stopOnSignal();
-    workerExecutor.await();
+    start();
   }
 
   private void start() {
-    workerExecutor.submit(config -> {
-      config.setClasspath(getClasspath());
-      config.setNamespace("gradle-clojure.tools.clojure-nrepl");
-      config.setFunction("start!");
-      config.setArgs(port, controlPort);
-      config.forkOptions(fork -> {
+    Action<ClojureExecSpec> action = spec -> {
+      spec.setClasspath(getClasspath());
+      spec.setMain("gradle-clojure.tools.clojure-nrepl");
+      spec.setArgs(port, controlPort);
+      spec.forkOptions(fork -> {
         fork.setJvmArgs(getForkOptions().getJvmArgs());
         fork.setMinHeapSize(getForkOptions().getMemoryInitialSize());
         fork.setMaxHeapSize(getForkOptions().getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
-    });
+    };
+    if (ExperimentalSettings.isUseWorkers()) {
+      clojureExecutor.submit(action);
+      clojureExecutor.await();
+    } else {
+      clojureExecutor.exec(action);
+    }
   }
 
   /**
@@ -92,7 +99,6 @@ public class ClojureNRepl extends DefaultTask {
           }
         } catch (IOException e) {
           stop();
-          throw new UncheckedIOException(e);
         }
       }
     };

@@ -1,13 +1,19 @@
 package gradle_clojure.plugin.tasks;
 
+import static us.bpsm.edn.Keyword.newKeyword;
+
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
+import us.bpsm.edn.Keyword;
 
 public final class ClojureCompileOptions implements Serializable {
   private final ClojureForkOptions forkOptions = new ClojureForkOptions();
@@ -109,5 +115,23 @@ public final class ClojureCompileOptions implements Serializable {
 
   public void setDirectLinking(boolean directLinking) {
     this.directLinking = directLinking;
+  }
+
+  Map<Object, Object> toMap() {
+    Map<Object, Object> reflection = new HashMap<>();
+    reflection.put(newKeyword("enabled"), reflectionWarnings.isEnabled());
+    reflection.put(newKeyword("as-errors"), reflectionWarnings.isAsErrors());
+    reflection.put(newKeyword("project-only"), reflectionWarnings.isProjectOnly());
+
+    Map<Object, Object> compiler = new HashMap<>();
+    compiler.put(newKeyword("disable-locals-clearing"), isDisableLocalsClearing());
+    compiler.put(newKeyword("direct-linking"), isDirectLinking());
+    compiler.put(newKeyword("elide-metadata"), getElideMeta().stream().map(Keyword::newKeyword).collect(Collectors.toList()));
+
+    Map<Object, Object> root = new HashMap<>();
+    root.put(newKeyword("reflection-warnings"), reflection);
+    root.put(newKeyword("compiler-options"), compiler);
+
+    return root;
   }
 }

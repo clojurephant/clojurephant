@@ -8,10 +8,14 @@ buildscript {
 apply plugin: 'gradle-clojure.clojure'
 
 repositories {
-  jcenter()
+  mavenCentral()
+  maven {
+    name = 'Clojars'
+    url = 'https://repo.clojars.org/'
+  }
 }
 
 dependencies {
-  compile 'org.clojure:clojure:1.9.0'
+  compile 'org.clojure:clojure:1.8.0'
   testCompile 'junit:junit:4.12'
 }

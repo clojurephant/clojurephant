@@ -50,7 +50,7 @@ See [Gradle's Introduction to Dependency Management](https://docs.gradle.org/cur
 
 No repositories are specified by default, so you must list any repositories you want to search for your dependencies.
 
-**IMPORTANT:** gradle-clojure currently requires `jcenter()` be included in your repository list.
+**IMPORTANT:** gradle-clojure currently requires `jcenter()` (or `mavenCentral()` and Clojars) be included in your repository list.
 
 ```groovy
 repositories {

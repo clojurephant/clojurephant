@@ -19,7 +19,7 @@ allprojects {
   apply plugin: 'nebula.dependency-lock'
 
   repositories {
-    jcenter()
+    mavenCentral()
     maven {
       name = 'Clojars'
       url = 'https://repo.clojars.org/'

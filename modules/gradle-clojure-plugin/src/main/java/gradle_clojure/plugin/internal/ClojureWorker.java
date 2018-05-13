@@ -4,9 +4,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,18 +33,15 @@ public class ClojureWorker implements Runnable {
   private static final UUID workerId = UUID.randomUUID();
   private static final AtomicInteger workerUseCounter = new AtomicInteger(0);
 
-  private final UUID workerInstanceId = UUID.randomUUID();
-  private final AtomicInteger workerInstanceUseCounter = new AtomicInteger(0);
-
   private final String namespace;
-  private final String function;
   private final Object[] args;
+  private final Set<File> classpath;
 
   @Inject
-  public ClojureWorker(String namespace, String function, Object[] args) {
+  public ClojureWorker(String namespace, Object[] args, Set<File> classpath) {
     this.namespace = namespace;
-    this.function = function;
     this.args = args;
+    this.classpath = classpath;
   }
 
   @Override
@@ -56,18 +50,17 @@ public class ClojureWorker implements Runnable {
     String logLevel = System.getProperty("gradle-clojure.tools.logger.level");
     if ("debug".equals(logLevel) || "info".equals(logLevel)) {
       System.out.println(String.format("INFO Worker process  %s has been used %d times.", workerId, workerUseCounter.incrementAndGet()));
-      System.out.println(String.format("INFO Worker instance %s has been used %d times.", workerInstanceId, workerInstanceUseCounter.incrementAndGet()));
     }
 
     // open a new runtime and execute the requested function
-    try (ClojureRuntime runtime = ClojureRuntime.get()) {
+    try (ClojureRuntime runtime = ClojureRuntime.get(classpath)) {
       ClojureRuntimeShim shim = runtime.getShim();
 
       // (require namespace)
       shim.require(namespace);
 
       // (apply namespace/function args)
-      Object sym = shim.invoke("clojure.core/symbol", namespace, function);
+      Object sym = shim.invoke("clojure.core/symbol", namespace, "-main");
       Object var = shim.invoke("clojure.core/find-var", sym);
       shim.invoke("clojure.core/apply", var, args);
     }
@@ -100,11 +93,9 @@ public class ClojureWorker implements Runnable {
       }
     }
 
-    public static ClojureRuntime get() {
-      String[] classpathElements = System.getProperty("shim.classpath").split(File.pathSeparator);
-      URL[] classpathUrls = Arrays.stream(classpathElements)
-          .map(Paths::get)
-          .map(Path::toUri)
+    public static ClojureRuntime get(Set<File> classpath) {
+      URL[] classpathUrls = classpath.stream()
+          .map(File::toURI)
           .map(safe(URI::toURL))
           .toArray(size -> new URL[size]);
 

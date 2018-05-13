@@ -133,17 +133,38 @@ allprojects {
 // CI Settings
 ///////////////////////////////////////////////////////////////////////////////
 if (System.env['CI']) {
+  task testKitZip(type: Zip) {
+    archiveName = 'test-kit-results.zip'
+    from('modules/gradle-clojure-plugin/build/stutter-tempdir') {
+      include 'stutter-*/**'
+      into 'tempdir'
+    }
+    from('modules/gradle-clojure-plugin/build/stutter-test-kit') {
+      into 'test-kit'
+    }
+    from('modules/gradle-clojure-plugin/build/reports/tests') {
+      into 'reports'
+    }
+  }
+
   allprojects {
-    tasks.withType(Test) {
-      // Forces a new Test worker for each test class
-      // This seems to kill of TestKit workers faster, which is needed in memory
-      // pressured CI systems
-      forkEvery = 1
+    tasks.withType(Test) { task ->
+      // End tests fast when a failure is found
+      failFast = true
 
       // Makes progress more clear in CI
       testLogging {
         events 'passed', 'failed'
       }
+
+      def tmpDir = file('build/stutter-tempdir')
+      doFirst {
+        tmpDir.mkdirs()
+      }
+
+      systemProperty 'java.io.tmpdir', tmpDir.absolutePath
+
+      task.finalizedBy rootProject.tasks.testKitZip
     }
   }
 }

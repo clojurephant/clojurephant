@@ -6,7 +6,7 @@
             [ike.cljj.file :as file]
             [clojure.tools.nrepl :as repl])
   (:import [org.gradle.testkit.runner TaskOutcome]
-           [gradle_clojure.tools.internal LineProcessingWriter]))
+           [gradle_clojure.compat_test LineProcessingWriter]))
 
 (defn parse-port [port]
   (fn [line]
@@ -20,7 +20,7 @@
       (.forwardStdOutput runner writer)
       (.forwardStdError runner writer)
       (try
-        (.buildAndFail runner)
+        (.build runner)
         (finally
           (deliver port :build-failed))))))
 
@@ -38,5 +38,5 @@
           (with-open [conn (repl/connect :port port)]
             (let [client (repl/client conn 1000)]
               (is (= "\"Example2\"" (eval-repl client '(do (require 'cljSS.core) (cljSS.core/test-all)))))
-              (repl/message client {:op "eval" :code (pr-str '(System/exit 0))})))
+              (repl/message client {:op "eval" :code (pr-str '(do (require 'gradle-clojure.tools.clojure-nrepl) (gradle-clojure.tools.clojure-nrepl/stop!)))})))
           (throw (ex-info "Could not determine port REPL started on." {})))))))

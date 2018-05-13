@@ -16,12 +16,10 @@ import gradle_clojure.plugin.tasks.ClojureExec
 
 task leakingGuava(type: ClojureExec) {
   classpath = configurations[sourceSets.main.compileClasspathConfigurationName].plus(files('src/main/clojure'))
-  namespace = 'sample.core'
-  function = 'leaking-guava'
+  main = 'sample.guava'
 }
 
 task leakingClojure(type: ClojureExec) {
   classpath = configurations[sourceSets.main.compileClasspathConfigurationName].plus(files('src/main/clojure'))
-  namespace = 'sample.core'
-  function = 'leaking-clojure'
+  main = 'sample.clojure'
 }

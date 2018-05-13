@@ -1,5 +1,7 @@
 package gradle_clojure.plugin.tasks;
 
+import static us.bpsm.edn.Keyword.newKeyword;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -18,7 +20,8 @@ import java.util.stream.StreamSupport;
 
 import javax.inject.Inject;
 
-import gradle_clojure.plugin.internal.ClojureWorkerExecutor;
+import gradle_clojure.plugin.internal.ClojureExecutor;
+import gradle_clojure.plugin.internal.ExperimentalSettings;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
@@ -34,7 +37,7 @@ import org.gradle.workers.WorkerExecutor;
 public class ClojureCompile extends AbstractCompile {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
-  private final ClojureWorkerExecutor workerExecutor;
+  private final ClojureExecutor clojureExecutor;
 
   private final ClojureCompileOptions options;
 
@@ -42,7 +45,7 @@ public class ClojureCompile extends AbstractCompile {
 
   @Inject
   public ClojureCompile(WorkerExecutor workerExecutor) {
-    this.workerExecutor = new ClojureWorkerExecutor(getProject(), workerExecutor);
+    this.clojureExecutor = new ClojureExecutor(getProject(), workerExecutor);
     this.options = new ClojureCompileOptions();
   }
 
@@ -100,18 +103,28 @@ public class ClojureCompile extends AbstractCompile {
         .plus(getProject().files(getSourceRootsFiles()))
         .plus(getProject().files(compileOutputDir));
 
-    workerExecutor.submit(config -> {
-      config.setClasspath(classpath);
-      config.setNamespace("gradle-clojure.tools.clojure-compiler");
-      config.setFunction("compiler");
-      config.setArgs(getSourceRoots(), compileOutputDir, getOptions(), namespaces);
-      config.forkOptions(fork -> {
+    Map<Object, Object> config = getOptions().toMap();
+    config.put(newKeyword("source-dirs"), getSourceRoots());
+    config.put(newKeyword("destination-dir"), compileOutputDir.getAbsolutePath());
+    config.put(newKeyword("namespaces"), namespaces);
+
+    Action<ClojureExecSpec> action = spec -> {
+      spec.setClasspath(classpath);
+      spec.setMain("gradle-clojure.tools.clojure-compiler");
+      spec.args(config);
+      spec.forkOptions(fork -> {
         fork.setJvmArgs(options.getForkOptions().getJvmArgs());
         fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
         fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
-    });
+    };
+
+    if (ExperimentalSettings.isUseWorkers()) {
+      clojureExecutor.submit(action);
+    } else {
+      clojureExecutor.exec(action);
+    }
   }
 
   public List<String> findNamespaces() {

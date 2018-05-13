@@ -9,12 +9,12 @@
 (deftest leaking-gradle
   (testing "ClojureWorker does not leak classes (such as Guava)"
     (gradle/with-project "WorkerClassLoadingTest"
-      (let [result (gradle/build "leakingGuava")]
+      (let [result (gradle/build "leakingGuava" "-Dgradle-clojure.experimental.use-workers=true")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":leakingGuava") .getOutcome)))
         (is (str/includes? (.getOutput result) "Guava was not found on the classpath"))))))
 
 (deftest leaking-old-clojure
   (testing "ClojureWorker participates in conflict resolution"
     (gradle/with-project "WorkerClassLoadingTest"
-      (let [result (gradle/build "leakingClojure")]
+      (let [result (gradle/build "leakingClojure" "-Dgradle-clojure.experimental.use-workers=true")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":leakingClojure") .getOutcome)))))))

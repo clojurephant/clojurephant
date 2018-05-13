@@ -1,9 +1,9 @@
 plugins {
-    id 'gradle-clojure.clojure'
+  id 'gradle-clojure.clojure'
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
   mavenLocal()
 }
 
@@ -13,8 +13,8 @@ sourceSets {
 }
 
 dependencies {
-    compile 'org.clojure:clojure:1.8.0'
-    testCompile 'junit:junit:4.12'
+  compile 'org.clojure:clojure:1.8.0'
+  testCompile 'junit:junit:4.12'
 }
 
 compileClojure {

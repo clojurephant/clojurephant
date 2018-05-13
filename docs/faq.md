@@ -25,7 +25,53 @@ repositories {
 
 Use the Gradle [Shadow plugin](http://imperceptiblethoughts.com/shadow/).
 
-**NOTE** _We'll add more docs here for basic usage in the future._
+### Configuration
+
+To create an executable uberjar:
+
+```groovy
+plugins {
+  id 'gradle-clojure.clojure' version '<version>'
+  // this tells Gradle you're generating an application with a main class
+  id 'application'
+  // Pulls in the shadow plugin which produces the uberjar
+  id 'com.github.johnrengelman.shadow' version '2.0.4'
+}
+
+mainClassName = 'whatever_your.main.ns.class.is'
+
+// normal repositories and deps blocks
+
+// ensure AOT compile is on
+clojureCompile {
+  options {
+    aotCompile = true
+  }
+}
+```
+
+Ensure your main namespace has `(:gen-class)` in the `ns` declaration:
+
+```clojure
+(ns sample.core
+  (:require [clojure.string :as string]
+            [java-time :as time])
+  (:gen-class))
+
+(defn -main [& args]
+  (println (str (time/local-date))))
+
+```
+
+### Usage
+
+- `./gradlew shadowJar` will produce the uberjar (look in `build/libs`)
+- `./gradlew runShadow` will run the main class of your uberjar
+- `./gradlew distShadowZip` or `./gradlew distShadowTar` will produce a distribution with OS-specific start scripts to run your uberjar. (look in `build/distributions`)
+
+### More information
+
+Read the [Shadow Plugin User Guide](http://imperceptiblethoughts.com/shadow/). for full details on their other features.
 
 ## How do I build Clojure code that depends on Java code?
 

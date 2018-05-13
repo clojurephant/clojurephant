@@ -52,7 +52,7 @@ plugins.withId('eclipse') {
 
 compileCompatTestClojure {
   options.aotCompile = true
-  namespaces = ['gradle-clojure.tools.clojure-test-junit4'] + findNamespaces()
+  namespaces = ['gradle-clojure.tools.logger', 'gradle-clojure.tools.clojure-test-junit4'] + findNamespaces()
 }
 
 tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {

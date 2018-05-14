@@ -90,7 +90,7 @@ allprojects {
     }
 
     clojureRepl {
-      handler = 'cider.nrepl/cider-nrepl-middleware'
+      handler = 'cider.nrepl/cider-nrepl-handler'
     }
   }
 }
@@ -105,14 +105,14 @@ dependencies {
 }
 
 clojureRepl {
-  handler = 'cider.nrepl/cider-nrepl-middleware'
+  handler = 'cider.nrepl/cider-nrepl-handler'
 }
 ```
 
 Optionally, omit the handler config and provide it on the CLI:
 
 ```
-./gradlew clojureRepl --handler=cider.nrepl/cider-nrepl-middleware
+./gradlew clojureRepl --handler=cider.nrepl/cider-nrepl-handler
 ```
 
 Once your REPL starts, use `cider-connect` within Emacs to connect to the port listed in your Gradle output.

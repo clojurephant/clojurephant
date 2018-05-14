@@ -41,10 +41,10 @@
   (is (empty? (set/intersection (file-tree src-dir) (file-tree dst-dir))))
   (is (every? #(-> % .getFileName str (str/ends-with? ".class")) (file-tree dst-dir))))
 
-(defn- runner [args]
+(defn runner [args]
   (-> (GradleRunner/create)
       (.withProjectDir (-> *project-dir* .toFile))
-      (.withArguments (into-array String (conj args "--stacktrace")))
+      (.withArguments (into-array String (conj args "--stacktrace" "-Pgradle-clojure.tools.logger.level=debug")))
       (.withPluginClasspath)
       (.forwardOutput)))
 

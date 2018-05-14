@@ -1,8 +1,7 @@
 # gradle-clojure
 
-[![Bintray](https://img.shields.io/bintray/v/gradle-clojure/maven/gradle-clojure.svg?style=flat-square)](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
-[![Travis](https://img.shields.io/travis/gradle-clojure/gradle-clojure.svg?style=flat-square)](https://travis-ci.org/gradle-clojure/gradle-clojure)
-[![GitHub license](https://img.shields.io/github/license/gradle-clojure/gradle-clojure.svg?style=flat-square)](https://github.com/gradle-clojure/gradle-clojure/blob/master/LICENSE)
+[![Download](https://api.bintray.com/packages/gradle-clojure/maven/gradle-clojure/images/download.svg) ](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
+[![CircleCI](https://circleci.com/gh/gradle-clojure/gradle-clojure.svg?style=svg)](https://circleci.com/gh/gradle-clojure/gradle-clojure)
 
 ## What is this?
 
@@ -13,15 +12,16 @@ A Gradle plugin providing support for the Clojure and Clojurescript languages.
 ### Clojure Features
 
 - Packaging Clojure code (and/or AOT compiled classes) into a JAR
+- Package an Uberjar (via the Gradle [Shadow plugin](http://imperceptiblethoughts.com/shadow/))
 - AOT compilation
 - Running clojure.test tests (integrated into Gradle's [Test task](https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html))
-- Running an nREPL server
+- Running an nREPL server (supports custom middlewares or handler)
 
 ### ClojureScript Features
 
 _Coming soon_
 
-## Why should do you care?
+## Why should you care?
 
 The goal is to provide the same creature comforts that [Leiningen](http://leiningen.org/) and [Boot](http://boot-clj.com/) do for Clojure/Clojurescript development, while also leveraging Gradle's unique features:
 
@@ -65,11 +65,11 @@ dependencies {
   // testCompile 'group:artifact:version'
 
   // dependencies for REPL use only
-  dev 'org.clojure:tools.namespace:0.3.0-alpha4'
+  devCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
 }
 ```
 
-See all available options in the [docs](docs/README.md).
+See all available options in the [docs](https://gradle-clojure.github.io).
 
 ## Getting help
 
@@ -83,4 +83,6 @@ See the [guidelines](.github/CONTRIBUTING.md) for details on how you can contrib
 
 This project started from the [cursive.clojure](https://github.com/cursive-ide/gradle-clojure) plugin by Colin Fleming (@cmf, original author) and Piotrek Bzdyl (@pbzdyl).
 
-Also thanks to John Szakmeister (@jszakmeister) for organizing a call with Gradle to get us started in the right direction.
+Thanks to John Szakmeister (@jszakmeister) for organizing a call with Gradle to get us started in the right direction.
+
+Thanks to all [our contributors](https://github.com/gradle-clojure/gradle-clojure/graphs/contributors).

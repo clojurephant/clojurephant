@@ -10,7 +10,8 @@ dependencies {
 
   // clojure runtime
   compileOnly 'org.clojure:clojure:1.8.0'
-  compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.0'
+  compileOnly 'org.clojure:clojurescript:1.10.238'
+  compileOnly 'junit:junit:4.12'
 }
 
 publishing {

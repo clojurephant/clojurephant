@@ -1,27 +1,19 @@
-/*
- * Copyright 2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package gradle_clojure.plugin.tasks;
+
+import static us.bpsm.edn.Keyword.newKeyword;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
+import us.bpsm.edn.Keyword;
 
 public final class ClojureCompileOptions implements Serializable {
   private final ClojureForkOptions forkOptions = new ClojureForkOptions();
@@ -41,6 +33,17 @@ public final class ClojureCompileOptions implements Serializable {
 
   public ClojureCompileOptions forkOptions(Action<? super ClojureForkOptions> configureAction) {
     configureAction.execute(forkOptions);
+    return this;
+  }
+
+  /*
+   * We only have this variant (instead of just Action) since Gradle doesn't currently (as of 4.7)
+   * instrument Action methods on nested config objects
+   */
+  public ClojureCompileOptions forkOptions(Closure<?> configureAction) {
+    configureAction.setResolveStrategy(Closure.DELEGATE_FIRST);
+    configureAction.setDelegate(forkOptions);
+    configureAction.call(forkOptions);
     return this;
   }
 
@@ -76,6 +79,17 @@ public final class ClojureCompileOptions implements Serializable {
     return this;
   }
 
+  /*
+   * We only have this variant (instead of just Action) since Gradle doesn't currently (as of 4.7)
+   * instrument Action methods on nested config objects
+   */
+  public ClojureCompileOptions reflectionWarnings(Closure<?> configureAction) {
+    configureAction.setResolveStrategy(Closure.DELEGATE_FIRST);
+    configureAction.setDelegate(reflectionWarnings);
+    configureAction.call(reflectionWarnings);
+    return this;
+  }
+
   @Input
   public boolean isDisableLocalsClearing() {
     return disableLocalsClearing;
@@ -101,5 +115,23 @@ public final class ClojureCompileOptions implements Serializable {
 
   public void setDirectLinking(boolean directLinking) {
     this.directLinking = directLinking;
+  }
+
+  Map<Object, Object> toMap() {
+    Map<Object, Object> reflection = new HashMap<>();
+    reflection.put(newKeyword("enabled"), reflectionWarnings.isEnabled());
+    reflection.put(newKeyword("as-errors"), reflectionWarnings.isAsErrors());
+    reflection.put(newKeyword("project-only"), reflectionWarnings.isProjectOnly());
+
+    Map<Object, Object> compiler = new HashMap<>();
+    compiler.put(newKeyword("disable-locals-clearing"), isDisableLocalsClearing());
+    compiler.put(newKeyword("direct-linking"), isDirectLinking());
+    compiler.put(newKeyword("elide-metadata"), getElideMeta().stream().map(Keyword::newKeyword).collect(Collectors.toList()));
+
+    Map<Object, Object> root = new HashMap<>();
+    root.put(newKeyword("reflection-warnings"), reflection);
+    root.put(newKeyword("compiler-options"), compiler);
+
+    return root;
   }
 }

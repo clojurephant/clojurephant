@@ -1,29 +1,57 @@
 plugins {
-  id 'org.ajoberstar.grgit' version '2.0.0'
-  id 'org.ajoberstar.reckon' version '0.2.1'
-  id 'com.diffplug.gradle.spotless' version '3.6.0'
+  id 'org.ajoberstar.grgit' version '2.2.0'
+  id 'org.ajoberstar.reckon' version '0.6.0'
+  id 'com.diffplug.gradle.spotless' version '3.10.0'
 
-  id 'gradle-clojure.clojure' version '0.3.0-rc.3' apply false
-  id 'org.ajoberstar.stutter' version '0.2.0' apply false
-  id 'com.gradle.plugin-publish' version '0.9.9' apply false
+  id 'gradle-clojure.clojure' version '0.4.0-beta.3' apply false
+  id 'org.ajoberstar.stutter' version '0.3.0' apply false
+  id 'com.gradle.plugin-publish' version '0.9.10' apply false
+  id 'nebula.maven-resolved-dependencies' version '7.0.10' apply false
+
+  // TODO remove when Gradle dependency locking is available
+  id 'nebula.dependency-lock' version '5.0.4' apply false
 }
 
-reckon {
-  normal = scopeFromProp()
-  preRelease = stageFromProp('milestone', 'rc', 'final')
-}
-
+///////////////////////////////////////////////////////////////////////////////
+// Dependencies
+///////////////////////////////////////////////////////////////////////////////
 allprojects {
-  apply plugin: 'com.diffplug.gradle.spotless'
-
-  group = 'io.github.gradle-clojure'
+  apply plugin: 'nebula.dependency-lock'
 
   repositories {
-    jcenter()
-    maven { url = 'https://clojars.org/repo' }
+    mavenCentral()
+    maven {
+      name = 'Clojars'
+      url = 'https://repo.clojars.org/'
+    }
   }
+}
 
+///////////////////////////////////////////////////////////////////////////////
+// Packaging
+///////////////////////////////////////////////////////////////////////////////
+allprojects {
+  group = 'io.github.gradle-clojure'
+
+  plugins.withId('java') {
+    sourceCompatibility = 8
+
+    task sourcesJar(type: Jar) {
+      from sourceSets.main.allSource
+      classifier = 'sources'
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Publishing
+///////////////////////////////////////////////////////////////////////////////
+allprojects {
   plugins.withId('maven-publish') {
+    // make sure we don't publish any version ranges in our POMs
+    apply plugin: 'nebula.maven-resolved-dependencies'
+
+    // Publish to following repositories
     publishing {
       repositories {
         maven {
@@ -34,23 +62,62 @@ allprojects {
             password = System.env['BINTRAY_KEY']
           }
         }
+        maven {
+          name = 'clojars'
+          url = 'https://repo.clojars.org'
+          credentials {
+            username = System.env['CLOJARS_USER']
+            password = System.env['CLOJARS_PASSWORD']
+          }
+        }
       }
     }
   }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Versioning and Release
+///////////////////////////////////////////////////////////////////////////////
+reckon {
+  normal = scopeFromProp()
+  preRelease = stageFromProp('beta', 'rc', 'final')
+}
+
+// safety checks before a release
+reckonTagCreate.doFirst {
+  if (grgit.branch.current().name != 'master') {
+    throw new IllegalStateException('Can only release from master')
+  }
+
+  // if making a final release, ensure we made an rc first
+  if (!version.toString().contains('-')) {
+    def head = grgit.head()
+    def tagsOnHead = grgit.tag.list().findAll { it.commit == head }
+    if (!tagsOnHead.find { it.name.startsWith('${version}-rc.') }) {
+      throw new IllegalStateException('Must release an rc of this commit before making a final.')
+    }
+  }
+}
+
+// make sure tests pass before tagging the version
+allprojects {
+  tasks.matching { it.name == 'check' }.all { task ->
+    rootProject.tasks.reckonTagCreate.dependsOn task
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Code Style and Formatting
+///////////////////////////////////////////////////////////////////////////////
+allprojects {
+  apply plugin: 'com.diffplug.gradle.spotless'
 
   plugins.withId('java') {
-    sourceCompatibility = '1.8'
-
-    task sourcesJar(type: Jar) {
-      from sourceSets.main.allSource
-      classifier = 'sources'
-    }
-
-    // ensure consistent formatting
     spotless {
       java {
-        eclipse().configFile rootProject.file('gradle/eclipse-java-google-style-nowrap.xml')
-        licenseHeaderFile file('gradle/HEADER')
+        importOrder 'java', 'javax', ''
+        removeUnusedImports()
+        eclipse().configFile rootProject.file('gradle/eclipse-java-formatter.xml')
       }
       format('gradle') {
         target '**/*.gradle'
@@ -58,6 +125,50 @@ allprojects {
         indentWithSpaces(2)
         endWithNewline()
       }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// CI Settings
+///////////////////////////////////////////////////////////////////////////////
+if (System.env['CI']) {
+  task testKitZip(type: Zip) {
+    archiveName = 'test-kit-results.zip'
+    from('modules/gradle-clojure-plugin/build/stutter-tempdir') {
+      include 'stutter-*/**'
+      into 'tempdir'
+    }
+    from('modules/gradle-clojure-plugin/build/stutter-test-kit') {
+      into 'test-kit'
+    }
+    from('modules/gradle-clojure-plugin/build/reports/tests') {
+      into 'reports'
+    }
+  }
+
+  allprojects {
+    tasks.withType(Test) { task ->
+      // Trying to avoid memory pressure in Circle CI
+      // Gradle closes some test kit processes after JVM shuts down
+      forkEvery = 1
+
+      // End tests fast when a failure is found
+      failFast = true
+
+      // Makes progress more clear in CI
+      testLogging {
+        events 'passed', 'failed'
+      }
+
+      def tmpDir = file('build/stutter-tempdir')
+      doFirst {
+        tmpDir.mkdirs()
+      }
+
+      systemProperty 'java.io.tmpdir', tmpDir.absolutePath
+
+      task.finalizedBy rootProject.tasks.testKitZip
     }
   }
 }

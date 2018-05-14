@@ -1,19 +1,6 @@
-/*
- * Copyright 2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package gradle_clojure.plugin.tasks;
+
+import static us.bpsm.edn.Keyword.newKeyword;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,37 +20,42 @@ import java.util.stream.StreamSupport;
 
 import javax.inject.Inject;
 
+import gradle_clojure.plugin.internal.ClojureExecutor;
+import gradle_clojure.plugin.internal.ExperimentalSettings;
+import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.AbstractCompile;
 import org.gradle.workers.WorkerExecutor;
 
-import gradle_clojure.plugin.internal.ClojureWorkerExecutor;
-
 public class ClojureCompile extends AbstractCompile {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
-  private final ClojureWorkerExecutor workerExecutor;
+  private final ClojureExecutor clojureExecutor;
 
-  private final ClojureCompileOptions options = new ClojureCompileOptions();
+  private final ClojureCompileOptions options;
 
   private List<String> namespaces = Collections.emptyList();
 
   @Inject
   public ClojureCompile(WorkerExecutor workerExecutor) {
-    this.workerExecutor = new ClojureWorkerExecutor(getProject(), workerExecutor);
+    this.clojureExecutor = new ClojureExecutor(getProject(), workerExecutor);
+    this.options = new ClojureCompileOptions();
   }
 
   @Nested
   public ClojureCompileOptions getOptions() {
     return options;
+  }
+
+  public void options(Action<? super ClojureCompileOptions> configureAction) {
+    configureAction.execute(options);
   }
 
   @Input
@@ -81,9 +73,11 @@ public class ClojureCompile extends AbstractCompile {
     if (!getProject().delete(getDestinationDir())) {
       throw new GradleException("Cannot clean destination directory: " + getDestinationDir().getAbsolutePath());
     }
-
     if (!getDestinationDir().mkdirs()) {
       throw new GradleException("Cannot create destination directory: " + getDestinationDir().getAbsolutePath());
+    }
+    if (!getProject().delete(getTemporaryDir())) {
+      throw new GradleException("Cannot clean temporary directory: " + getTemporaryDir().getAbsolutePath());
     }
 
     if (options.isCopySourceSetToOutput()) {
@@ -91,34 +85,45 @@ public class ClojureCompile extends AbstractCompile {
         spec.from(getSource());
         spec.into(getDestinationDir());
       });
+    }
+
+    Collection<String> namespaces = getNamespaces();
+    if (namespaces.isEmpty()) {
+      logger.warn("No Clojure namespaces defined, skipping {}", getName());
       return;
     }
 
-    if (options.isAotCompile()) {
-      Collection<String> namespaces = getNamespaces();
-      if (namespaces.isEmpty()) {
-        logger.warn("No Clojure namespaces defined, skipping {}", getName());
-        return;
-      }
+    logger.info("Compiling {}", String.join(", ", namespaces));
 
-      logger.info("Compiling {}", String.join(", ", namespaces));
+    // for non-aot compile we still want to compile as verification, but classes shouldn't be included
+    // as an output
+    File compileOutputDir = options.isAotCompile() ? getDestinationDir() : getTemporaryDir();
 
-      FileCollection classpath = getClasspath()
-          .plus(getProject().files(getSourceRootsFiles()))
-          .plus(getProject().files(getDestinationDir()));
+    FileCollection classpath = getClasspath()
+        .plus(getProject().files(getSourceRootsFiles()))
+        .plus(getProject().files(compileOutputDir));
 
-      workerExecutor.submit(config -> {
-        config.setClasspath(classpath);
-        config.setNamespace("gradle-clojure.tools.clojure-compiler");
-        config.setFunction("compiler");
-        config.setArgs(getSourceRoots(), getDestinationDir(), getOptions(), namespaces);
-        config.forkOptions(fork -> {
-          fork.setJvmArgs(options.getForkOptions().getJvmArgs());
-          fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
-          fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
-          fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
-        });
+    Map<Object, Object> config = getOptions().toMap();
+    config.put(newKeyword("source-dirs"), getSourceRoots());
+    config.put(newKeyword("destination-dir"), compileOutputDir.getAbsolutePath());
+    config.put(newKeyword("namespaces"), namespaces);
+
+    Action<ClojureExecSpec> action = spec -> {
+      spec.setClasspath(classpath);
+      spec.setMain("gradle-clojure.tools.clojure-compiler");
+      spec.args(config);
+      spec.forkOptions(fork -> {
+        fork.setJvmArgs(options.getForkOptions().getJvmArgs());
+        fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
+        fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+        fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
+    };
+
+    if (ExperimentalSettings.isUseWorkers()) {
+      clojureExecutor.submit(action);
+    } else {
+      clojureExecutor.exec(action);
     }
   }
 
@@ -147,7 +152,6 @@ public class ClojureCompile extends AbstractCompile {
     }
   }
 
-  @Internal
   private Set<String> getSourceRoots() {
     return getSourceRootsFiles().stream().map(it -> {
       try {
@@ -158,7 +162,6 @@ public class ClojureCompile extends AbstractCompile {
     }).collect(Collectors.toSet());
   }
 
-  @Internal
   private List<File> getSourceRootsFiles() {
     // accessing the List<Object> field not the FileTree from getSource
     return source.stream()

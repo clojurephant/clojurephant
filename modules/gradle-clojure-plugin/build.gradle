@@ -11,12 +11,10 @@ dependencies {
   // gradle
   compile gradleApi()
 
-  // cljs options edn printing
-  compile 'us.bpsm:edn-java:0.5.0'
-
   // clojure runtime
   compileOnly 'org.clojure:clojure:1.8.0'
-  compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.0'
+  compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.1'
+  compile 'us.bpsm:edn-java:0.5.0'
 
   // compat testing
   compatTestCompile gradleTestKit()
@@ -36,7 +34,16 @@ processResources {
 }
 
 stutter {
-  supports '4.1', '4.2', '4.2.1', '4.3'
+  includeActiveRc = true
+  // Given how long the tests take, do something more "sparse" instead of all versions we support
+  java(8) {
+    compatible '4.1'
+    compatibleRange '4.7'
+  }
+  java(9) {
+    compatible '4.2.1'
+    compatibleRange '4.7'
+  }
 }
 
 plugins.withId('eclipse') {
@@ -45,7 +52,7 @@ plugins.withId('eclipse') {
 
 compileCompatTestClojure {
   options.aotCompile = true
-  namespaces = ['gradle-clojure.tools.clojure-test-junit4'] + findNamespaces()
+  namespaces = ['gradle-clojure.tools.logger', 'gradle-clojure.tools.clojure-test-junit4'] + findNamespaces()
 }
 
 tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
@@ -54,6 +61,7 @@ tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
   inputs.dir 'src/compatTest/projects'
   systemProperty 'clojure.test.dirs', 'src/compatTest/clojure'
   systemProperty 'stutter.projects', 'src/compatTest/projects'
+  systemProperty 'org.gradle.testkit.dir', file('build/stutter-test-kit').absolutePath
 }
 
 publishing {
@@ -99,6 +107,11 @@ pluginBundle {
       id = 'gradle-clojure.clojure'
       displayName = 'Clojure language plugin for Gradle'
       tags = ['clojure', 'language']
+    }
+    clojurescriptBase {
+      id = 'gradle-clojure.clojurescript-base'
+      displayName = 'Clojurescript base language plugin for Gradle'
+      tags = ['clojurescript', 'language']
     }
     clojurescript {
       id = 'gradle-clojure.clojurescript'

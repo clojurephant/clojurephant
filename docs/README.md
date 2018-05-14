@@ -92,12 +92,24 @@ test {
 clojureRepl {
   port = 55555 // defaults to a random open port (which will be printed in the build output)
 
+  // handler and middleware are both optional, but don't provide both
+  handler = 'cider.nrepl/cider-nrepl-handler' // fully-qualified name of function
+  middleware = ['my.stuff/wrap-stuff'] // list of fully-qualified middleware function names (override any existing)
+  middleware 'dev/my-middleware', 'dev/my-other-middleware' // one or more full-qualified middleware function names (append to any existing)
+
   // clojureRepl provides fork options to customize the Java process for compilation
   options.forkOptions {
     memoryMaximumSize = '2048m'
     jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
   }
 }
+```
+
+The `ClojureNRepl` task also supports command-line options for some of it's parameters. Multiple `middleware` must be specified as separate options.
+
+```
+./gradlew clojureRepl --port=1234 --handler=cider.nrepl/cider-nrepl-handler
+./gradlew clojureRepl --port=4321 --middleware=dev/my-middleware --middleware=dev/my-other-middleware
 ```
 
 ## Polyglot Projects

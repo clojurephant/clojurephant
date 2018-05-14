@@ -149,6 +149,10 @@ if (System.env['CI']) {
 
   allprojects {
     tasks.withType(Test) { task ->
+      // Trying to avoid memory pressure in Circle CI
+      // Gradle closes some test kit processes after JVM shuts down
+      forkEvery = 1
+
       // End tests fast when a failure is found
       failFast = true
 

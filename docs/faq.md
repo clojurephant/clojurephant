@@ -73,6 +73,50 @@ Ensure your main namespace has `(:gen-class)` in the `ns` declaration:
 
 Read the [Shadow Plugin User Guide](http://imperceptiblethoughts.com/shadow/). for full details on their other features.
 
+## How do I use CIDER?
+
+[CIDER](https://cider.readthedocs.io/en/latest/) is a Clojure development environment for Emacs.
+
+Right now you need to manually add the dependency and specify the handler/middleware.
+
+Either apply to all of your projects via an init script:
+
+**~/.gradle/init.d/cider.gradle**
+```groovy
+allprojects {
+  plugins.withId('gradle-clojure.clojure') {
+    dependencies {
+      devCompile 'cider:cider-nrepl:0.17.0'
+    }
+
+    clojureRepl {
+      handler = 'cider.nrepl/cider-nrepl-middleware'
+    }
+  }
+}
+```
+
+Or add it manually to your project:
+
+**build.gradle**
+```groovy
+dependencies {
+  devCompile 'cider:cider-nrepl:0.17.0'
+}
+
+clojureRepl {
+  handler = 'cider.nrepl/cider-nrepl-middleware'
+}
+```
+
+Optionally, omit the handler config and provide it on the CLI:
+
+```
+./gradlew clojureRepl --handler=cider.nrepl/cider-nrepl-middleware
+```
+
+Once your REPL starts, use `cider-connect` within Emacs to connect to the port listed in your Gradle output.
+
 ## How do I build Clojure code that depends on Java code?
 
 You can compile Clojure code that depends on Java out of the box. Just put your

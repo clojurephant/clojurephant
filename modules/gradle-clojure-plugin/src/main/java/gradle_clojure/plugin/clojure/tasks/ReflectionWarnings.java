@@ -1,10 +1,10 @@
 package gradle_clojure.plugin.clojure.tasks;
 
-import java.io.Serializable;
+
 
 import org.gradle.api.tasks.Input;
 
-public final class ReflectionWarnings implements Serializable {
+public final class ReflectionWarnings {
   private boolean enabled;
   private boolean projectOnly;
   private boolean asErrors;

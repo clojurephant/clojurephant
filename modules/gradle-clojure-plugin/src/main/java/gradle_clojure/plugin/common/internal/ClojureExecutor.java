@@ -17,7 +17,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.LogLevel;
-import us.bpsm.edn.printer.Printers;
 
 public final class ClojureExecutor {
   private static final String NREPL_VERSION = "0.2.12";
@@ -41,7 +40,7 @@ public final class ClojureExecutor {
       spec.setMain("clojure.main");
       spec.args("-m", cljSpec.getMain());
 
-      String ednArgs = Printers.printString(Printers.prettyPrinterProtocol(), Arrays.asList(cljSpec.getArgs()));
+      String ednArgs = Edn.print(Arrays.asList(cljSpec.getArgs()));
       ByteArrayInputStream input = new ByteArrayInputStream(ednArgs.getBytes(StandardCharsets.UTF_8));
       spec.setStandardInput(input);
 

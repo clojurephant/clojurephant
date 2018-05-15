@@ -17,24 +17,24 @@
           (swap! reflection update :project inc)
           (swap! reflection update :library inc))))))
 
-(defn reflection? [config]
+(defn reflection? [options]
   (cond
-    (not (-> config :reflection-warnings :as-errors)) false
-    (-> config :reflection-warnings :project-only) (< 0 (:project @reflection))
+    (not (-> options :reflection-warnings :as-errors)) false
+    (-> options :reflection-warnings :project-only) (< 0 (:project @reflection))
     :else (< 0 (:total @reflection))))
 
 (defn -main [& args]
-  (let [config (first (edn/read))]
+  (let [[source-dirs destination-dir namespaces options] (edn/read)]
     (try
-      (binding [*namespaces* (seq (:namespaces config))
-                *err* (LineProcessingWriter. *err* (processor (:source-dirs config)))
-                *compile-path* (:destination-dir config)
-                *warn-on-reflection* (-> config :reflection-warnings :enabled)
-                *compiler-options* (:compiler-options config)]
-        (doseq [namespace (:namespaces config)]
+      (binding [*namespaces* (seq namespaces)
+                *err* (LineProcessingWriter. *err* (processor source-dirs))
+                *compile-path* destination-dir
+                *warn-on-reflection* (-> options :reflection-warnings :enabled)
+                *compiler-options* (-> options :compiler-options)]
+        (doseq [namespace namespaces]
           (log :debug "Compiling %s" namespace)
           (compile (symbol namespace))))
-      (if (reflection? config)
+      (if (reflection? options)
         (throw (ex-info (str "Reflection warnings found: " @reflection) {})))
       (catch Throwable e
         (loop [ex e]

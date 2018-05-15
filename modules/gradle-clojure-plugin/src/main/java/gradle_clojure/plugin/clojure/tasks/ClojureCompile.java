@@ -1,6 +1,5 @@
 package gradle_clojure.plugin.clojure.tasks;
 
-import static us.bpsm.edn.Keyword.newKeyword;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,15 +97,10 @@ public class ClojureCompile extends AbstractCompile {
         .plus(getProject().files(getSourceRootsFiles()))
         .plus(getProject().files(compileOutputDir));
 
-    Map<Object, Object> config = getOptions().toMap();
-    config.put(newKeyword("source-dirs"), getSourceRoots());
-    config.put(newKeyword("destination-dir"), compileOutputDir.getAbsolutePath());
-    config.put(newKeyword("namespaces"), namespaces);
-
     clojureExecutor.exec(spec -> {
       spec.setClasspath(classpath);
       spec.setMain("gradle-clojure.tools.clojure-compiler");
-      spec.args(config);
+      spec.args(getSourceRootsFiles(), compileOutputDir, getNamespaces(), getOptions());
       spec.forkOptions(fork -> {
         fork.setJvmArgs(options.getForkOptions().getJvmArgs());
         fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());

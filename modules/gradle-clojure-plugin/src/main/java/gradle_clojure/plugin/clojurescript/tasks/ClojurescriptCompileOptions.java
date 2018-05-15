@@ -1,7 +1,7 @@
 package gradle_clojure.plugin.clojurescript.tasks;
 
+
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +14,7 @@ import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.Optional;
 import org.gradle.util.ConfigureUtil;
 
-public final class ClojurescriptCompileOptions implements Serializable {
+public final class ClojurescriptCompileOptions {
   private final ClojureForkOptions forkOptions = new ClojureForkOptions();
 
   private File outputTo;

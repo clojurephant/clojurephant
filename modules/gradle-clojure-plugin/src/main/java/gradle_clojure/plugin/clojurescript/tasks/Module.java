@@ -1,14 +1,14 @@
 package gradle_clojure.plugin.clojurescript.tasks;
 
+
 import java.io.File;
-import java.io.Serializable;
 import java.util.Set;
 
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 
-public class Module implements Serializable {
+public class Module {
   private File outputTo;
   private Set<String> entries;
   private Set<String> dependsOn;

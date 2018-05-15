@@ -1,6 +1,6 @@
 package gradle_clojure.plugin.clojurescript.tasks;
 
-import java.io.Serializable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +8,7 @@ import java.util.Map;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 
-public class ForeignLib implements Serializable {
+public class ForeignLib {
   private String file;
   private String fileMin;
   private List<String> provides = Collections.emptyList();

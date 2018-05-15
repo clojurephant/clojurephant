@@ -32,5 +32,10 @@ compileClojurescript {
 //      outputTo = file("${destinationDir}/dupa.js")
 //      entries = ["basic-project.core"]
 //    }
+
+    // until clojurescript fixes the Java 9+ issue, we need this to make the tests pass
+    if (JavaVersion.current().isJava9Compatible()) {
+      forkOptions.jvmArgs += ['--add-modules', 'java.xml.bind']
+    }
   }
 }

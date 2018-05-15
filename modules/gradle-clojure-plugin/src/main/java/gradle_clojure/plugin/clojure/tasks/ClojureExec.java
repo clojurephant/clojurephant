@@ -5,11 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
-import gradle_clojure.plugin.common.internal.ExperimentalSettings;
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
@@ -17,7 +13,6 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.workers.WorkerExecutor;
 
 public class ClojureExec extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureExec.class);
@@ -28,9 +23,8 @@ public class ClojureExec extends DefaultTask {
   private String main;
   private List<Object> args = new ArrayList<>();
 
-  @Inject
-  public ClojureExec(WorkerExecutor workerExecutor) {
-    this.clojureExecutor = new ClojureExecutor(getProject(), workerExecutor);
+  public ClojureExec() {
+    this.clojureExecutor = new ClojureExecutor(getProject());
   }
 
   @Classpath
@@ -66,18 +60,13 @@ public class ClojureExec extends DefaultTask {
 
   @TaskAction
   public void exec() {
-    Action<ClojureExecSpec> action = spec -> {
+    clojureExecutor.exec(spec -> {
       spec.setClasspath(getClasspath());
       spec.setMain(getMain());
       spec.setArgs(getArgs().toArray(new Object[getArgs().size()]));
       spec.forkOptions(fork -> {
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
-    };
-    if (ExperimentalSettings.isUseWorkers()) {
-      clojureExecutor.submit(action);
-    } else {
-      clojureExecutor.exec(action);
-    }
+    });
   }
 }

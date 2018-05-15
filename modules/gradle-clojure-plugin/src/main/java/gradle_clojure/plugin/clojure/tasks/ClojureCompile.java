@@ -18,10 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import javax.inject.Inject;
-
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
-import gradle_clojure.plugin.common.internal.ExperimentalSettings;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
@@ -32,7 +29,6 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.AbstractCompile;
-import org.gradle.workers.WorkerExecutor;
 
 public class ClojureCompile extends AbstractCompile {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
@@ -43,9 +39,8 @@ public class ClojureCompile extends AbstractCompile {
 
   private List<String> namespaces = Collections.emptyList();
 
-  @Inject
-  public ClojureCompile(WorkerExecutor workerExecutor) {
-    this.clojureExecutor = new ClojureExecutor(getProject(), workerExecutor);
+  public ClojureCompile() {
+    this.clojureExecutor = new ClojureExecutor(getProject());
     this.options = new ClojureCompileOptions();
   }
 
@@ -108,7 +103,7 @@ public class ClojureCompile extends AbstractCompile {
     config.put(newKeyword("destination-dir"), compileOutputDir.getAbsolutePath());
     config.put(newKeyword("namespaces"), namespaces);
 
-    Action<ClojureExecSpec> action = spec -> {
+    clojureExecutor.exec(spec -> {
       spec.setClasspath(classpath);
       spec.setMain("gradle-clojure.tools.clojure-compiler");
       spec.args(config);
@@ -118,13 +113,7 @@ public class ClojureCompile extends AbstractCompile {
         fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
-    };
-
-    if (ExperimentalSettings.isUseWorkers()) {
-      clojureExecutor.submit(action);
-    } else {
-      clojureExecutor.exec(action);
-    }
+    });
   }
 
   public List<String> findNamespaces() {

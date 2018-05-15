@@ -16,10 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.inject.Inject;
-
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
-import gradle_clojure.plugin.common.internal.ExperimentalSettings;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
@@ -30,7 +27,6 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
-import org.gradle.workers.WorkerExecutor;
 
 public class ClojureNRepl extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureNRepl.class);
@@ -45,9 +41,8 @@ public class ClojureNRepl extends DefaultTask {
   private String handler;
   private List<String> middleware = new ArrayList<>();
 
-  @Inject
-  public ClojureNRepl(WorkerExecutor workerExecutor) {
-    this.clojureExecutor = new ClojureExecutor(getProject(), workerExecutor);
+  public ClojureNRepl() {
+    this.clojureExecutor = new ClojureExecutor(getProject());
   }
 
   @TaskAction
@@ -71,7 +66,7 @@ public class ClojureNRepl extends DefaultTask {
   }
 
   private void start() {
-    Action<ClojureExecSpec> action = spec -> {
+    clojureExecutor.exec(spec -> {
       spec.setClasspath(getClasspath());
       spec.setMain("gradle-clojure.tools.clojure-nrepl");
       spec.setArgs(port, controlPort, handler, middleware);
@@ -81,13 +76,7 @@ public class ClojureNRepl extends DefaultTask {
         fork.setMaxHeapSize(getForkOptions().getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
-    };
-    if (ExperimentalSettings.isUseWorkers()) {
-      clojureExecutor.submit(action);
-      clojureExecutor.await();
-    } else {
-      clojureExecutor.exec(action);
-    }
+    });
   }
 
   /**

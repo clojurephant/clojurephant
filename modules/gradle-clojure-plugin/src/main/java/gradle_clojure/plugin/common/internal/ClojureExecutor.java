@@ -17,21 +17,16 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.LogLevel;
-import org.gradle.workers.IsolationMode;
-import org.gradle.workers.WorkerExecutor;
 import us.bpsm.edn.printer.Printers;
 
 public final class ClojureExecutor {
-  private static final String SHIMDANDY_VERSION = "1.2.1";
   private static final String NREPL_VERSION = "0.2.12";
   private static final String GRADLE_CLOJURE_VERSION = getVersion();
 
   private final Project project;
-  private final WorkerExecutor workerExecutor;
 
-  public ClojureExecutor(Project project, WorkerExecutor workerExecutor) {
+  public ClojureExecutor(Project project) {
     this.project = project;
-    this.workerExecutor = workerExecutor;
   }
 
   public void exec(Action<ClojureExecSpec> action) {
@@ -52,29 +47,9 @@ public final class ClojureExecutor {
 
       spec.setClasspath(fullClasspath);
       cljSpec.getConfigureFork().forEach(forkAction -> forkAction.execute(spec));
+
+      spec.systemProperty("gradle-clojure.tools.logger.level", getLogLevel());
     });
-  }
-
-  public void submit(Action<ClojureExecSpec> action) {
-    ClojureExecSpec cljSpec = new ClojureExecSpec();
-    action.execute(cljSpec);
-
-    FileCollection additionalClasspath = resolve(tools(), nrepl(), shimImpl());
-    FileCollection realClasspath = cljSpec.getClasspath().plus(additionalClasspath);
-
-    workerExecutor.submit(ClojureWorker.class, worker -> {
-      worker.setIsolationMode(IsolationMode.PROCESS);
-      worker.params(cljSpec.getMain(), cljSpec.getArgs(), realClasspath.getFiles());
-      cljSpec.getConfigureFork().forEach(worker::forkOptions);
-      worker.forkOptions(fork -> {
-        fork.systemProperty("gradle-clojure.tools.logger.level", getLogLevel());
-      });
-      worker.classpath(resolve(shimApi()));
-    });
-  }
-
-  public void await() {
-    workerExecutor.await();
   }
 
   public FileCollection resolve(Dependency... deps) {
@@ -87,14 +62,6 @@ public final class ClojureExecutor {
 
   public Dependency nrepl() {
     return project.getDependencies().create("org.clojure:tools.nrepl:" + NREPL_VERSION);
-  }
-
-  public Dependency shimApi() {
-    return project.getDependencies().create("org.projectodd.shimdandy:shimdandy-api:" + SHIMDANDY_VERSION);
-  }
-
-  public Dependency shimImpl() {
-    return project.getDependencies().create("org.projectodd.shimdandy:shimdandy-impl:" + SHIMDANDY_VERSION);
   }
 
   private static String getVersion() {

@@ -76,19 +76,19 @@ gradlePlugin {
   plugins {
     clojureBase {
       id = 'gradle-clojure.clojure-base'
-      implementationClass = 'gradle_clojure.plugin.ClojureBasePlugin'
+      implementationClass = 'gradle_clojure.plugin.clojure.ClojureBasePlugin'
     }
     clojure {
       id = 'gradle-clojure.clojure'
-      implementationClass = 'gradle_clojure.plugin.ClojurePlugin'
+      implementationClass = 'gradle_clojure.plugin.clojure.ClojurePlugin'
     }
     clojurescriptBase {
       id = 'gradle-clojure.clojurescript-base'
-      implementationClass = 'gradle_clojure.plugin.ClojurescriptBasePlugin'
+      implementationClass = 'gradle_clojure.plugin.clojurescript.ClojurescriptBasePlugin'
     }
     clojurescript {
       id = 'gradle-clojure.clojurescript'
-      implementationClass = 'gradle_clojure.plugin.ClojurescriptPlugin'
+      implementationClass = 'gradle_clojure.plugin.clojurescript.ClojurescriptPlugin'
     }
   }
 }

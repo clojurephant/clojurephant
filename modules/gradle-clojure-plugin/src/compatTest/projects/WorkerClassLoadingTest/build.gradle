@@ -12,7 +12,7 @@ dependencies {
   compile "org.clojure:java.classpath:0.2.3"
 }
 
-import gradle_clojure.plugin.tasks.ClojureExec
+import gradle_clojure.plugin.clojure.tasks.ClojureExec
 
 task leakingGuava(type: ClojureExec) {
   classpath = configurations[sourceSets.main.compileClasspathConfigurationName].plus(files('src/main/clojure'))

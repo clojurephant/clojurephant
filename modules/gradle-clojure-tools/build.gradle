@@ -22,3 +22,8 @@ publishing {
     }
   }
 }
+
+compileClojure {
+  // prevent it from trying to compile (since there's a circular dependency)
+  namespaces = []
+}

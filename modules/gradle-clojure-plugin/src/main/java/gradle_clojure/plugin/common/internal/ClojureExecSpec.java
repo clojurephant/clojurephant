@@ -1,4 +1,4 @@
-package gradle_clojure.plugin.clojure.tasks;
+package gradle_clojure.plugin.common.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;

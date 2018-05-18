@@ -23,7 +23,7 @@
   (server/start-server {:name "control"
                         :port control-port
                         :accept 'gradle-clojure.tools.clojure-nrepl/stop!})
-  (let [server (nrepl/start-server :bind "localhost" :port repl-port :handler handler)]
+  (let [server (nrepl/start-server :port repl-port :handler handler)]
     (println "nREPL server started on port" repl-port)
     (println "Enter Ctrl-D to stop the REPL.")
     (deref (deref stopper))

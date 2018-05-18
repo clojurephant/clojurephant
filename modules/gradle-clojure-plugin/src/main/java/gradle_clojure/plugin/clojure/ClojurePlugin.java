@@ -20,6 +20,7 @@ import org.gradle.api.tasks.SourceSet;
 
 public class ClojurePlugin implements Plugin<Project> {
   private static final String DEV_SOURCE_SET_NAME = "dev";
+  private static final String DEV_NREPL_CONFIGURATION_NAME = "devNRepl";
 
   @Override
   public void apply(Project project) {
@@ -56,6 +57,14 @@ public class ClojurePlugin implements Plugin<Project> {
     SourceDirectorySet mainClojure = new DslObject(main).getConvention().getPlugin(ClojureSourceSet.class).getClojure();
     SourceDirectorySet testClojure = new DslObject(test).getConvention().getPlugin(ClojureSourceSet.class).getClojure();
     SourceDirectorySet devClojure = new DslObject(dev).getConvention().getPlugin(ClojureSourceSet.class).getClojure();
+
+    Configuration nrepl = project.getConfigurations().create(DEV_NREPL_CONFIGURATION_NAME);
+    nrepl.defaultDependencies(deps -> {
+      deps.add(project.getDependencies().create("nrepl:nrepl:0.3.1"));
+    });
+    project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName()).extendsFrom(nrepl);
+    project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()).extendsFrom(nrepl);
+
 
     dev.setCompileClasspath(project.files(
         test.getOutput(),

@@ -7,6 +7,7 @@ import gradle_clojure.plugin.clojure.tasks.ClojureCompile;
 import gradle_clojure.plugin.clojure.tasks.ClojureSourceSet;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.ComponentModuleMetadataDetails;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.JavaBasePlugin;
@@ -26,6 +27,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
     project.getPluginManager().apply(JavaBasePlugin.class);
 
     configureSourceSetDefaults(project);
+    configureModuleReplacements(project);
   }
 
   private void configureSourceSetDefaults(Project project) {
@@ -59,6 +61,13 @@ public class ClojureBasePlugin implements Plugin<Project> {
       compile.dependsOn(project.getTasks().getByName(sourceSet.getCompileJavaTaskName()));
       compile.dependsOn(project.getTasks().getByName(sourceSet.getProcessResourcesTaskName()));
       project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compile);
+    });
+  }
+
+  private void configureModuleReplacements(Project project) {
+    project.getDependencies().getModules().module("org.clojure:tools.nrepl", module -> {
+      ComponentModuleMetadataDetails details = (ComponentModuleMetadataDetails) module;
+      details.replacedBy("nrepl:nrepl", "nREPL was moved out of Clojure Contrib to its own project.");
     });
   }
 }

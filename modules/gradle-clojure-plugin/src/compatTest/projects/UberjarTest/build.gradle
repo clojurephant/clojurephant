@@ -8,11 +8,11 @@ mainClassName = 'sample.core'
 
 repositories {
   mavenCentral()
-  mavenLocal()
   maven {
     name = 'Clojars'
     url = 'https://repo.clojars.org/'
   }
+  mavenLocal()
 }
 
 dependencies {

@@ -7,11 +7,14 @@ import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompile;
 import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptSourceSet;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.internal.tasks.DefaultSourceSetOutput;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.plugins.internal.SourceSetUtil;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 
 public class ClojureScriptBasePlugin implements Plugin<Project> {
@@ -49,7 +52,13 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       // instead of convention mapping
       compile.getConventionMapping().map("classpath", sourceSet::getCompileClasspath);
 
-      SourceSetUtil.configureOutputDirectoryForSourceSet(sourceSet, clojurescriptSourceSet.getClojureScript(), compile, project);
+      DirectoryProperty buildDir = project.getLayout().getBuildDirectory();
+      String outputDirPath = String.format("classes/%s/%s", clojurescriptSourceSet.getClojureScript().getName(), sourceSet.getName());
+      Provider<Directory> outputDir = buildDir.dir(outputDirPath);
+
+      clojurescriptSourceSet.getClojureScript().setOutputDir(outputDir.map(dir -> dir.getAsFile()));
+      ((DefaultSourceSetOutput) sourceSet.getOutput()).addClassesDir(() -> outputDir.get().getAsFile());
+      compile.getConventionMapping().map("destinationDir", () -> outputDir.get().getAsFile());
 
       project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compile);
     });

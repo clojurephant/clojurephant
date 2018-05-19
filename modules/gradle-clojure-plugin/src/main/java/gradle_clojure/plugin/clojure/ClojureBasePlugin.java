@@ -8,11 +8,14 @@ import gradle_clojure.plugin.clojure.tasks.ClojureSourceSet;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ComponentModuleMetadataDetails;
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.internal.tasks.DefaultSourceSetOutput;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.plugins.internal.SourceSetUtil;
+import org.gradle.api.provider.Provider;
 
 public class ClojureBasePlugin implements Plugin<Project> {
   private final SourceDirectorySetFactory sourceDirectorySetFactory;
@@ -56,7 +59,13 @@ public class ClojureBasePlugin implements Plugin<Project> {
       // TODO switch to provider
       compile.getConventionMapping().map("namespaces", compile::findNamespaces);
 
-      SourceSetUtil.configureOutputDirectoryForSourceSet(sourceSet, clojureSourceSet.getClojure(), compile, project);
+      DirectoryProperty buildDir = project.getLayout().getBuildDirectory();
+      String outputDirPath = String.format("classes/%s/%s", clojureSourceSet.getClojure().getName(), sourceSet.getName());
+      Provider<Directory> outputDir = buildDir.dir(outputDirPath);
+
+      clojureSourceSet.getClojure().setOutputDir(outputDir.map(dir -> dir.getAsFile()));
+      ((DefaultSourceSetOutput) sourceSet.getOutput()).addClassesDir(() -> outputDir.get().getAsFile());
+      compile.getConventionMapping().map("destinationDir", () -> outputDir.get().getAsFile());
 
       compile.dependsOn(project.getTasks().getByName(sourceSet.getCompileJavaTaskName()));
       compile.dependsOn(project.getTasks().getByName(sourceSet.getProcessResourcesTaskName()));

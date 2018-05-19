@@ -50,7 +50,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       compile.setSource(clojurescriptSourceSet.getClojureScript());
 
       Provider<FileCollection> classpath = project.provider(sourceSet::getCompileClasspath);
-      compile.setClasspath(project.files(classpath));
+      compile.getClasspath().from(classpath);
 
       DirectoryProperty buildDir = project.getLayout().getBuildDirectory();
       String outputDirPath = String.format("classes/%s/%s", clojurescriptSourceSet.getClojureScript().getName(), sourceSet.getName());
@@ -58,7 +58,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
 
       clojurescriptSourceSet.getClojureScript().setOutputDir(outputDir.map(dir -> dir.getAsFile()));
       ((DefaultSourceSetOutput) sourceSet.getOutput()).addClassesDir(() -> outputDir.get().getAsFile());
-      compile.setDestinationDir(outputDir.map(dir -> dir.getAsFile()));
+      compile.getDestinationDir().set(outputDir);
 
       project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compile);
     });

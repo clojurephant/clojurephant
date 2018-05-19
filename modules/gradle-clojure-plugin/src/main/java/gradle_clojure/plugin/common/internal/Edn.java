@@ -54,8 +54,8 @@ public class Edn {
 
   private static final Printer.Fn<ClojureScriptCompileOptions> CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
     Map<Object, Object> map = new LinkedHashMap<>();
-    map.put(newKeyword("output-to"), self.getOutputTo());
-    map.put(newKeyword("output-dir"), self.getOutputDir());
+    map.put(newKeyword("output-to"), self.getOutputTo().getAsFile().getOrNull());
+    map.put(newKeyword("output-dir"), self.getOutputDir().getAsFile().getOrNull());
     map.put(newKeyword("optimizations"), self.getOptimizations());
     map.put(newKeyword("main"), self.getMain());
     map.put(newKeyword("asset-path"), self.getAssetPath());
@@ -127,7 +127,7 @@ public class Edn {
 
   private static final Printer.Fn<Module> MODULE_PRINTER = (module, printer) -> {
     Map<Object, Object> map = new LinkedHashMap<>();
-    map.put(newKeyword("output-to"), module.getOutputTo());
+    map.put(newKeyword("output-to"), module.getOutputTo().getAsFile().getOrNull());
     map.put(newKeyword("entries"), module.getEntries());
     map.put(newKeyword("dependsOn"), module.getDependsOn());
     map.values().removeIf(Objects::isNull);

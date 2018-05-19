@@ -10,6 +10,9 @@ import java.util.Map;
 import gradle_clojure.plugin.clojure.tasks.ClojureForkOptions;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.Project;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.Optional;
 import org.gradle.util.ConfigureUtil;
@@ -17,12 +20,15 @@ import org.gradle.util.ConfigureUtil;
 public final class ClojureScriptCompileOptions {
   private final ClojureForkOptions forkOptions = new ClojureForkOptions();
 
-  private File outputTo;
-  private File outputDir;
+  private final Project project;
+  private final DirectoryProperty destinationDir;
+  private final RegularFileProperty outputTo;
+  private final DirectoryProperty outputDir;
   private Optimizations optimizations;
   private String main;
   private String assetPath;
-  private Object sourceMap;
+  private final RegularFileProperty sourceMapFile;
+  private Boolean sourceMapEnabled;
   private Boolean verbose;
   private Boolean prettyPrint;
   private Target target;
@@ -41,24 +47,40 @@ public final class ClojureScriptCompileOptions {
   private Boolean staticFns;
   private Boolean fnInvokeDirect;
 
+  public ClojureScriptCompileOptions(Project project, DirectoryProperty destinationDir) {
+    this.project = project;
+    this.destinationDir = destinationDir;
+    this.outputTo = project.getLayout().fileProperty();
+    this.outputDir = project.getLayout().directoryProperty();
+    this.sourceMapFile = project.getLayout().fileProperty();
+  }
+
   @OutputFile
   @Optional
-  public File getOutputTo() {
+  public RegularFileProperty getOutputTo() {
     return outputTo;
   }
 
+  public void setOutputTo(String outputTo) {
+    this.outputTo.set(destinationDir.file(outputTo));
+  }
+
   public void setOutputTo(File outputTo) {
-    this.outputTo = outputTo;
+    this.outputTo.set(outputTo);
   }
 
   @Optional
   @OutputDirectory
-  public File getOutputDir() {
+  public DirectoryProperty getOutputDir() {
     return outputDir;
   }
 
+  public void setOutputDir(String outputDir) {
+    this.outputDir.set(destinationDir.dir(outputDir));
+  }
+
   public void setOutputDir(File outputDir) {
-    this.outputDir = outputDir;
+    this.outputDir.set(outputDir);
   }
 
   @Input
@@ -91,14 +113,35 @@ public final class ClojureScriptCompileOptions {
     this.assetPath = assetPath;
   }
 
-  @Input
-  @Optional
+  @Internal
   public Object getSourceMap() {
-    return sourceMap;
+    File sourceMap = sourceMapFile.getAsFile().getOrNull();
+    if (sourceMap == null) {
+      return sourceMapEnabled;
+    } else {
+      return sourceMap;
+    }
   }
 
-  public void setSourceMap(Object sourceMap) {
-    this.sourceMap = sourceMap;
+  @OutputFile
+  @Optional
+  public RegularFileProperty getSourceMapPath() {
+    return sourceMapFile;
+  }
+
+  public void setSourceMap(String sourceMap) {
+    this.sourceMapEnabled = true;
+    this.sourceMapFile.set(destinationDir.file((String) sourceMap));
+  }
+
+  public void setSourceMap(File sourceMap) {
+    this.sourceMapEnabled = true;
+    this.sourceMapFile.set((File) sourceMap);
+  }
+
+  public void setSourceMap(boolean sourceMap) {
+    this.sourceMapEnabled = (Boolean) sourceMap;
+    this.sourceMapFile.set((File) null);
   }
 
   @Console
@@ -164,7 +207,7 @@ public final class ClojureScriptCompileOptions {
   }
 
   public ClojureScriptCompileOptions module(String name, Closure configureAction) {
-    Module module = new Module();
+    Module module = new Module(project, destinationDir);
     ConfigureUtil.configure(configureAction, module);
     this.modules.put(name, module);
     return this;

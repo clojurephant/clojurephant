@@ -9,23 +9,41 @@ import java.util.stream.Collectors;
 import gradle_clojure.plugin.clojure.tasks.ClojureCompile;
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
 import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.compile.AbstractCompile;
 
-public class ClojureScriptCompile extends AbstractCompile {
+public class ClojureScriptCompile extends SourceTask {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
   private final ClojureExecutor clojureExecutor;
-
-  private final ClojureScriptCompileOptions options = new ClojureScriptCompileOptions();
+  private final DirectoryProperty destinationDir;
+  private final ConfigurableFileCollection classpath;
+  private final ClojureScriptCompileOptions options;
 
   public ClojureScriptCompile() {
     this.clojureExecutor = new ClojureExecutor(getProject());
+    this.destinationDir = getProject().getLayout().directoryProperty();
+    this.classpath = getProject().files();
+    this.options = new ClojureScriptCompileOptions(getProject(), destinationDir);
+  }
+
+  @OutputDirectory
+  public DirectoryProperty getDestinationDir() {
+    return destinationDir;
+  }
+
+  @Classpath
+  public ConfigurableFileCollection getClasspath() {
+    return classpath;
   }
 
   @Nested
@@ -38,9 +56,8 @@ public class ClojureScriptCompile extends AbstractCompile {
     return this;
   }
 
-  @Override
   @TaskAction
-  protected void compile() {
+  public void compile() {
     FileCollection classpath = getClasspath().plus(getProject().files(getSourceRootsFiles()));
 
     clojureExecutor.exec(spec -> {

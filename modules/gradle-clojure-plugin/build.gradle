@@ -19,6 +19,7 @@ dependencies {
   compatTestCompile gradleTestKit()
   compatTestCompile 'org.clojure:clojure:1.8.0'
   compatTestCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
+  compatTestCompile 'nrepl:nrepl:0.3.1'
   compatTestCompile 'junit:junit:4.12'
   compatTestCompile 'org.ajoberstar:ike.cljj:0.4.1'
 }
@@ -51,7 +52,8 @@ plugins.withId('eclipse') {
 
 compileCompatTestClojure {
   options.aotCompile = true
-  namespaces = ['gradle-clojure.tools.logger', 'gradle-clojure.tools.clojure-test-junit4'] + findNamespaces()
+  namespaces.add 'gradle-clojure.tools.logger'
+  namespaces.add 'gradle-clojure.tools.clojure-test-junit4'
 }
 
 tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {

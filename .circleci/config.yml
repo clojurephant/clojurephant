@@ -6,7 +6,7 @@ defaults: &defaults
     - checkout
     - restore_cache:
         keys:
-          - v3-gradle-caches-{{ checksum "global.lock" }}
+          - &cache v4-gradle-caches-{{ checksum "modules/gradle-clojure-plugin/gradle/dependency-locks/devRuntimeClasspath.lockfile" }}-{{ checksum "modules/gradle-clojure-tools/gradle/dependency-locks/devRuntimeClasspath.lockfile" }}
     - attach_workspace:
         at: '.'
     - run:
@@ -15,7 +15,7 @@ defaults: &defaults
     - save_cache:
         paths:
           - '~/.gradle/caches'
-        key: v3-gradle-caches-{{ checksum "global.lock" }}
+        key: *cache
     - store_test_results:
         path: '~/gradle-test-results'
         when: always
@@ -47,10 +47,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-gradle-caches-{{ checksum "global.lock" }}
+            - *cache
       - run:
           name: Update locks
-          command: ./gradlew generateGlobalLock saveGlobalLock stutterWriteLocks
+          command: ./gradlew lock --write-locks stutterWriteLocks
       - run:
           name: Diff lock files
           command: git --no-pager diff
@@ -80,7 +80,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-gradle-caches-{{ checksum "global.lock" }}
+            - *cache
       - run:
           name: Decrypt Gradle properties
           command: openssl enc -d -aes256 -base64 -in gradle.properties.enc -out gradle.properties -pass 'pass:$GRADLE_PROPS_KEY'

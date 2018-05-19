@@ -7,11 +7,15 @@ import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompile;
 import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptSourceSet;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.internal.tasks.DefaultSourceSetOutput;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.plugins.internal.SourceSetUtil;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 
 public class ClojureScriptBasePlugin implements Plugin<Project> {
@@ -45,11 +49,16 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       compile.setDescription(String.format("Compiles the %s ClojureScript source.", sourceSet.getName()));
       compile.setSource(clojurescriptSourceSet.getClojureScript());
 
-      // TODO presumably at some point this will allow providers, so we should switch to that
-      // instead of convention mapping
-      compile.getConventionMapping().map("classpath", sourceSet::getCompileClasspath);
+      Provider<FileCollection> classpath = project.provider(sourceSet::getCompileClasspath);
+      compile.setClasspath(project.files(classpath));
 
-      SourceSetUtil.configureOutputDirectoryForSourceSet(sourceSet, clojurescriptSourceSet.getClojureScript(), compile, project);
+      DirectoryProperty buildDir = project.getLayout().getBuildDirectory();
+      String outputDirPath = String.format("classes/%s/%s", clojurescriptSourceSet.getClojureScript().getName(), sourceSet.getName());
+      Provider<Directory> outputDir = buildDir.dir(outputDirPath);
+
+      clojurescriptSourceSet.getClojureScript().setOutputDir(outputDir.map(dir -> dir.getAsFile()));
+      ((DefaultSourceSetOutput) sourceSet.getOutput()).addClassesDir(() -> outputDir.get().getAsFile());
+      compile.setDestinationDir(outputDir.map(dir -> dir.getAsFile()));
 
       project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compile);
     });

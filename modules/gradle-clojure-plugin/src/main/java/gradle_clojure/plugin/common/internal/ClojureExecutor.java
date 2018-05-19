@@ -11,7 +11,6 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import gradle_clojure.plugin.clojure.tasks.ClojureExecSpec;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
@@ -19,7 +18,6 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.LogLevel;
 
 public final class ClojureExecutor {
-  private static final String NREPL_VERSION = "0.2.12";
   private static final String GRADLE_CLOJURE_VERSION = getVersion();
 
   private final Project project;
@@ -35,7 +33,7 @@ public final class ClojureExecutor {
   }
 
   public void exec(ClojureExecSpec cljSpec) {
-    FileCollection fullClasspath = cljSpec.getClasspath().plus(resolve(tools(), nrepl()));
+    FileCollection fullClasspath = cljSpec.getClasspath().plus(resolve(tools()));
     project.javaexec(spec -> {
       spec.setMain("clojure.main");
       spec.args("-m", cljSpec.getMain());
@@ -57,10 +55,6 @@ public final class ClojureExecutor {
 
   public Dependency tools() {
     return project.getDependencies().create("io.github.gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
-  }
-
-  public Dependency nrepl() {
-    return project.getDependencies().create("org.clojure:tools.nrepl:" + NREPL_VERSION);
   }
 
   private static String getVersion() {

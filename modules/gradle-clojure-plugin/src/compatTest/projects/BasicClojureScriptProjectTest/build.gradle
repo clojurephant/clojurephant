@@ -5,6 +5,10 @@ plugins {
 
 repositories {
   mavenCentral()
+  maven {
+    name = 'Clojars'
+    url = 'https://repo.clojars.org/'
+  }
   mavenLocal()
 }
 

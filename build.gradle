@@ -3,26 +3,38 @@ plugins {
   id 'org.ajoberstar.reckon' version '0.6.0'
   id 'com.diffplug.gradle.spotless' version '3.10.0'
 
-  id 'gradle-clojure.clojure' version '0.4.0-beta.5' apply false
+  id 'gradle-clojure.clojure' version '0.4.0-beta.6' apply false
   id 'org.ajoberstar.stutter' version '0.3.0' apply false
   id 'com.gradle.plugin-publish' version '0.9.10' apply false
   id 'nebula.maven-resolved-dependencies' version '7.0.10' apply false
-
-  // TODO remove when Gradle dependency locking is available
-  id 'nebula.dependency-lock' version '5.0.4' apply false
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
 allprojects {
-  apply plugin: 'nebula.dependency-lock'
-
   repositories {
     mavenCentral()
     maven {
       name = 'Clojars'
       url = 'https://repo.clojars.org/'
+    }
+  }
+
+  dependencyLocking {
+    lockAllConfigurations()
+  }
+
+  task lock {
+    doFirst {
+      assert gradle.startParameter.writeDependencyLocks
+    }
+    doLast {
+      configurations.all {
+        if (canBeResolved) {
+          resolve()
+        }
+      }
     }
   }
 }

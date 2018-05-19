@@ -83,11 +83,11 @@ gradlePlugin {
     }
     clojurescriptBase {
       id = 'gradle-clojure.clojurescript-base'
-      implementationClass = 'gradle_clojure.plugin.clojurescript.ClojurescriptBasePlugin'
+      implementationClass = 'gradle_clojure.plugin.clojurescript.ClojureScriptBasePlugin'
     }
     // clojurescript {
     //   id = 'gradle-clojure.clojurescript'
-    //   implementationClass = 'gradle_clojure.plugin.clojurescript.ClojurescriptPlugin'
+    //   implementationClass = 'gradle_clojure.plugin.clojurescript.ClojureScriptPlugin'
     // }
   }
 }
@@ -95,7 +95,7 @@ gradlePlugin {
 pluginBundle {
   website = 'https://github.com/gradle-clojure/gradle-clojure'
   vcsUrl = 'https://github.com/gradle-clojure/gradle-clojure.git'
-  description = 'Clojure and Clojurescript language support for Gradle'
+  description = 'Clojure and ClojureScript language support for Gradle'
   plugins {
     clojureBase {
       id = 'gradle-clojure.clojure-base'
@@ -109,12 +109,12 @@ pluginBundle {
     }
     clojurescriptBase {
       id = 'gradle-clojure.clojurescript-base'
-      displayName = 'Clojurescript base language plugin for Gradle'
+      displayName = 'ClojureScript base language plugin for Gradle'
       tags = ['clojurescript', 'language']
     }
     // clojurescript {
     //   id = 'gradle-clojure.clojurescript'
-    //   displayName = 'Clojurescript language plugin for Gradle'
+    //   displayName = 'ClojureScript language plugin for Gradle'
     //   tags = ['clojurescript', 'language']
     // }
   }

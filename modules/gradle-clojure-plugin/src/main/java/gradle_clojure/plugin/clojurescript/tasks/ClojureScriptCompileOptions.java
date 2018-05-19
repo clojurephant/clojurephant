@@ -14,7 +14,7 @@ import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.Optional;
 import org.gradle.util.ConfigureUtil;
 
-public final class ClojurescriptCompileOptions {
+public final class ClojureScriptCompileOptions {
   private final ClojureForkOptions forkOptions = new ClojureForkOptions();
 
   private File outputTo;
@@ -136,7 +136,7 @@ public final class ClojurescriptCompileOptions {
     return foreignLibs;
   }
 
-  public ClojurescriptCompileOptions foreignLib(Closure configureAction) {
+  public ClojureScriptCompileOptions foreignLib(Closure configureAction) {
     ForeignLib lib = new ForeignLib();
     ConfigureUtil.configure(configureAction, lib);
     this.foreignLibs.add(lib);
@@ -163,7 +163,7 @@ public final class ClojurescriptCompileOptions {
     return modules;
   }
 
-  public ClojurescriptCompileOptions module(String name, Closure configureAction) {
+  public ClojureScriptCompileOptions module(String name, Closure configureAction) {
     Module module = new Module();
     ConfigureUtil.configure(configureAction, module);
     this.modules.put(name, module);
@@ -289,7 +289,7 @@ public final class ClojurescriptCompileOptions {
     return forkOptions;
   }
 
-  public ClojurescriptCompileOptions forkOptions(Action<? super ClojureForkOptions> configureAction) {
+  public ClojureScriptCompileOptions forkOptions(Action<? super ClojureForkOptions> configureAction) {
     configureAction.execute(forkOptions);
     return this;
   }

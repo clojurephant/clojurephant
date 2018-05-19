@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import gradle_clojure.plugin.clojure.tasks.ClojureCompileOptions;
 import gradle_clojure.plugin.clojure.tasks.ReflectionWarnings;
-import gradle_clojure.plugin.clojurescript.tasks.ClojurescriptCompileOptions;
+import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
 import gradle_clojure.plugin.clojurescript.tasks.ForeignLib;
 import gradle_clojure.plugin.clojurescript.tasks.Module;
 import us.bpsm.edn.Keyword;
@@ -52,7 +52,7 @@ public class Edn {
     printer.printValue(root);
   };
 
-  private static final Printer.Fn<ClojurescriptCompileOptions> CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
+  private static final Printer.Fn<ClojureScriptCompileOptions> CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
     Map<Object, Object> map = new LinkedHashMap<>();
     map.put(newKeyword("output-to"), self.getOutputTo());
     map.put(newKeyword("output-dir"), self.getOutputDir());
@@ -141,8 +141,8 @@ public class Edn {
       // Clojure
       .put(ClojureCompileOptions.class, CLOJURE_COMPILE_OPTIONS_PRINTER)
       .put(ReflectionWarnings.class, REFLECTION_WARNINGS_PRINTER)
-      // Clojurescript
-      .put(ClojurescriptCompileOptions.class, CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER)
+      // ClojureScript
+      .put(ClojureScriptCompileOptions.class, CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER)
       .put(ForeignLib.class, FOREIGN_LIB_PRINTER)
       .put(Module.class, MODULE_PRINTER)
       .build();

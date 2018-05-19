@@ -17,23 +17,23 @@ import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.AbstractCompile;
 
-public class ClojurescriptCompile extends AbstractCompile {
+public class ClojureScriptCompile extends AbstractCompile {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
   private final ClojureExecutor clojureExecutor;
 
-  private final ClojurescriptCompileOptions options = new ClojurescriptCompileOptions();
+  private final ClojureScriptCompileOptions options = new ClojureScriptCompileOptions();
 
-  public ClojurescriptCompile() {
+  public ClojureScriptCompile() {
     this.clojureExecutor = new ClojureExecutor(getProject());
   }
 
   @Nested
-  public ClojurescriptCompileOptions getOptions() {
+  public ClojureScriptCompileOptions getOptions() {
     return options;
   }
 
-  public ClojurescriptCompile options(Action<? super ClojurescriptCompileOptions> configureAction) {
+  public ClojureScriptCompile options(Action<? super ClojureScriptCompileOptions> configureAction) {
     configureAction.execute(options);
     return this;
   }

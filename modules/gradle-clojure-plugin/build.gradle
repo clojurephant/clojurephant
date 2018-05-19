@@ -37,11 +37,11 @@ stutter {
   // Given how long the tests take, do something more "sparse" instead of all versions we support
   java(8) {
     compatible '4.1'
-    compatibleRange '4.7'
+    compatibleRange '4.8-rc-1'
   }
   java(9) {
     compatible '4.2.1'
-    compatibleRange '4.7'
+    compatibleRange '4.8-rc-1'
   }
 }
 

@@ -9,6 +9,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.internal.tasks.DefaultSourceSetOutput;
@@ -48,9 +49,8 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       compile.setDescription(String.format("Compiles the %s ClojureScript source.", sourceSet.getName()));
       compile.setSource(clojurescriptSourceSet.getClojureScript());
 
-      // TODO presumably at some point this will allow providers, so we should switch to that
-      // instead of convention mapping
-      compile.getConventionMapping().map("classpath", sourceSet::getCompileClasspath);
+      Provider<FileCollection> classpath = project.provider(sourceSet::getCompileClasspath);
+      compile.setClasspath(project.files(classpath));
 
       DirectoryProperty buildDir = project.getLayout().getBuildDirectory();
       String outputDirPath = String.format("classes/%s/%s", clojurescriptSourceSet.getClojureScript().getName(), sourceSet.getName());
@@ -58,7 +58,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
 
       clojurescriptSourceSet.getClojureScript().setOutputDir(outputDir.map(dir -> dir.getAsFile()));
       ((DefaultSourceSetOutput) sourceSet.getOutput()).addClassesDir(() -> outputDir.get().getAsFile());
-      compile.getConventionMapping().map("destinationDir", () -> outputDir.get().getAsFile());
+      compile.setDestinationDir(outputDir.map(dir -> dir.getAsFile()));
 
       project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compile);
     });

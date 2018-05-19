@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -24,6 +23,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
@@ -36,11 +36,13 @@ public class ClojureCompile extends AbstractCompile {
 
   private final ClojureCompileOptions options;
 
-  private List<String> namespaces = Collections.emptyList();
+  private final ListProperty<String> namespaces;
 
   public ClojureCompile() {
     this.clojureExecutor = new ClojureExecutor(getProject());
     this.options = new ClojureCompileOptions();
+    this.namespaces = getProject().getObjects().listProperty(String.class);
+    namespaces.set(getProject().provider(this::findNamespaces));
   }
 
   @Nested
@@ -53,12 +55,8 @@ public class ClojureCompile extends AbstractCompile {
   }
 
   @Input
-  public List<String> getNamespaces() {
+  public ListProperty<String> getNamespaces() {
     return namespaces;
-  }
-
-  public void setNamespaces(List<String> namespaces) {
-    this.namespaces = namespaces;
   }
 
   @Override
@@ -81,7 +79,7 @@ public class ClojureCompile extends AbstractCompile {
       });
     }
 
-    Collection<String> namespaces = getNamespaces();
+    List<String> namespaces = getNamespaces().getOrElse(Collections.emptyList());
     if (namespaces.isEmpty()) {
       logger.warn("No Clojure namespaces defined, skipping {}", getName());
       return;
@@ -100,7 +98,7 @@ public class ClojureCompile extends AbstractCompile {
     clojureExecutor.exec(spec -> {
       spec.setClasspath(classpath);
       spec.setMain("gradle-clojure.tools.clojure-compiler");
-      spec.args(getSourceRootsFiles(), compileOutputDir, getNamespaces(), getOptions());
+      spec.args(getSourceRootsFiles(), compileOutputDir, namespaces, getOptions());
       spec.forkOptions(fork -> {
         fork.setJvmArgs(options.getForkOptions().getJvmArgs());
         fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
@@ -110,7 +108,7 @@ public class ClojureCompile extends AbstractCompile {
     });
   }
 
-  public List<String> findNamespaces() {
+  private List<String> findNamespaces() {
     Set<String> roots = getSourceRoots();
     return StreamSupport.stream(getSource().spliterator(), false)
         .filter(it -> it.getName().endsWith(".clj") || it.getName().endsWith(".cljc"))

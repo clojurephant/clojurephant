@@ -1,8 +1,5 @@
 package gradle_clojure.plugin.clojure;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -37,16 +34,8 @@ public class ClojurePlugin implements Plugin<Project> {
     ClojureCompile compile = (ClojureCompile) project.getTasks().getByName(sourceSet.getCompileTaskName("clojure"));
 
     compile.getOptions().setAotCompile(true);
-
-    Callable<?> namespaces = () -> {
-      List<String> nses = new ArrayList<>();
-      nses.add("gradle-clojure.tools.logger");
-      nses.add("gradle-clojure.tools.clojure-test-junit4");
-      nses.addAll(compile.findNamespaces());
-      return nses;
-    };
-
-    compile.getConventionMapping().map("namespaces", namespaces);
+    compile.getNamespaces().add("gradle-clojure.tools.logger");
+    compile.getNamespaces().add("gradle-clojure.tools.clojure-test-junit4");
   }
 
   private void configureDev(Project project, JavaPluginConvention javaConvention) {

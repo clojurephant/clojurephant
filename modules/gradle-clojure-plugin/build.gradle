@@ -85,10 +85,10 @@ gradlePlugin {
       id = 'gradle-clojure.clojurescript-base'
       implementationClass = 'gradle_clojure.plugin.clojurescript.ClojurescriptBasePlugin'
     }
-    clojurescript {
-      id = 'gradle-clojure.clojurescript'
-      implementationClass = 'gradle_clojure.plugin.clojurescript.ClojurescriptPlugin'
-    }
+    // clojurescript {
+    //   id = 'gradle-clojure.clojurescript'
+    //   implementationClass = 'gradle_clojure.plugin.clojurescript.ClojurescriptPlugin'
+    // }
   }
 }
 
@@ -112,11 +112,11 @@ pluginBundle {
       displayName = 'Clojurescript base language plugin for Gradle'
       tags = ['clojurescript', 'language']
     }
-    clojurescript {
-      id = 'gradle-clojure.clojurescript'
-      displayName = 'Clojurescript language plugin for Gradle'
-      tags = ['clojurescript', 'language']
-    }
+    // clojurescript {
+    //   id = 'gradle-clojure.clojurescript'
+    //   displayName = 'Clojurescript language plugin for Gradle'
+    //   tags = ['clojurescript', 'language']
+    // }
   }
   mavenCoordinates {
     groupId = project.group

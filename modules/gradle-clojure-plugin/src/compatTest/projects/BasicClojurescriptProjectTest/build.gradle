@@ -1,5 +1,6 @@
 plugins {
-    id 'gradle-clojure.clojurescript'
+  id 'java'
+  id 'gradle-clojure.clojurescript-base'
 }
 
 repositories {
@@ -8,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.clojure:clojurescript:1.9.946'
+  compile 'org.clojure:clojurescript:1.10.238'
 }
 
 compileClojurescript {

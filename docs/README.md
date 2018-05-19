@@ -19,6 +19,11 @@ When applied this plugin:
 - Adds a `dev` source set for use by the REPL. Its classpath includes the `main` and `test` classpaths.
 - Adds a `clojureRepl` to start an nREPL server using the `dev` classpath.
 
+## gradle-clojure.clojurescript-base
+
+- The `java-base` plugin will be applied (which provides basic Java compilation support, but no source sets)
+- Any source sets you add will have a ClojureScript source directory added with a corresponding compile task.
+
 ## Project Layout
 
 ```
@@ -28,13 +33,21 @@ When applied this plugin:
       clojure/
         sample_clojure/
           core.clj
+      clojurescript/
+        sample_clojure/
+          main.cljs
     test/
       clojure/
         sample_clojure/
           core_test.clj
+      clojurescript/
+        sample_clojure/
+          main_test.cljs // right now we don't support cljs.test
     dev/
       clojure/
         user.clj
+      clojurescript/
+        user.cljs
   gradle/
     wrapper/
       gradle-wrapper.jar
@@ -112,58 +125,30 @@ The `ClojureNRepl` task also supports command-line options for some of it's para
 ./gradlew clojureRepl --port=4321 --middleware=dev/my-middleware --middleware=dev/my-other-middleware
 ```
 
-## Polyglot Projects
+### ClojureScriptCompile
 
-### Clojure that depends on Java
-
-You can compile Clojure code that depends on Java out of the box. Just put your
-Java code in the same source set as the Clojure code:
-
-```
-<project>/
-  src/
-    main/
-      java/
-        sample_java/
-          Sample.java
-      clojure/
-        sample_clojure/
-          core.clj
-```
-
-### Java that depends on Clojure
-
-This requires introducing another source set for the Clojure code.
-
-```
-<project>/
-  src/
-    main/
-      java/
-        sample_java/
-          Sample.java
-    pre/
-      clojure/
-        sample_clojure/
-          core.clj
-```
-
-**build.gradle**
+Review [ClojureScript's compiler options](https://clojurescript.org/reference/compiler-options) documentation for the meaning of all of these features. Differences from the standard behavior are documented inline in the example below.
 
 ```groovy
-// plugins, etc...
-
-sourceSets {
-  pre
-  main.compileClasspath += pre.output
+compileClojurescript {
+  options {
+    outputTo = 'some/file/path.js' // path is relative to the task's destinationDir
+    outputDir = 'some/path' // path is relative to the task's destinationDir
+    optimizations = 'advanced'
+    main = 'foo.bar'
+    assetPath = 'js/compiled/out'
+    sourceMap = 'some/file/path.js.map' // path is relative to the task's destinationDir
+    verbose = true
+    prettyPrint = false
+    target = 'nodejs'
+    // foreignLibs
+    externs = ['jquery-externs.js']
+    // modules
+    // stableNames
+    preloads = ['foo.dev']
+    npmDeps = ['lodash': '4.17.4']
+    installDeps = true
+    checkedArrays = 'warn'
+  }
 }
-
-configurations {
-  preCompile.extendsFrom compile
-}
-
-// dependencies, etc...
 ```
-
-**NOTE:** you could be more thorough in your configuration to get all of the
-configurations to line up as you expect, but this covers the main use case.

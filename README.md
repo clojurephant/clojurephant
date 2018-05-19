@@ -5,7 +5,7 @@
 
 ## What is this?
 
-A Gradle plugin providing support for the Clojure and Clojurescript languages.
+A Gradle plugin providing support for the Clojure and ClojureScript languages.
 
 **NOTE:** gradle-clojure should not be considered stable until 1.0.0. Until then, minor versions (e.g. 0.1.0 to 0.2.0) will likely contain breaking changes.
 
@@ -19,11 +19,13 @@ A Gradle plugin providing support for the Clojure and Clojurescript languages.
 
 ### ClojureScript Features
 
-_Coming soon_
+**NOTE:** ClojureScript features are very basic at this point.
+
+- ClojureScript compilation
 
 ## Why should you care?
 
-The goal is to provide the same creature comforts that [Leiningen](http://leiningen.org/) and [Boot](http://boot-clj.com/) do for Clojure/Clojurescript development, while also leveraging Gradle's unique features:
+The goal is to provide the same creature comforts that [Leiningen](http://leiningen.org/) and [Boot](http://boot-clj.com/) do for Clojure/ClojureScript development, while also leveraging Gradle's unique features:
 
 - Strong support for polyglot projects
 - Strong support for multi-project builds

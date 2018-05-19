@@ -214,75 +214,75 @@ public final class ClojurescriptCompileOptions {
     this.checkedArrays = checkedArrays;
   }
 
-  @Input
-  @Optional
-  public String getSourceMapPath() {
-    return sourceMapPath;
-  }
-
-  public void setSourceMapPath(String sourceMapPath) {
-    this.sourceMapPath = sourceMapPath;
-  }
-
-  @Input
-  @Optional
-  public String getSourceMapAssetPath() {
-    return sourceMapAssetPath;
-  }
-
-  public void setSourceMapAssetPath(String sourceMapAssetPath) {
-    this.sourceMapAssetPath = sourceMapAssetPath;
-  }
-
-  @Input
-  @Optional
-  public Boolean getSourceMapTimestamp() {
-    return sourceMapTimestamp;
-  }
-
-  public void setSourceMapTimestamp(Boolean sourceMapTimestamp) {
-    this.sourceMapTimestamp = sourceMapTimestamp;
-  }
-
-  @Input
-  @Optional
-  public Boolean getCacheAnalysis() {
-    return cacheAnalysis;
-  }
-
-  public void setCacheAnalysis(Boolean cacheAnalysis) {
-    this.cacheAnalysis = cacheAnalysis;
-  }
-
-  @Input
-  @Optional
-  public Boolean getRecompileDependents() {
-    return recompileDependents;
-  }
-
-  public void setRecompileDependents(Boolean recompileDependents) {
-    this.recompileDependents = recompileDependents;
-  }
-
-  @Input
-  @Optional
-  public Boolean getStaticFns() {
-    return staticFns;
-  }
-
-  public void setStaticFns(Boolean staticFns) {
-    this.staticFns = staticFns;
-  }
-
-  @Input
-  @Optional
-  public Boolean getFnInvokeDirect() {
-    return fnInvokeDirect;
-  }
-
-  public void setFnInvokeDirect(Boolean fnInvokeDirect) {
-    this.fnInvokeDirect = fnInvokeDirect;
-  }
+  // @Input
+  // @Optional
+  // public String getSourceMapPath() {
+  // return sourceMapPath;
+  // }
+  //
+  // public void setSourceMapPath(String sourceMapPath) {
+  // this.sourceMapPath = sourceMapPath;
+  // }
+  //
+  // @Input
+  // @Optional
+  // public String getSourceMapAssetPath() {
+  // return sourceMapAssetPath;
+  // }
+  //
+  // public void setSourceMapAssetPath(String sourceMapAssetPath) {
+  // this.sourceMapAssetPath = sourceMapAssetPath;
+  // }
+  //
+  // @Input
+  // @Optional
+  // public Boolean getSourceMapTimestamp() {
+  // return sourceMapTimestamp;
+  // }
+  //
+  // public void setSourceMapTimestamp(Boolean sourceMapTimestamp) {
+  // this.sourceMapTimestamp = sourceMapTimestamp;
+  // }
+  //
+  // @Input
+  // @Optional
+  // public Boolean getCacheAnalysis() {
+  // return cacheAnalysis;
+  // }
+  //
+  // public void setCacheAnalysis(Boolean cacheAnalysis) {
+  // this.cacheAnalysis = cacheAnalysis;
+  // }
+  //
+  // @Input
+  // @Optional
+  // public Boolean getRecompileDependents() {
+  // return recompileDependents;
+  // }
+  //
+  // public void setRecompileDependents(Boolean recompileDependents) {
+  // this.recompileDependents = recompileDependents;
+  // }
+  //
+  // @Input
+  // @Optional
+  // public Boolean getStaticFns() {
+  // return staticFns;
+  // }
+  //
+  // public void setStaticFns(Boolean staticFns) {
+  // this.staticFns = staticFns;
+  // }
+  //
+  // @Input
+  // @Optional
+  // public Boolean getFnInvokeDirect() {
+  // return fnInvokeDirect;
+  // }
+  //
+  // public void setFnInvokeDirect(Boolean fnInvokeDirect) {
+  // this.fnInvokeDirect = fnInvokeDirect;
+  // }
 
   @Nested
   public ClojureForkOptions getForkOptions() {

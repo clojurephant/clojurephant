@@ -6,7 +6,7 @@ defaults: &defaults
     - checkout
     - restore_cache:
         keys:
-          - v2-gradle-caches-{{ checksum "global.lock" }}
+          - v3-gradle-caches-{{ checksum "global.lock" }}
     - attach_workspace:
         at: '.'
     - run:
@@ -15,7 +15,7 @@ defaults: &defaults
     - save_cache:
         paths:
           - '~/.gradle/caches'
-        key: v2-gradle-caches-{{ checksum "global.lock" }}
+        key: v3-gradle-caches-{{ checksum "global.lock" }}
     - store_test_results:
         path: '~/gradle-test-results'
         when: always
@@ -47,7 +47,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-gradle-caches-{{ checksum "global.lock" }}
+            - v3-gradle-caches-{{ checksum "global.lock" }}
       - run:
           name: Update locks
           command: ./gradlew generateGlobalLock saveGlobalLock stutterWriteLocks
@@ -80,7 +80,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-gradle-caches-{{ checksum "global.lock" }}
+            - v3-gradle-caches-{{ checksum "global.lock" }}
       - run:
           name: Decrypt Gradle properties
           command: openssl enc -d -aes256 -base64 -in gradle.properties.enc -out gradle.properties -pass 'pass:$GRADLE_PROPS_KEY'

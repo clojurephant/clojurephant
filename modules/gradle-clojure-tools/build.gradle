@@ -10,6 +10,7 @@ dependencies {
 
   // clojure runtime
   compileOnly 'org.clojure:clojure:1.8.0'
+  compileOnly 'org.clojure:clojurescript:1.10.238'
   compileOnly 'junit:junit:4.12'
 }
 
@@ -20,4 +21,9 @@ publishing {
       artifact sourcesJar
     }
   }
+}
+
+compileClojure {
+  // prevent it from trying to compile (since there's a circular dependency)
+  namespaces = []
 }

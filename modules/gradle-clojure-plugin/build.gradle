@@ -13,15 +13,14 @@ dependencies {
 
   // clojure runtime
   compileOnly 'org.clojure:clojure:1.8.0'
-  compileOnly 'org.projectodd.shimdandy:shimdandy-api:1.2.1'
   compile 'us.bpsm:edn-java:0.5.0'
 
   // compat testing
   compatTestCompile gradleTestKit()
   compatTestCompile 'org.clojure:clojure:1.8.0'
-  compatTestCompile 'org.clojure:tools.namespace:0.2.11'
+  compatTestCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
   compatTestCompile 'junit:junit:4.12'
-  compatTestCompile 'org.ajoberstar:ike.cljj:0.4.0'
+  compatTestCompile 'org.ajoberstar:ike.cljj:0.4.1'
 }
 
 task writeProperties(type: WriteProperties) {
@@ -76,19 +75,27 @@ gradlePlugin {
   plugins {
     clojureBase {
       id = 'gradle-clojure.clojure-base'
-      implementationClass = 'gradle_clojure.plugin.ClojureBasePlugin'
+      implementationClass = 'gradle_clojure.plugin.clojure.ClojureBasePlugin'
     }
     clojure {
       id = 'gradle-clojure.clojure'
-      implementationClass = 'gradle_clojure.plugin.ClojurePlugin'
+      implementationClass = 'gradle_clojure.plugin.clojure.ClojurePlugin'
     }
+    clojurescriptBase {
+      id = 'gradle-clojure.clojurescript-base'
+      implementationClass = 'gradle_clojure.plugin.clojurescript.ClojureScriptBasePlugin'
+    }
+    // clojurescript {
+    //   id = 'gradle-clojure.clojurescript'
+    //   implementationClass = 'gradle_clojure.plugin.clojurescript.ClojureScriptPlugin'
+    // }
   }
 }
 
 pluginBundle {
   website = 'https://github.com/gradle-clojure/gradle-clojure'
   vcsUrl = 'https://github.com/gradle-clojure/gradle-clojure.git'
-  description = 'Clojure and Clojurescript language support for Gradle'
+  description = 'Clojure and ClojureScript language support for Gradle'
   plugins {
     clojureBase {
       id = 'gradle-clojure.clojure-base'
@@ -100,6 +107,16 @@ pluginBundle {
       displayName = 'Clojure language plugin for Gradle'
       tags = ['clojure', 'language']
     }
+    clojurescriptBase {
+      id = 'gradle-clojure.clojurescript-base'
+      displayName = 'ClojureScript base language plugin for Gradle'
+      tags = ['clojurescript', 'language']
+    }
+    // clojurescript {
+    //   id = 'gradle-clojure.clojurescript'
+    //   displayName = 'ClojureScript language plugin for Gradle'
+    //   tags = ['clojurescript', 'language']
+    // }
   }
   mavenCoordinates {
     groupId = project.group

@@ -1,0 +1,42 @@
+plugins {
+  id 'java'
+  id 'gradle-clojure.clojurescript-base'
+}
+
+repositories {
+  mavenCentral()
+  mavenLocal()
+}
+
+dependencies {
+  compile 'org.clojure:clojurescript:1.10.238'
+}
+
+compileClojurescript {
+  options {
+    outputTo = file("${destinationDir}/js/main.js")
+    outputDir = file("${destinationDir}/js/out")
+    optimizations = "simple"
+    main = "basic-project.core"
+    sourceMap = "${destinationDir}/js/main.js.map"
+//    preloads = ["basic-project.core"]
+
+//    foreignLib {
+//      file = "${projectDir}/jquery-3.2.1.js"
+//      fileMin = "${projectDir}/jquery-3.2.1.min.js"
+//      provides = ["my.example"]
+//      globalExports = ["my.example" : "MyExample"]
+//      requires = ["abc"]
+//    }
+//
+//    module("common") {
+//      outputTo = file("${destinationDir}/dupa.js")
+//      entries = ["basic-project.core"]
+//    }
+
+    // until clojurescript fixes the Java 9+ issue, we need this to make the tests pass
+    if (JavaVersion.current().isJava9Compatible()) {
+      forkOptions.jvmArgs += ['--add-modules', 'java.xml.bind']
+    }
+  }
+}

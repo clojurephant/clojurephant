@@ -1,4 +1,0 @@
-rootProject.name = 'manual-test'
-
-// include the main gradle-clojure build
-includeBuild '..'

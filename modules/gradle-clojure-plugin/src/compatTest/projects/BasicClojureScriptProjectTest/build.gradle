@@ -18,11 +18,11 @@ dependencies {
 
 compileClojurescript {
   options {
-    outputTo = file("${destinationDir}/js/main.js")
-    outputDir = file("${destinationDir}/js/out")
+    outputTo = 'js/main.js'
+    outputDir = 'js/out'
     optimizations = "simple"
     main = "basic-project.core"
-    sourceMap = "${destinationDir}/js/main.js.map"
+    sourceMap = 'js/main.js.map'
 //    preloads = ["basic-project.core"]
 
 //    foreignLib {

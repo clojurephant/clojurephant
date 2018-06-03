@@ -44,7 +44,7 @@ stutter {
 }
 
 plugins.withId('eclipse') {
-  eclipse.classpath.plusConfigurations += [configurations.compatTestCompile]
+  eclipse.classpath.plusConfigurations += [configurations.compatTestCompileClasspath]
 }
 
 compileCompatTestClojure {

@@ -2,4 +2,5 @@ rootProject.name = 'gradle-clojure'
 include 'modules:gradle-clojure-plugin'
 include 'modules:gradle-clojure-tools'
 
+enableFeaturePreview('IMPROVED_POM_SUPPORT')
 enableFeaturePreview('STABLE_PUBLISHING')

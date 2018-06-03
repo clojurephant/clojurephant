@@ -1,12 +1,12 @@
 plugins {
-  id 'org.ajoberstar.grgit' version '2.2.0'
-  id 'org.ajoberstar.reckon' version '0.6.0'
-  id 'com.diffplug.gradle.spotless' version '3.10.0'
+  id 'org.ajoberstar.grgit' version '2.2.1'
+  id 'org.ajoberstar.reckon' version '0.7.0'
+  id 'com.diffplug.gradle.spotless' version '3.12.0'
 
   id 'gradle-clojure.clojure' version '0.4.0-beta.6' apply false
-  id 'org.ajoberstar.stutter' version '0.3.0' apply false
+  id 'org.ajoberstar.stutter' version '0.4.0' apply false
   id 'com.gradle.plugin-publish' version '0.9.10' apply false
-  id 'nebula.maven-resolved-dependencies' version '7.0.10' apply false
+  id 'nebula.maven-resolved-dependencies' version '7.2.2' apply false
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,8 +31,8 @@ allprojects {
     }
     doLast {
       configurations.all {
-        if (canBeResolved) {
-          resolve()
+        if (it.canBeResolved) {
+          it.resolve()
         }
       }
     }
@@ -91,8 +91,8 @@ allprojects {
 // Versioning and Release
 ///////////////////////////////////////////////////////////////////////////////
 reckon {
-  normal = scopeFromProp()
-  preRelease = stageFromProp('beta', 'rc', 'final')
+  scopeFromProp()
+  stageFromProp('alpha', 'beta', 'rc', 'final')
 }
 
 // safety checks before a release

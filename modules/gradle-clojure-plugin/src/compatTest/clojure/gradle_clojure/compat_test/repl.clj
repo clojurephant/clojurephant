@@ -4,7 +4,7 @@
             [clojure.test :refer :all]
             [gradle-clojure.compat-test.test-kit :as gradle]
             [ike.cljj.file :as file]
-            [clojure.tools.nrepl :as repl])
+            [nrepl.core :as repl])
   (:import [org.gradle.testkit.runner TaskOutcome]
            [gradle_clojure.compat_test LineProcessingWriter]
            [java.time LocalDate]))

@@ -18,7 +18,7 @@ dependencies {
   compatTestImplementation gradleTestKit()
   compatTestImplementation 'org.clojure:clojure:latest.release'
   compatTestImplementation 'org.clojure:tools.namespace:latest.release'
-  compatTestImplementation 'nrepl:nrepl:0.3.1'
+  compatTestImplementation 'nrepl:nrepl:latest.release'
   compatTestImplementation 'junit:junit:latest.release'
   compatTestImplementation 'org.ajoberstar:ike.cljj:latest.release'
 }

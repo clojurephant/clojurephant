@@ -2,7 +2,7 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 junit:junit:4.12
-nrepl:nrepl:0.3.1
+nrepl:nrepl:0.4.1
 org.ajoberstar:ike.cljj:0.4.1
 org.clojure:clojure:1.10.0-alpha4
 org.clojure:core.specs.alpha:0.1.24

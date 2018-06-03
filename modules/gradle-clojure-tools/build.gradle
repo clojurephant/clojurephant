@@ -1,5 +1,5 @@
 plugins {
-  id 'java'
+  id 'java-library'
   id 'gradle-clojure.clojure'
   id 'maven-publish'
 }
@@ -12,7 +12,7 @@ dependencies {
   compileOnly 'org.clojure:clojure:1.8.0'
   compileOnly 'org.clojure:clojurescript:1.10.238'
   compileOnly 'nrepl:nrepl:0.3.1'
-  compileOnly 'junit:junit:4.12'
+  compileOnly 'junit:junit:latest.release'
 }
 
 publishing {

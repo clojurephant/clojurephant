@@ -4,7 +4,7 @@
             [clojure.test :refer :all]
             [gradle-clojure.compat-test.test-kit :as gradle]
             [ike.cljj.file :as file]
-            [clojure.tools.nrepl :as repl])
+            [nrepl.core :as repl])
   (:import [org.gradle.testkit.runner TaskOutcome]
            [gradle_clojure.compat_test LineProcessingWriter]
            [java.time LocalDate]))
@@ -68,3 +68,17 @@
     (with-client [client "CiderTest" "--handler=cider.nrepl/cider-nrepl-handler"]
       (is (= "0.17.0" (-> (send-repl client {:op "cider-version"}) :cider-version :version-string)))
       (is (pr-str 7) (eval-repl client '(do (require 'basic-project.core) (basic-project/use-ns 4)))))))
+
+(deftest task-dependencies
+  (testing "No Clojure compiles happen when REPL is requested, but other languages are compiled"
+    (gradle/with-project "MixedJavaClojureTest"
+      (let [result (gradle/build "clojureRepl" "--dry-run")]
+        (is (str/includes? (.getOutput result) ":compileJava SKIPPED"))
+        (is (str/includes? (.getOutput result) ":compileTestJava SKIPPED"))
+        (is (str/includes? (.getOutput result) ":compileDevJava SKIPPED"))
+        (is (not (str/includes? (.getOutput result) ":compileClojure SKIPPED")))
+        (is (not (str/includes? (.getOutput result) ":compileTestClojure SKIPPED")))
+        (is (not (str/includes? (.getOutput result) ":compileDevClojure SKIPPED")))
+        (is (not (str/includes? (.getOutput result) ":compileClojurescript SKIPPED")))
+        (is (not (str/includes? (.getOutput result) ":compileTestClojurescript SKIPPED")))
+        (is (not (str/includes? (.getOutput result) ":compileDevClojurescript SKIPPED")))))))

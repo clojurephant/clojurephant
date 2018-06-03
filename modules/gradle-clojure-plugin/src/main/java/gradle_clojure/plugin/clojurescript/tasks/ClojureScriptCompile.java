@@ -3,28 +3,26 @@ package gradle_clojure.plugin.clojurescript.tasks;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
-import gradle_clojure.plugin.clojure.tasks.ClojureCompile;
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
 import org.gradle.api.Action;
+import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Classpath;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.SourceTask;
+import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 
-public class ClojureScriptCompile extends SourceTask {
-  private static final Logger logger = Logging.getLogger(ClojureCompile.class);
-
+public class ClojureScriptCompile extends DefaultTask {
   private final ClojureExecutor clojureExecutor;
+
+  private SourceDirectorySet source;
   private final DirectoryProperty destinationDir;
   private final ConfigurableFileCollection classpath;
   private final ClojureScriptCompileOptions options;
@@ -34,6 +32,16 @@ public class ClojureScriptCompile extends SourceTask {
     this.destinationDir = getProject().getLayout().directoryProperty();
     this.classpath = getProject().files();
     this.options = new ClojureScriptCompileOptions(getProject(), destinationDir);
+  }
+
+  @InputFiles
+  @SkipWhenEmpty
+  public FileCollection getSource() {
+    return source;
+  }
+
+  public void setSource(SourceDirectorySet source) {
+    this.source = source;
   }
 
   @OutputDirectory
@@ -73,11 +81,8 @@ public class ClojureScriptCompile extends SourceTask {
     });
   }
 
-  private List<File> getSourceRootsFiles() {
+  private Set<File> getSourceRootsFiles() {
     // accessing the List<Object> field not the FileTree from getSource
-    return source.stream()
-        .filter(it -> it instanceof SourceDirectorySet)
-        .flatMap(it -> ((SourceDirectorySet) it).getSrcDirs().stream())
-        .collect(Collectors.toList());
+    return source.getSrcDirs();
   }
 }

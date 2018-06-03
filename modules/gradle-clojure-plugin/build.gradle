@@ -9,19 +9,18 @@ plugins {
 
 dependencies {
   // gradle
-  compile gradleApi()
+  compileOnly gradleApi()
 
-  // clojure runtime
-  compileOnly 'org.clojure:clojure:1.8.0'
-  compile 'us.bpsm:edn-java:0.5.0'
+  // edn support
+  implementation 'us.bpsm:edn-java:latest.release'
 
   // compat testing
-  compatTestCompile gradleTestKit()
-  compatTestCompile 'org.clojure:clojure:1.8.0'
-  compatTestCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
-  compatTestCompile 'nrepl:nrepl:0.3.1'
-  compatTestCompile 'junit:junit:4.12'
-  compatTestCompile 'org.ajoberstar:ike.cljj:0.4.1'
+  compatTestImplementation gradleTestKit()
+  compatTestImplementation 'org.clojure:clojure:latest.release'
+  compatTestImplementation 'org.clojure:tools.namespace:latest.release'
+  compatTestImplementation 'nrepl:nrepl:latest.release'
+  compatTestImplementation 'junit:junit:latest.release'
+  compatTestImplementation 'org.ajoberstar:ike.cljj:latest.release'
 }
 
 task writeProperties(type: WriteProperties) {
@@ -34,20 +33,18 @@ processResources {
 }
 
 stutter {
+  sparse = true
   includeActiveRc = true
-  // Given how long the tests take, do something more "sparse" instead of all versions we support
   java(8) {
-    compatible '4.1'
-    compatibleRange '4.8-rc-1'
+    compatibleRange '4.1'
   }
   java(9) {
-    compatible '4.2.1'
-    compatibleRange '4.8-rc-1'
+    compatibleRange '4.2.1'
   }
 }
 
 plugins.withId('eclipse') {
-  eclipse.classpath.plusConfigurations += [configurations.compatTestCompile]
+  eclipse.classpath.plusConfigurations += [configurations.compatTestCompileClasspath]
 }
 
 compileCompatTestClojure {
@@ -124,5 +121,19 @@ pluginBundle {
     groupId = project.group
     artifactId = project.name
     version = project.version
+  }
+  // since plugin publish doesn't use maven-publish need a different way to use resolved versions in POMs
+  withDependencies { deps ->
+    def resolvedDeps = project.configurations.runtimeClasspath.incoming.resolutionResult.allDependencies
+    deps.each { dep ->
+      String group = dep.groupId
+      String artifact = dep.artifactId
+      ResolvedDependencyResult found = resolvedDeps.find { r ->
+          (r.requested instanceof ModuleComponentSelector) &&
+              (r.requested.group == group) &&
+              (r.requested.module == artifact)
+      }
+      dep.version = found.selected.moduleVersion.version
+    }
   }
 }

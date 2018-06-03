@@ -14,27 +14,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.api.tasks.options.Option;
 
 public class ClojureNRepl extends DefaultTask {
-  private static final Logger logger = Logging.getLogger(ClojureNRepl.class);
-
   private final ClojureExecutor clojureExecutor;
-  private final AtomicBoolean failed = new AtomicBoolean(false);
 
-  private ClojureForkOptions forkOptions = new ClojureForkOptions();
+  private ForkOptions forkOptions = new ForkOptions();
   private FileCollection classpath;
   private int port = -1;
   private int controlPort = -1;
@@ -113,11 +108,11 @@ public class ClojureNRepl extends DefaultTask {
   }
 
   @Nested
-  public ClojureForkOptions getForkOptions() {
+  public ForkOptions getForkOptions() {
     return forkOptions;
   }
 
-  public ClojureNRepl forkOptions(Action<? super ClojureForkOptions> configureAction) {
+  public ClojureNRepl forkOptions(Action<? super ForkOptions> configureAction) {
     configureAction.execute(forkOptions);
     return this;
   }

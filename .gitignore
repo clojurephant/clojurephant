@@ -1,6 +1,6 @@
 # Gradle
-.gradle
-build
+.gradle/
+build/
 gradle.properties
 
 # IntelliJ
@@ -10,10 +10,13 @@ gradle.properties
 .idea
 
 # Eclipse
-.settings
+.settings/
 .project
 .classpath
-bin
+bin/
+
+# VS Code
+.vs-code/
 
 # Sublime
 *.sublime-workspace

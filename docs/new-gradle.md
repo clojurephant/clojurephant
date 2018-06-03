@@ -74,19 +74,19 @@ Unless you have a reason to do otherwise, use Gradle's shorthand syntax `<config
 
 Dependencies are put in different configurations (somewhat similar to Maven scopes). For Clojure's purposes, the three main ones to be aware of are:
 
-- `compile` - dependencies of your main application code
-- `testCompile` - dependencies of your test code
-- `devCompile` - dependencies used only in the REPL
+- `implementation` - dependencies of your main application code
+- `testImplementation` - dependencies of your test code
+- `devImplementation` - dependencies used only in the REPL
 
 ```groovy
 dependencies {
-  compile 'org.clojure:clojure:1.9.0'
+  implementation 'org.clojure:clojure:1.9.0'
 
   // due to how clojure.test is executed, an explicit JUnit 4 dependency is needed
-  testCompile 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.12'
 
   // due to the way Gradle's REPL is started, if you need tools.namespace, you must be on 0.3+
-  devCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
+  devImplementation 'org.clojure:tools.namespace:0.3.0-alpha4'
 }
 ```
 
@@ -109,10 +109,10 @@ repositories {
 }
 
 dependencies {
-  compile 'org.clojure:clojure:1.9.0'
+  implementation 'org.clojure:clojure:1.9.0'
 
-  testCompile 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.12'
 
-  devCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
+  devImplementation 'org.clojure:tools.namespace:0.3.0-alpha4'
 }
 ```

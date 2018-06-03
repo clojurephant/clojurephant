@@ -24,6 +24,7 @@
     :else (< 0 (:total @reflection))))
 
 (defn -main [& args]
+  (log :debug "Classpath: %s" (System/getProperty "java.class.path"))
   (let [[source-dirs destination-dir namespaces options] (edn/read)]
     (try
       (binding [*namespaces* (seq namespaces)

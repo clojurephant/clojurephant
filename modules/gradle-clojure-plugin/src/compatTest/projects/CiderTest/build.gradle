@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-  compile 'org.clojure:clojure:1.8.0'
-  testCompile 'junit:junit:4.12'
-  devCompile 'cider:cider-nrepl:0.17.0'
+  implementation 'org.clojure:clojure:1.8.0'
+  testImplementation 'junit:junit:4.12'
+  devImplementation 'cider:cider-nrepl:0.17.0'
 }

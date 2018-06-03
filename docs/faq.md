@@ -41,13 +41,6 @@ plugins {
 mainClassName = 'whatever_your.main.ns.class.is'
 
 // normal repositories and deps blocks
-
-// ensure AOT compile is on
-clojureCompile {
-  options {
-    aotCompile = true
-  }
-}
 ```
 
 Ensure your main namespace has `(:gen-class)` in the `ns` declaration:
@@ -86,7 +79,7 @@ Either apply to all of your projects via an init script:
 allprojects {
   plugins.withId('gradle-clojure.clojure') {
     dependencies {
-      devCompile 'cider:cider-nrepl:0.17.0'
+      devImplementation 'cider:cider-nrepl:0.17.0'
     }
 
     clojureRepl {
@@ -101,7 +94,7 @@ Or add it manually to your project:
 **build.gradle**
 ```groovy
 dependencies {
-  devCompile 'cider:cider-nrepl:0.17.0'
+  devImplementation 'cider:cider-nrepl:0.17.0'
 }
 
 clojureRepl {
@@ -162,7 +155,7 @@ sourceSets {
 }
 
 configurations {
-  preCompile.extendsFrom compile
+  preImplementation.extendsFrom implementation
 }
 
 // dependencies, etc...

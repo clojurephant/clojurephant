@@ -13,8 +13,4 @@ subprojects {
     }
     mavenLocal()
   }
-
-  compileClojure {
-    options.aotCompile = Boolean.getBoolean("aotCompile")
-  }
 }

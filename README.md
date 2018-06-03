@@ -57,17 +57,17 @@ plugins {
 
 dependencies {
   // whatever version of clojure you prefer (older versions may not be compatible)
-  compile 'org.clojure:clojure:1.8.0'
+  implementation 'org.clojure:clojure:1.8.0'
   // and any other dependencies you want on the compile classpath
-  // compile 'group:artifact:version'
+  // implementation 'group:artifact:version'
 
   // needed for test integration
-  testCompile 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.12'
   // and any other test-specific dependencies
-  // testCompile 'group:artifact:version'
+  // testImplementation 'group:artifact:version'
 
   // dependencies for REPL use only
-  devCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
+  devImplementation 'org.clojure:tools.namespace:0.3.0-alpha4'
 }
 ```
 

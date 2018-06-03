@@ -7,18 +7,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import gradle_clojure.plugin.clojure.tasks.ClojureForkOptions;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Console;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.util.ConfigureUtil;
 
 public final class ClojureScriptCompileOptions {
-  private final ClojureForkOptions forkOptions = new ClojureForkOptions();
+  private final ForkOptions forkOptions = new ForkOptions();
 
   private final Project project;
   private final DirectoryProperty destinationDir;
@@ -39,13 +44,13 @@ public final class ClojureScriptCompileOptions {
   private Map<String, String> npmDeps = new HashMap<>();
   private Boolean installDeps;
   private CheckedArrays checkedArrays;
-  private String sourceMapPath;
-  private String sourceMapAssetPath;
-  private Boolean sourceMapTimestamp;
-  private Boolean cacheAnalysis;
-  private Boolean recompileDependents;
-  private Boolean staticFns;
-  private Boolean fnInvokeDirect;
+  // private String sourceMapPath;
+  // private String sourceMapAssetPath;
+  // private Boolean sourceMapTimestamp;
+  // private Boolean cacheAnalysis;
+  // private Boolean recompileDependents;
+  // private Boolean staticFns;
+  // private Boolean fnInvokeDirect;
 
   public ClojureScriptCompileOptions(Project project, DirectoryProperty destinationDir) {
     this.project = project;
@@ -179,7 +184,7 @@ public final class ClojureScriptCompileOptions {
     return foreignLibs;
   }
 
-  public ClojureScriptCompileOptions foreignLib(Closure configureAction) {
+  public ClojureScriptCompileOptions foreignLib(Closure<?> configureAction) {
     ForeignLib lib = new ForeignLib();
     ConfigureUtil.configure(configureAction, lib);
     this.foreignLibs.add(lib);
@@ -206,7 +211,7 @@ public final class ClojureScriptCompileOptions {
     return modules;
   }
 
-  public ClojureScriptCompileOptions module(String name, Closure configureAction) {
+  public ClojureScriptCompileOptions module(String name, Closure<?> configureAction) {
     Module module = new Module(project, destinationDir);
     ConfigureUtil.configure(configureAction, module);
     this.modules.put(name, module);
@@ -328,11 +333,11 @@ public final class ClojureScriptCompileOptions {
   // }
 
   @Nested
-  public ClojureForkOptions getForkOptions() {
+  public ForkOptions getForkOptions() {
     return forkOptions;
   }
 
-  public ClojureScriptCompileOptions forkOptions(Action<? super ClojureForkOptions> configureAction) {
+  public ClojureScriptCompileOptions forkOptions(Action<? super ForkOptions> configureAction) {
     configureAction.execute(forkOptions);
     return this;
   }

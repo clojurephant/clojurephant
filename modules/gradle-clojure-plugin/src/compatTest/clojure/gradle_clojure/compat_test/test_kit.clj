@@ -2,8 +2,11 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]
             [clojure.test :refer :all]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner BuildResult BuildTask GradleRunner TaskOutcome]))
+            [ike.cljj.file :as file]
+            [ike.cljj.stream])
+  (:import [org.gradle.testkit.runner BuildResult BuildTask GradleRunner TaskOutcome]
+           [java.util.jar JarFile]
+           [java.nio.file Path]))
 
 (defn setup-project [name]
   (println "*** " name " ***")
@@ -23,7 +26,7 @@
      ~@body))
 
 (defn file [& paths]
-  (reduce (fn [parent child] (.resolve parent child)) *project-dir* paths))
+  (reduce (fn [parent child] (.resolve parent (file/as-path child))) *project-dir* paths))
 
 (defn file-tree [& paths]
   (let [root (apply file paths)
@@ -41,7 +44,24 @@
   (is (empty? (set/intersection (file-tree src-dir) (file-tree dst-dir))))
   (is (every? #(-> % .getFileName str (str/ends-with? ".class")) (file-tree dst-dir))))
 
+(defn jar-contents
+  [path]
+  (let [jar-path (.resolve *project-dir* (file/as-path path))]
+    (with-open [jar-stream (.stream (JarFile. (.toFile jar-path)))]
+      (into #{} (comp (filter (complement #(.isDirectory %)))
+                      (filter (complement #(= (.getName %) "META-INF/MANIFEST.MF")))
+                      (map #(.getName %))
+                      (map file/as-path))
+                jar-stream))))
+
+(defn verify-jar-contents
+  [src-dirs dst-jar]
+  (let [jar-entries (jar-contents dst-jar)
+        sources (into #{} (mapcat file-tree) src-dirs)]
+    (is (= sources jar-entries))))
+
 (defn runner [args]
+  (println "***** Args:" args "*****")
   (-> (GradleRunner/create)
       (.withProjectDir (-> *project-dir* .toFile))
       (.withArguments (into-array String (conj args "--stacktrace" "-Pgradle-clojure.tools.logger.level=debug")))

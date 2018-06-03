@@ -1,25 +1,18 @@
 package gradle_clojure.plugin.common.internal;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.LogLevel;
 
 public final class ClojureExecutor {
-  private static final String GRADLE_CLOJURE_VERSION = getVersion();
-
   private final Project project;
 
   public ClojureExecutor(Project project) {
@@ -33,7 +26,7 @@ public final class ClojureExecutor {
   }
 
   public void exec(ClojureExecSpec cljSpec) {
-    FileCollection fullClasspath = cljSpec.getClasspath().plus(resolve(tools()));
+    FileCollection fullClasspath = cljSpec.getClasspath();
     project.javaexec(spec -> {
       spec.setMain("clojure.main");
       spec.args("-m", cljSpec.getMain());
@@ -47,24 +40,6 @@ public final class ClojureExecutor {
 
       spec.systemProperty("gradle-clojure.tools.logger.level", getLogLevel());
     });
-  }
-
-  public FileCollection resolve(Dependency... deps) {
-    return project.getConfigurations().detachedConfiguration(deps).setTransitive(false);
-  }
-
-  public Dependency tools() {
-    return project.getDependencies().create("io.github.gradle-clojure:gradle-clojure-tools:" + GRADLE_CLOJURE_VERSION);
-  }
-
-  private static String getVersion() {
-    try (InputStream stream = ClojureExecutor.class.getResourceAsStream("/gradle-clojure.properties")) {
-      Properties props = new Properties();
-      props.load(stream);
-      return props.getProperty("version");
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
   }
 
   private String getLogLevel() {

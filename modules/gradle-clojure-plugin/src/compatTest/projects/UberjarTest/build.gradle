@@ -16,13 +16,7 @@ repositories {
 }
 
 dependencies {
-  compile 'org.clojure:clojure:1.8.0'
-  compile 'clojure.java-time:clojure.java-time:0.3.2'
-  testCompile 'junit:junit:4.12'
-}
-
-compileClojure {
-  options {
-    aotCompile = true
-  }
+  implementation 'org.clojure:clojure:1.8.0'
+  implementation 'clojure.java-time:clojure.java-time:0.3.2'
+  testImplementation 'junit:junit:4.12'
 }

@@ -13,21 +13,21 @@ repositories {
 
 sourceSets {
   pre
-  main.compileClasspath += pre.output
+  main.compileClasspath += files(compilePreClojure)
 }
 
 configurations {
-  preCompile.extendsFrom compile
+  preImplementation.extendsFrom implementation
 }
 
 dependencies {
-  compile 'org.clojure:clojure:1.8.0'
-}
-
-compilePreClojure {
-  options.aotCompile = true
+  implementation 'org.clojure:clojure:1.8.0'
 }
 
 jar {
   from sourceSets.pre.output
+}
+
+aotJar {
+  from compilePreClojure
 }

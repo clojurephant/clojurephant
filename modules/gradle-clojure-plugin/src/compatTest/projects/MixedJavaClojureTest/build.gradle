@@ -12,9 +12,5 @@ repositories {
 }
 
 dependencies {
-  compile 'org.clojure:clojure:1.8.0'
-}
-
-compileClojure {
-  options.aotCompile = true
+  implementation 'org.clojure:clojure:1.8.0'
 }

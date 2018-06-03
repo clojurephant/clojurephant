@@ -8,12 +8,11 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.compile.ForkOptions;
 
 public final class ClojureCompileOptions {
-  private final ClojureForkOptions forkOptions = new ClojureForkOptions();
+  private final ForkOptions forkOptions = new ForkOptions();
 
-  private boolean aotCompile = false;
-  private Boolean copySourceSetToOutput = null;
   private ReflectionWarnings reflectionWarnings = new ReflectionWarnings(false, false, false);
 
   private boolean disableLocalsClearing = false;
@@ -21,11 +20,11 @@ public final class ClojureCompileOptions {
   private boolean directLinking = false;
 
   @Nested
-  public ClojureForkOptions getForkOptions() {
+  public ForkOptions getForkOptions() {
     return forkOptions;
   }
 
-  public ClojureCompileOptions forkOptions(Action<? super ClojureForkOptions> configureAction) {
+  public ClojureCompileOptions forkOptions(Action<? super ForkOptions> configureAction) {
     configureAction.execute(forkOptions);
     return this;
   }
@@ -39,24 +38,6 @@ public final class ClojureCompileOptions {
     configureAction.setDelegate(forkOptions);
     configureAction.call(forkOptions);
     return this;
-  }
-
-  @Input
-  public boolean isAotCompile() {
-    return aotCompile;
-  }
-
-  public void setAotCompile(boolean aotCompile) {
-    this.aotCompile = aotCompile;
-  }
-
-  @Input
-  public boolean isCopySourceSetToOutput() {
-    return copySourceSetToOutput == null ? !aotCompile : copySourceSetToOutput;
-  }
-
-  public void setCopySourceSetToOutput(boolean copySourceSetToOutput) {
-    this.copySourceSetToOutput = copySourceSetToOutput;
   }
 
   @Nested

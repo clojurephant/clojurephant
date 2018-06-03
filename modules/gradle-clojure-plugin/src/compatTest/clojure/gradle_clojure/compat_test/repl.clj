@@ -74,6 +74,8 @@
     (gradle/with-project "MixedJavaClojureTest"
       (let [result (gradle/build "clojureRepl" "--dry-run")]
         (is (str/includes? (.getOutput result) ":compileJava SKIPPED"))
+        (is (str/includes? (.getOutput result) ":compileTestJava SKIPPED"))
+        (is (str/includes? (.getOutput result) ":compileDevJava SKIPPED"))
         (is (not (str/includes? (.getOutput result) ":compileClojure SKIPPED")))
         (is (not (str/includes? (.getOutput result) ":compileTestClojure SKIPPED")))
         (is (not (str/includes? (.getOutput result) ":compileDevClojure SKIPPED")))

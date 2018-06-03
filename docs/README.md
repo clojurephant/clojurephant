@@ -7,7 +7,7 @@
 It's unlikely you will apply this plugin directly. However, if you do, here's what you'll get:
 
 - The `java-base` plugin will be applied (which provides basic Java compilation support, but no source sets).
-- Any source sets you add will have a Clojure source directory added with a corresponding compile task.
+- Any source sets you add will have a Clojure source directory added with a corresponding compile and check task.
 
 ## gradle-clojure.clojure
 
@@ -15,9 +15,10 @@ When applied this plugin:
 
 - Applies `gradle-clojure.clojure-base`
 - Applies `java` (i.e. you'll get Java compilation support and `main` and `test` source sets).
-- Configures the `compileTestClojure` task to AOT compile in order to generate stub classes with JUnit runners.
+- Configures the `test` task to include AOT compiled test classes in order to generate stub classes with JUnit runners.
 - Adds a `dev` source set for use by the REPL. Its classpath includes the `main` and `test` classpaths.
 - Adds a `clojureRepl` to start an nREPL server using the `dev` classpath.
+- Adds an `aotJar` task to package a JAR with AOT compiled classes instead of Clojure source.
 
 ## gradle-clojure.clojurescript-base
 
@@ -59,16 +60,13 @@ When applied this plugin:
 
 ## Task Configuration
 
-### ClojureCompile
+### ClojureCheck
 
-The compile task will always compile your sources. However, only when `aotCompile` is `true` will they be included in the output of your project. This allows you to verify your code compiles and/or doesn't have reflection warnings, even if you don't want to release the AOT compiled code.
+The check task will load all of your sources to make sure they compile.
 
 ```groovy
-compileClojure {
+checkClojure {
   options {
-    aotCompile = true            // Defaults to false
-    copySourceSetToOutput = false   // Defaults to !aotCompile
-
     reflectionWarnings {
       enabled = true             // Defaults to false
       projectOnly = true         // Only show warnings from your project, not dependencies - default false
@@ -76,6 +74,22 @@ compileClojure {
                                  // If projectOnly is true, only warnings from your project are errors.
     }
 
+    // compileClojure provides fork options to customize the Java process for compilation
+    forkOptions {
+      memoryMaximumSize = '2048m'
+      jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
+    }
+  }
+}
+```
+
+### ClojureCompile
+
+The compile task will always compile your sources.
+
+```groovy
+compileClojure {
+  options {
     // Compiler options for AOT
     disableLocalsClearing = true                 // Defaults to false
     elideMeta = ['doc', 'file', 'line', 'added'] // Defaults to []

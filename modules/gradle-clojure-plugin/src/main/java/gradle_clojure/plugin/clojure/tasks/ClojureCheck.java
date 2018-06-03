@@ -1,11 +1,13 @@
 package gradle_clojure.plugin.clojure.tasks;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -21,39 +23,35 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.Classpath;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Nested;
-import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 
-public class ClojureCompile extends DefaultTask {
+public class ClojureCheck extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
   private final ClojureExecutor clojureExecutor;
 
   private SourceDirectorySet source;
   private final ConfigurableFileCollection classpath;
-  private final DirectoryProperty destinationDir;
+  private final RegularFileProperty outputFile;
   private final ClojureCompileOptions options;
 
-  private final ListProperty<String> namespaces;
-
-  public ClojureCompile() {
+  public ClojureCheck() {
     this.clojureExecutor = new ClojureExecutor(getProject());
     this.classpath = getProject().files();
-    this.destinationDir = getProject().getLayout().directoryProperty();
+    this.outputFile = getProject().getLayout().fileProperty();
     this.options = new ClojureCompileOptions();
-    this.namespaces = getProject().getObjects().listProperty(String.class);
-    namespaces.set(getProject().provider(this::findNamespaces));
+
+    outputFile.set(new File(getTemporaryDir(), "internal.txt"));
   }
 
   @InputFiles
@@ -71,9 +69,9 @@ public class ClojureCompile extends DefaultTask {
     return classpath;
   }
 
-  @OutputDirectory
-  public DirectoryProperty getDestinationDir() {
-    return destinationDir;
+  @OutputFile
+  public RegularFileProperty getInternalOutputFile() {
+    return outputFile;
   }
 
   @Nested
@@ -85,37 +83,28 @@ public class ClojureCompile extends DefaultTask {
     configureAction.execute(options);
   }
 
-  @Input
-  public ListProperty<String> getNamespaces() {
-    return namespaces;
-  }
-
   @TaskAction
-  public void compile() {
-    File outputDir = getDestinationDir().get().getAsFile();
-    if (!getProject().delete(outputDir)) {
-      throw new GradleException("Cannot clean destination directory: " + outputDir.getAbsolutePath());
-    }
-    if (!outputDir.mkdirs()) {
-      throw new GradleException("Cannot create destination directory: " + outputDir.getAbsolutePath());
+  public void check() {
+    if (!getProject().delete(getTemporaryDir())) {
+      throw new GradleException("Cannot clean temporary directory: " + getTemporaryDir().getAbsolutePath());
     }
 
-    List<String> namespaces = getNamespaces().getOrElse(Collections.emptyList());
+    List<String> namespaces = findNamespaces();
     if (namespaces.isEmpty()) {
       logger.warn("No Clojure namespaces defined, skipping {}", getName());
       return;
     }
 
-    logger.info("Compiling {}", String.join(", ", namespaces));
+    logger.info("Checking {}", String.join(", ", namespaces));
 
     FileCollection classpath = getClasspath()
         .plus(getProject().files(getSourceRootsFiles()))
-        .plus(getProject().files(outputDir));
+        .plus(getProject().files(getTemporaryDir()));
 
     clojureExecutor.exec(spec -> {
       spec.setClasspath(classpath);
       spec.setMain("gradle-clojure.tools.clojure-compiler");
-      spec.args(getSourceRootsFiles(), outputDir, namespaces, getOptions());
+      spec.args(getSourceRootsFiles(), getTemporaryDir(), namespaces, getOptions());
       spec.forkOptions(fork -> {
         fork.setJvmArgs(options.getForkOptions().getJvmArgs());
         fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
@@ -123,6 +112,14 @@ public class ClojureCompile extends DefaultTask {
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });
+
+    // This is just dummy work so Gradle sees an output file and can call us up-to-date
+    Path output = getInternalOutputFile().get().getAsFile().toPath();
+    try {
+      Files.write(output, Arrays.asList(Instant.now().toString()));
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   private List<String> findNamespaces() {

@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-  compile 'org.clojure:clojurescript:1.10.238'
+  implementation 'org.clojure:clojurescript:1.10.238'
 }
 
 compileClojurescript {

@@ -7,7 +7,7 @@
 (deftest basic-build
   (testing "simple build"
     (gradle/with-project "BasicClojureScriptProjectTest"
-      (let [result (gradle/build "build")]
+      (let [result (gradle/build "classesAot")]
         (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojurescript") .getOutcome)))
         (is (seq (gradle/file-tree "build/classes/clojurescript/main/js/out")))
         (is (true? (file/exists? (gradle/file "build/classes/clojurescript/main/js/main.js"))))

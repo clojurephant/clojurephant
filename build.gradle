@@ -13,26 +13,28 @@ plugins {
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
 allprojects {
-  repositories {
-    mavenCentral()
-    maven {
-      name = 'Clojars'
-      url = 'https://repo.clojars.org/'
+  plugins.withId('java') {
+    repositories {
+      mavenCentral()
+      maven {
+        name = 'Clojars'
+        url = 'https://repo.clojars.org/'
+      }
     }
-  }
 
-  dependencyLocking {
-    lockAllConfigurations()
-  }
-
-  task lock {
-    doFirst {
-      assert gradle.startParameter.writeDependencyLocks
+    dependencyLocking {
+      lockAllConfigurations()
     }
-    doLast {
-      configurations.all {
-        if (it.canBeResolved) {
-          it.resolve()
+
+    task lock {
+      doFirst {
+        assert gradle.startParameter.writeDependencyLocks
+      }
+      doLast {
+        configurations.all {
+          if (it.canBeResolved) {
+            it.resolve()
+          }
         }
       }
     }

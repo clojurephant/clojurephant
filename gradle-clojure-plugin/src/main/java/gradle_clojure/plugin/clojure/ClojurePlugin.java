@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import gradle_clojure.plugin.clojure.tasks.ClojureCompile;
 import gradle_clojure.plugin.clojure.tasks.ClojureNRepl;
 import gradle_clojure.plugin.clojure.tasks.ClojureSourceSet;
+import gradle_clojure.plugin.common.internal.ClojureCommonBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -68,7 +69,7 @@ public class ClojurePlugin implements Plugin<Project> {
     SourceSet test = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
     SourceSet dev = javaConvention.getSourceSets().create(DEV_SOURCE_SET_NAME);
 
-    Configuration nrepl = project.getConfigurations().getByName(ClojureBasePlugin.NREPL_CONFIGURATION_NAME);
+    Configuration nrepl = project.getConfigurations().getByName(ClojureCommonBasePlugin.NREPL_CONFIGURATION_NAME);
     project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName()).extendsFrom(nrepl);
     project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()).extendsFrom(nrepl);
 

@@ -2,10 +2,10 @@ package gradle_clojure.plugin.clojurescript;
 
 import javax.inject.Inject;
 
-import gradle_clojure.plugin.clojure.ClojureBasePlugin;
 import gradle_clojure.plugin.clojurescript.internal.DefaultClojureScriptSourceSet;
 import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompile;
 import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptSourceSet;
+import gradle_clojure.plugin.common.internal.ClojureCommonBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
@@ -13,7 +13,6 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
-import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
@@ -28,9 +27,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getPluginManager().apply(JavaBasePlugin.class);
-    project.getPluginManager().apply(ClojureBasePlugin.class);
-
+    project.getPluginManager().apply(ClojureCommonBasePlugin.class);
     configureSourceSetDefaults(project);
   }
 

@@ -54,7 +54,7 @@ compileCompatTestClojure {
 }
 
 tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {
-  dependsOn ':modules:gradle-clojure-tools:publishToMavenLocal'
+  dependsOn ':gradle-clojure-tools:publishToMavenLocal'
 
   inputs.dir 'src/compatTest/projects'
   systemProperty 'clojure.test.dirs', 'src/compatTest/clojure'

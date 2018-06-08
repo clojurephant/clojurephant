@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import gradle_clojure.plugin.clojure.tasks.ClojureCompileOptions;
-import gradle_clojure.plugin.clojure.tasks.ReflectionWarnings;
 import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
 import gradle_clojure.plugin.clojurescript.tasks.ForeignLib;
 import gradle_clojure.plugin.clojurescript.tasks.Module;
@@ -31,24 +30,10 @@ public class Edn {
   private static final Printer.Fn<File> FILE_PRINTER = (self, printer) -> printer.printValue(self.getAbsolutePath());
 
   private static final Printer.Fn<ClojureCompileOptions> CLOJURE_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
-    Map<Object, Object> compiler = new LinkedHashMap<>();
-    compiler.put(newKeyword("disable-locals-clearing"), self.isDisableLocalsClearing());
-    compiler.put(newKeyword("direct-linking"), self.isDirectLinking());
-    compiler.put(newKeyword("elide-metadata"), self.getElideMeta().stream().map(Keyword::newKeyword).collect(Collectors.toList()));
-
     Map<Object, Object> root = new LinkedHashMap<>();
-    root.put(newKeyword("reflection-warnings"), self.getReflectionWarnings());
-    root.put(newKeyword("compiler-options"), compiler);
-
-    printer.printValue(root);
-  };
-
-  private static final Printer.Fn<ReflectionWarnings> REFLECTION_WARNINGS_PRINTER = (self, printer) -> {
-    Map<Object, Object> root = new LinkedHashMap<>();
-    root.put(newKeyword("enabled"), self.isEnabled());
-    root.put(newKeyword("as-errors"), self.isAsErrors());
-    root.put(newKeyword("project-only"), self.isProjectOnly());
-
+    root.put(newKeyword("disable-locals-clearing"), self.isDisableLocalsClearing());
+    root.put(newKeyword("direct-linking"), self.isDirectLinking());
+    root.put(newKeyword("elide-metadata"), self.getElideMeta().stream().map(Keyword::newKeyword).collect(Collectors.toList()));
     printer.printValue(root);
   };
 
@@ -140,7 +125,6 @@ public class Edn {
       .put(File.class, FILE_PRINTER)
       // Clojure
       .put(ClojureCompileOptions.class, CLOJURE_COMPILE_OPTIONS_PRINTER)
-      .put(ReflectionWarnings.class, REFLECTION_WARNINGS_PRINTER)
       // ClojureScript
       .put(ClojureScriptCompileOptions.class, CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER)
       .put(ForeignLib.class, FOREIGN_LIB_PRINTER)

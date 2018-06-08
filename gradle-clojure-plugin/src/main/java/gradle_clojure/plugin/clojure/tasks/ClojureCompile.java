@@ -34,6 +34,7 @@ import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.compile.ForkOptions;
 
 public class ClojureCompile extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
@@ -44,6 +45,7 @@ public class ClojureCompile extends DefaultTask {
   private final ConfigurableFileCollection classpath;
   private final DirectoryProperty destinationDir;
   private final ClojureCompileOptions options;
+  private final ForkOptions forkOptions;
 
   private final ListProperty<String> namespaces;
 
@@ -52,6 +54,7 @@ public class ClojureCompile extends DefaultTask {
     this.classpath = getProject().files();
     this.destinationDir = getProject().getLayout().directoryProperty();
     this.options = new ClojureCompileOptions();
+    this.forkOptions = new ForkOptions();
     this.namespaces = getProject().getObjects().listProperty(String.class);
     namespaces.set(getProject().provider(this::findNamespaces));
   }
@@ -85,6 +88,15 @@ public class ClojureCompile extends DefaultTask {
     configureAction.execute(options);
   }
 
+  @Nested
+  public ForkOptions getForkOptions() {
+    return forkOptions;
+  }
+
+  public void forkOptions(Action<? super ForkOptions> configureAction) {
+    configureAction.execute(forkOptions);
+  }
+
   @Input
   public ListProperty<String> getNamespaces() {
     return namespaces;
@@ -115,11 +127,11 @@ public class ClojureCompile extends DefaultTask {
     clojureExecutor.exec(spec -> {
       spec.setClasspath(classpath);
       spec.setMain("gradle-clojure.tools.clojure-compiler");
-      spec.args(getSourceRootsFiles(), outputDir, namespaces, getOptions());
+      spec.args(outputDir, namespaces, getOptions());
       spec.forkOptions(fork -> {
-        fork.setJvmArgs(options.getForkOptions().getJvmArgs());
-        fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
-        fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+        fork.setJvmArgs(forkOptions.getJvmArgs());
+        fork.setMinHeapSize(forkOptions.getMemoryInitialSize());
+        fork.setMaxHeapSize(forkOptions.getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });

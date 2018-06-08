@@ -29,11 +29,13 @@ import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Classpath;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.compile.ForkOptions;
 
 public class ClojureCheck extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
@@ -43,13 +45,15 @@ public class ClojureCheck extends DefaultTask {
   private SourceDirectorySet source;
   private final ConfigurableFileCollection classpath;
   private final RegularFileProperty outputFile;
-  private final ClojureCompileOptions options;
+  private ClojureReflection reflection;
+  private final ForkOptions forkOptions;
 
   public ClojureCheck() {
     this.clojureExecutor = new ClojureExecutor(getProject());
     this.classpath = getProject().files();
     this.outputFile = getProject().getLayout().fileProperty();
-    this.options = new ClojureCompileOptions();
+    this.reflection = ClojureReflection.silent;
+    this.forkOptions = new ForkOptions();
 
     outputFile.set(new File(getTemporaryDir(), "internal.txt"));
   }
@@ -74,13 +78,22 @@ public class ClojureCheck extends DefaultTask {
     return outputFile;
   }
 
-  @Nested
-  public ClojureCompileOptions getOptions() {
-    return options;
+  @Input
+  public ClojureReflection getReflection() {
+    return reflection;
   }
 
-  public void options(Action<? super ClojureCompileOptions> configureAction) {
-    configureAction.execute(options);
+  public void setReflection(ClojureReflection reflection) {
+    this.reflection = reflection;
+  }
+
+  @Nested
+  public ForkOptions getForkOptions() {
+    return forkOptions;
+  }
+
+  public void forkOptions(Action<? super ForkOptions> configureAction) {
+    configureAction.execute(forkOptions);
   }
 
   @TaskAction
@@ -103,12 +116,12 @@ public class ClojureCheck extends DefaultTask {
 
     clojureExecutor.exec(spec -> {
       spec.setClasspath(classpath);
-      spec.setMain("gradle-clojure.tools.clojure-compiler");
-      spec.args(getSourceRootsFiles(), getTemporaryDir(), namespaces, getOptions());
+      spec.setMain("gradle-clojure.tools.clojure-loader");
+      spec.args(getSourceRootsFiles(), namespaces, getReflection());
       spec.forkOptions(fork -> {
-        fork.setJvmArgs(options.getForkOptions().getJvmArgs());
-        fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
-        fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+        fork.setJvmArgs(forkOptions.getJvmArgs());
+        fork.setMinHeapSize(forkOptions.getMemoryInitialSize());
+        fork.setMaxHeapSize(forkOptions.getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });

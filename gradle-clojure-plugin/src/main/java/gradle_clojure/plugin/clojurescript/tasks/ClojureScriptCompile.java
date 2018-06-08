@@ -18,6 +18,7 @@ import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.compile.ForkOptions;
 
 public class ClojureScriptCompile extends DefaultTask {
   private final ClojureExecutor clojureExecutor;
@@ -26,12 +27,14 @@ public class ClojureScriptCompile extends DefaultTask {
   private final DirectoryProperty destinationDir;
   private final ConfigurableFileCollection classpath;
   private final ClojureScriptCompileOptions options;
+  private final ForkOptions forkOptions;
 
   public ClojureScriptCompile() {
     this.clojureExecutor = new ClojureExecutor(getProject());
     this.destinationDir = getProject().getLayout().directoryProperty();
     this.classpath = getProject().files();
     this.options = new ClojureScriptCompileOptions(getProject(), destinationDir);
+    this.forkOptions = new ForkOptions();
   }
 
   @InputFiles
@@ -64,6 +67,15 @@ public class ClojureScriptCompile extends DefaultTask {
     return this;
   }
 
+  @Nested
+  public ForkOptions getForkOptions() {
+    return forkOptions;
+  }
+
+  public void forkOptions(Action<? super ForkOptions> configureAction) {
+    configureAction.execute(forkOptions);
+  }
+
   @TaskAction
   public void compile() {
     FileCollection classpath = getClasspath().plus(getProject().files(getSourceRootsFiles()));
@@ -73,9 +85,9 @@ public class ClojureScriptCompile extends DefaultTask {
       spec.setMain("gradle-clojure.tools.clojurescript-compiler");
       spec.args(getSourceRootsFiles(), getOptions());
       spec.forkOptions(fork -> {
-        fork.setJvmArgs(options.getForkOptions().getJvmArgs());
-        fork.setMinHeapSize(options.getForkOptions().getMemoryInitialSize());
-        fork.setMaxHeapSize(options.getForkOptions().getMemoryMaximumSize());
+        fork.setJvmArgs(forkOptions.getJvmArgs());
+        fork.setMinHeapSize(forkOptions.getMemoryInitialSize());
+        fork.setMaxHeapSize(forkOptions.getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });

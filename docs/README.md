@@ -66,19 +66,12 @@ The check task will load all of your sources to make sure they compile.
 
 ```groovy
 checkClojure {
-  options {
-    reflectionWarnings {
-      enabled = true             // Defaults to false
-      projectOnly = true         // Only show warnings from your project, not dependencies - default false
-      asErrors = true            // Treat reflection warnings as errors and fail the build
-                                 // If projectOnly is true, only warnings from your project are errors.
-    }
+  reflection = 'warn' // Can be 'silent, 'warn', or 'fail' (default is 'silent'). 'fail' will not fail on reflection in your dependencies
 
-    // compileClojure provides fork options to customize the Java process for compilation
-    forkOptions {
-      memoryMaximumSize = '2048m'
-      jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
-    }
+  // to customize the Java process for compilation
+  forkOptions {
+    memoryMaximumSize = '2048m'
+    jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
   }
 }
 ```
@@ -94,12 +87,12 @@ compileClojure {
     disableLocalsClearing = true                 // Defaults to false
     elideMeta = ['doc', 'file', 'line', 'added'] // Defaults to []
     directLinking = true                         // Defaults to false
+  }
 
-    // compileClojure provides fork options to customize the Java process for compilation
-    forkOptions {
-      memoryMaximumSize = '2048m'
-      jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
-    }
+  // to customize the Java process for compilation
+  forkOptions {
+    memoryMaximumSize = '2048m'
+    jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
   }
 }
 ```

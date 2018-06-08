@@ -8,23 +8,18 @@ import java.util.List;
 import java.util.Map;
 
 import groovy.lang.Closure;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.util.ConfigureUtil;
 
 public final class ClojureScriptCompileOptions {
-  private final ForkOptions forkOptions = new ForkOptions();
-
   private final Project project;
   private final DirectoryProperty destinationDir;
   private final RegularFileProperty outputTo;
@@ -331,14 +326,4 @@ public final class ClojureScriptCompileOptions {
   // public void setFnInvokeDirect(Boolean fnInvokeDirect) {
   // this.fnInvokeDirect = fnInvokeDirect;
   // }
-
-  @Nested
-  public ForkOptions getForkOptions() {
-    return forkOptions;
-  }
-
-  public ClojureScriptCompileOptions forkOptions(Action<? super ForkOptions> configureAction) {
-    configureAction.execute(forkOptions);
-    return this;
-  }
 }

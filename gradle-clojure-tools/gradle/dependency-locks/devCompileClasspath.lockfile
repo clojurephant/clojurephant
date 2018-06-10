@@ -3,6 +3,7 @@
 # This file is expected to be part of source control.
 compliment:compliment:0.2.7
 defprecated:defprecated:0.1.3
+io.github.gradle-clojure:gradle-clojure-tools:0.4.0-beta.7
 nrepl:nrepl:0.3.1
 org.clojure:clojure:1.8.0
 org.clojure:core.async:0.2.374

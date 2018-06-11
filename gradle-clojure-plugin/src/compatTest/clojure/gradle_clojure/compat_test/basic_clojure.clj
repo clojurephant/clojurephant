@@ -9,25 +9,30 @@
 (deftest basic-build
   (testing "with AOT compile, only class files are copied to the output directory"
     (gradle/with-project "BasicClojureProjectTest"
-      (let [result (gradle/build "classesAot")]
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
-        (gradle/verify-compilation-with-aot "src/main/clojure" "build/classes/clojure/main")))))
+      (file/write-str (gradle/file "build.gradle") "clojure { builds { main { aotAll() } } }\n" :append true)
+      (let [result (gradle/build "classes")]
+        (gradle/verify-task-outcome result ":compileClojure" :success)
+        (gradle/verify-task-outcome result ":checkClojure" :success)
+        (gradle/verify-compilation-with-aot "src/main/clojure" "build/clojure/main")))))
 
 (deftest stale-outputs
   (testing "with AOT compile, stale output files are cleaned"
     (gradle/with-project "BasicClojureProjectTest"
-      (let [result (gradle/build "classesAot")]
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
-        (gradle/verify-compilation-with-aot "src/main/clojure" "build/classes/clojure/main"))
+      (file/write-str (gradle/file "build.gradle") "clojure { builds { main { aotAll() } } }\n" :append true)
+      (let [result (gradle/build "classes")]
+        (gradle/verify-task-outcome result ":compileClojure" :success)
+        (gradle/verify-task-outcome result ":checkClojure" :success)
+        (gradle/verify-compilation-with-aot "src/main/clojure" "build/clojure/main"))
 
       (file/delete (gradle/file "src/main/clojure/basic_project/utils.clj"))
-      (let [result (gradle/build "classesAot")]
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
-        (gradle/verify-compilation-with-aot "src/main/clojure" "build/classes/clojure/main"))
+      (let [result (gradle/build "classes")]
+        (gradle/verify-task-outcome result ":compileClojure" :success)
+        (gradle/verify-task-outcome result ":checkClojure" :success)
+        (gradle/verify-compilation-with-aot "src/main/clojure" "build/clojure/main"))
 
       (file/delete (gradle/file "src/main/clojure/basic_project/boom.clj"))
-      (let [result (gradle/build-and-fail "classesAot")]
-        (is (= TaskOutcome/FAILED (some-> result (.task ":compileClojure") .getOutcome)))))))
+      (let [result (gradle/build-and-fail "classes")]
+        (gradle/verify-task-outcome result ":checkClojure" :failed)))))
 
 (deftest no-clojure
   (testing "without Clojure on classpath, build fails"
@@ -36,20 +41,24 @@
                                                                 #"implementation 'org.clojure:clojure:1.8.0'"
                                                                 ""))
       (let [result (gradle/build-and-fail "clean" "check")]
-        (is (= TaskOutcome/FAILED (some-> result (.task ":checkClojure") .getOutcome)))
+        (gradle/verify-task-outcome result ":checkClojure" :failed)
         (is (str/includes? (.getOutput result) "Could not find or load main class clojure.main"))))))
 
 (deftest jar
   (testing "only source files are included in jar"
     (gradle/with-project "BasicClojureProjectTest"
       (let [result (gradle/build "jar")]
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":jar") .getOutcome)))
+        (gradle/verify-task-outcome result ":compileClojure" :skipped)
+        (gradle/verify-task-outcome result ":checkClojure" :success)
+        (gradle/verify-task-outcome result ":jar" :success)
         (gradle/verify-jar-contents ["src/main/clojure" "src/main/resources"] "build/libs/BasicClojureProjectTest.jar")))))
 
 (deftest aot-jar
   (testing "only class files are included in jar"
     (gradle/with-project "BasicClojureProjectTest"
-      (let [result (gradle/build "aotJar")]
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":compileClojure") .getOutcome)))
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":aotJar") .getOutcome)))
-        (gradle/verify-jar-contents ["build/classes/clojure/main" "src/main/resources"] "build/libs/BasicClojureProjectTest.jar")))))
+      (file/write-str (gradle/file "build.gradle") "clojure { builds { main { aotAll() } } }\n" :append true)
+      (let [result (gradle/build "jar")]
+        (gradle/verify-task-outcome result ":compileClojure" :success)
+        (gradle/verify-task-outcome result ":checkClojure" :success)
+        (gradle/verify-task-outcome result ":jar" :success)
+        (gradle/verify-jar-contents ["build/clojure/main" "src/main/resources"] "build/libs/BasicClojureProjectTest.jar")))))

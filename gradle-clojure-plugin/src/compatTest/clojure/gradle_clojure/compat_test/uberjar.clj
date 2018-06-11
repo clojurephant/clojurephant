@@ -11,5 +11,5 @@
   (testing "an application uberjar can have its main ns run"
     (gradle/with-project "UberjarTest"
       (let [result (gradle/build "runShadow" "-q")]
-        (is (= TaskOutcome/SUCCESS (some-> result (.task ":runShadow") .getOutcome)))
+        (gradle/verify-task-outcome result ":runShadow" :success)
         (is (str/includes? (.getOutput result) (str (LocalDate/now))))))))

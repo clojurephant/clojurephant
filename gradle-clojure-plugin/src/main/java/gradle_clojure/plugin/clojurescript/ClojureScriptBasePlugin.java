@@ -8,13 +8,9 @@ import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptSourceSet;
 import gradle_clojure.plugin.common.internal.ClojureCommonBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.Directory;
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 
 public class ClojureScriptBasePlugin implements Plugin<Project> {
@@ -28,35 +24,47 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(ClojureCommonBasePlugin.class);
-    configureSourceSetDefaults(project);
+    ClojureScriptExtension extension = project.getExtensions().create("clojurescript", ClojureScriptExtension.class, project);
+    configureSourceSetDefaults(project, extension);
+    configureBuildDefaults(project, extension);
   }
 
-  private void configureSourceSetDefaults(Project project) {
+  private void configureSourceSetDefaults(Project project, ClojureScriptExtension extension) {
     project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all((SourceSet sourceSet) -> {
       ClojureScriptSourceSet clojurescriptSourceSet = new DefaultClojureScriptSourceSet("clojurescript", sourceDirectorySetFactory);
       new DslObject(sourceSet).getConvention().getPlugins().put("clojurescript", clojurescriptSourceSet);
 
       clojurescriptSourceSet.getClojureScript().srcDir(String.format("src/%s/clojurescript", sourceSet.getName()));
-      // in case the clojure source overlaps with the resources source, exclude any clojure code
-      // from resources
+      // in case the clojure source overlaps with the resources source
       sourceSet.getResources().getFilter().exclude(element -> clojurescriptSourceSet.getClojureScript().contains(element.getFile()));
       sourceSet.getAllSource().source(clojurescriptSourceSet.getClojureScript());
 
-      String compileTaskName = sourceSet.getCompileTaskName("clojurescript");
+      ClojureScriptBuild build = extension.getBuilds().create(sourceSet.getName());
+      build.getSourceSet().set(sourceSet);
+      sourceSet.getOutput().dir(build.getOutputDir());
+      project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(build.getTaskName("compile"));
+
+      sourceSet.getOutput().dir(project.provider(() -> {
+        if (build.isCompilerConfigured()) {
+          return clojurescriptSourceSet.getClojureScript().getSourceDirectories();
+        } else {
+          return build.getOutputDir();
+        }
+      }));
+    });
+  }
+
+  private void configureBuildDefaults(Project project, ClojureScriptExtension extension) {
+    extension.getRootOutputDir().set(project.getLayout().getBuildDirectory().dir("clojurescript"));
+
+    extension.getBuilds().all(build -> {
+      String compileTaskName = build.getTaskName("compile");
       ClojureScriptCompile compile = project.getTasks().create(compileTaskName, ClojureScriptCompile.class);
-      compile.setDescription(String.format("Compiles the %s ClojureScript source.", sourceSet.getName()));
-      compile.setSource(clojurescriptSourceSet.getClojureScript());
-
-      Provider<FileCollection> classpath = project.provider(sourceSet::getCompileClasspath);
-      compile.getClasspath().from(classpath);
-
-      DirectoryProperty buildDir = project.getLayout().getBuildDirectory();
-      String outputDirPath = String.format("classes/%s/%s", clojurescriptSourceSet.getClojureScript().getName(), sourceSet.getName());
-      Provider<Directory> outputDir = buildDir.dir(outputDirPath);
-      compile.getDestinationDir().set(outputDir);
-
-      String classesAotName = String.format("%sAot", sourceSet.getClassesTaskName());
-      project.getTasks().getByName(classesAotName).dependsOn(compile);
+      compile.setDescription(String.format("Compiles the ClojureScript source for the %s build.", build.getName()));
+      compile.getDestinationDir().set(build.getOutputDir());
+      compile.getSourceRoots().from(build.getSourceRoots());
+      compile.getClasspath().from(build.getSourceSet().map(SourceSet::getCompileClasspath));
+      compile.setOptions(build.getCompiler());
     });
   }
 }

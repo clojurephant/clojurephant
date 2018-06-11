@@ -14,3 +14,5 @@ repositories {
 dependencies {
   implementation 'org.clojure:clojure:1.8.0'
 }
+
+clojure.builds.main.aotAll()

@@ -11,26 +11,27 @@ repositories {
   mavenLocal()
 }
 
-dependencies {
-  implementation 'org.clojure:clojure:1.8.0'
-  testImplementation 'junit:junit:4.12'
-}
-
 sourceSets {
-  ss1 {
-    compileClasspath += configurations.compileClasspath
-    runtimeClasspath += configurations.runtimeClasspath
-  }
+  ss1
   ss2 {
-    compileClasspath += configurations.compileClasspath
-    runtimeClasspath += configurations.runtimeClasspath
     compileClasspath += ss1.output
     runtimeClasspath += ss1.output
   }
   test {
     compileClasspath += ss1.output
-    runtimeClasspath += ss1.output
     compileClasspath += ss2.output
+    runtimeClasspath += ss1.output
     runtimeClasspath += ss2.output
   }
+}
+
+dependencies {
+  ss1Implementation 'org.clojure:clojure:1.8.0'
+  ss2Implementation 'org.clojure:clojure:1.8.0'
+  testImplementation 'org.clojure:clojure:1.8.0'
+  testImplementation 'junit:junit:4.12'
+}
+
+clojure.builds.all {
+  checkAll()
 }

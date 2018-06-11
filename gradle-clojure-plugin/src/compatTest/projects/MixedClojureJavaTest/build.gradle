@@ -28,6 +28,11 @@ jar {
   from sourceSets.pre.output
 }
 
-aotJar {
-  from compilePreClojure
+clojure.builds {
+  pre {
+    aotAll()
+  }
+  main {
+    aotAll()
+  }
 }

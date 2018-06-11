@@ -14,6 +14,9 @@ dependencies {
   // edn support
   implementation 'us.bpsm:edn-java:latest.release'
 
+  // util
+  implementation 'org.apache.commons:commons-text:1.3'
+
   // compat testing
   compatTestImplementation gradleTestKit()
   compatTestImplementation 'org.clojure:clojure:latest.release'
@@ -87,10 +90,10 @@ gradlePlugin {
       id = 'gradle-clojure.clojurescript-base'
       implementationClass = 'gradle_clojure.plugin.clojurescript.ClojureScriptBasePlugin'
     }
-    // clojurescript {
-    //   id = 'gradle-clojure.clojurescript'
-    //   implementationClass = 'gradle_clojure.plugin.clojurescript.ClojureScriptPlugin'
-    // }
+    clojurescript {
+      id = 'gradle-clojure.clojurescript'
+      implementationClass = 'gradle_clojure.plugin.clojurescript.ClojureScriptPlugin'
+    }
   }
 }
 
@@ -114,11 +117,11 @@ pluginBundle {
       displayName = 'ClojureScript base language plugin for Gradle'
       tags = ['clojurescript', 'language']
     }
-    // clojurescript {
-    //   id = 'gradle-clojure.clojurescript'
-    //   displayName = 'ClojureScript language plugin for Gradle'
-    //   tags = ['clojurescript', 'language']
-    // }
+    clojurescript {
+      id = 'gradle-clojure.clojurescript'
+      displayName = 'ClojureScript language plugin for Gradle'
+      tags = ['clojurescript', 'language']
+    }
   }
   mavenCoordinates {
     groupId = project.group

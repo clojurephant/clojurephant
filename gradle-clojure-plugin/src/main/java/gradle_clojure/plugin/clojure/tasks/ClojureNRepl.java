@@ -9,16 +9,18 @@ import java.net.ServerSocket;
 import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
@@ -33,11 +35,15 @@ public class ClojureNRepl extends DefaultTask {
   private FileCollection classpath;
   private int port = -1;
   private int controlPort = -1;
-  private String handler;
-  private List<String> middleware = new ArrayList<>();
+  private final Property<String> handler;
+  private final ListProperty<String> userMiddleware;
+  private final ListProperty<String> defaultMiddleware;
 
   public ClojureNRepl() {
     this.clojureExecutor = new ClojureExecutor(getProject());
+    this.handler = getProject().getObjects().property(String.class);
+    this.userMiddleware = getProject().getObjects().listProperty(String.class);
+    this.defaultMiddleware = getProject().getObjects().listProperty(String.class);
   }
 
   @TaskAction
@@ -61,10 +67,18 @@ public class ClojureNRepl extends DefaultTask {
   }
 
   private void start() {
+    if (!getProject().delete(getTemporaryDir())) {
+      throw new GradleException("Cannot clean temporary directory: " + getTemporaryDir().getAbsolutePath());
+    }
+
+    FileCollection cp = getProject().files(getTemporaryDir(), getClasspath());
+    List<String> middleware = Stream.of(defaultMiddleware.getOrElse(Collections.emptyList()), userMiddleware.getOrElse(Collections.emptyList()))
+        .flatMap(List::stream)
+        .collect(Collectors.toList());
     clojureExecutor.exec(spec -> {
-      spec.setClasspath(getClasspath());
+      spec.setClasspath(cp);
       spec.setMain("gradle-clojure.tools.clojure-nrepl");
-      spec.setArgs(port, controlPort, handler, middleware);
+      spec.setArgs(port, controlPort, handler.getOrNull(), middleware);
       spec.forkOptions(fork -> {
         fork.setJvmArgs(getForkOptions().getJvmArgs());
         fork.setMinHeapSize(getForkOptions().getMemoryInitialSize());
@@ -142,26 +156,29 @@ public class ClojureNRepl extends DefaultTask {
 
   @org.gradle.api.tasks.Optional
   @Input
-  public String getHandler() {
+  public Property<String> getHandler() {
     return handler;
   }
 
   @Option(option = "handler", description = "Qualified name of nREPL handler function.")
   public void setHandler(String handler) {
-    this.handler = handler;
+    this.handler.set(handler);
   }
 
   @Input
-  public List<String> getMiddleware() {
-    return middleware;
+  public ListProperty<String> getMiddleware() {
+    return userMiddleware;
   }
 
   @Option(option = "middleware", description = "Qualified names of nREPL middleware functions.")
   public void setMiddleware(List<String> middleware) {
-    this.middleware = Optional.ofNullable(middleware).orElse(Collections.emptyList());
+    if (middleware != null) {
+      this.userMiddleware.set(middleware);
+    }
   }
 
-  public void middleware(String... middleware) {
-    Arrays.stream(middleware).forEach(this.middleware::add);
+  @Input
+  public ListProperty<String> getDefaultMiddleware() {
+    return defaultMiddleware;
   }
 }

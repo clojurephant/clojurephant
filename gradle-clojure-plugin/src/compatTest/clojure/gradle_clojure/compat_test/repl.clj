@@ -72,13 +72,18 @@
 (deftest task-dependencies
   (testing "No Clojure compiles happen when REPL is requested, but other languages are compiled"
     (gradle/with-project "MixedJavaClojureTest"
-      (let [result (gradle/build "clojureRepl" "--dry-run")]
-        (is (str/includes? (.getOutput result) ":compileJava SKIPPED"))
-        (is (str/includes? (.getOutput result) ":compileTestJava SKIPPED"))
-        (is (str/includes? (.getOutput result) ":compileDevJava SKIPPED"))
-        (is (not (str/includes? (.getOutput result) ":compileClojure SKIPPED")))
-        (is (not (str/includes? (.getOutput result) ":compileTestClojure SKIPPED")))
-        (is (not (str/includes? (.getOutput result) ":compileDevClojure SKIPPED")))
-        (is (not (str/includes? (.getOutput result) ":compileClojurescript SKIPPED")))
-        (is (not (str/includes? (.getOutput result) ":compileTestClojurescript SKIPPED")))
-        (is (not (str/includes? (.getOutput result) ":compileDevClojurescript SKIPPED")))))))
+      (file/write-str (gradle/file "build.gradle") "clojureRepl { doFirst { throw new GradleException(\"Fail!\") } }\n" :append true)
+      (let [result (gradle/build-and-fail "clojureRepl")]
+        (gradle/verify-task-outcome result ":clojureRepl" :failed)
+        (gradle/verify-task-outcome result ":compileJava" :success :no-source)
+        (gradle/verify-task-outcome result ":compileTestJava" :success :no-source)
+        (gradle/verify-task-outcome result ":compileDevJava" :success :no-source)
+        (gradle/verify-task-outcome result ":checkDevClojure" :success)
+        (gradle/verify-task-outcome result ":checkClojure" :skipped)
+        (gradle/verify-task-outcome result ":checkTestClojure" :skipped)
+        (gradle/verify-task-outcome result ":compileClojure" :skipped)
+        (gradle/verify-task-outcome result ":compileTestClojure" :skipped)
+        (gradle/verify-task-outcome result ":compileDevClojure" :skipped)))))
+        ; (gradle/verify-task-outcome result ":compileClojureScript" :skipped)
+        ; (gradle/verify-task-outcome result ":compileTestClojureScript" :skipped)
+        ; (gradle/verify-task-outcome result ":compileDevClojureScript" :skipped)))))

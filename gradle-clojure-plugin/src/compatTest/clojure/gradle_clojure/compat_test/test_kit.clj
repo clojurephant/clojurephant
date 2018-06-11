@@ -52,7 +52,7 @@
                       (filter (complement #(= (.getName %) "META-INF/MANIFEST.MF")))
                       (map #(.getName %))
                       (map file/as-path))
-                jar-stream))))
+            jar-stream))))
 
 (defn verify-jar-contents
   [src-dirs dst-jar]
@@ -73,3 +73,16 @@
 
 (defn build-and-fail [& args]
   (.buildAndFail (runner args)))
+
+(def task-outcomes
+  {:failed TaskOutcome/FAILED
+   :from-cache TaskOutcome/FROM_CACHE
+   :no-source TaskOutcome/NO_SOURCE
+   :skipped TaskOutcome/SKIPPED
+   :success TaskOutcome/SUCCESS
+   :up-to-date TaskOutcome/UP_TO_DATE})
+
+(defn verify-task-outcome [result name & outcomes]
+  (let [allowed-outcomes (into #{} (map task-outcomes) outcomes)
+        actual-outcome (some-> result (.task name) .getOutcome)]
+    (is (get allowed-outcomes actual-outcome) (str "Task " name " did not result in one of " outcomes))))

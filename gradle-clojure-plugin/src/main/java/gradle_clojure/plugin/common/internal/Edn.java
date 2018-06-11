@@ -15,6 +15,8 @@ import gradle_clojure.plugin.clojure.tasks.ClojureCompileOptions;
 import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
 import gradle_clojure.plugin.clojurescript.tasks.ForeignLib;
 import gradle_clojure.plugin.clojurescript.tasks.Module;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.provider.Property;
 import us.bpsm.edn.Keyword;
 import us.bpsm.edn.Symbol;
 import us.bpsm.edn.parser.Parseable;
@@ -28,6 +30,10 @@ public class Edn {
   private static final Printer.Fn<Enum<?>> ENUM_PRINTER = (self, printer) -> printer.printValue(newKeyword(self.name()));
 
   private static final Printer.Fn<File> FILE_PRINTER = (self, printer) -> printer.printValue(self.getAbsolutePath());
+
+  private static final Printer.Fn<FileCollection> FILE_COLLECTION_PRINTER = (self, printer) -> printer.printValue(self.getFiles());
+
+  private static final Printer.Fn<Property<?>> PROPERTY_PRINTER = (self, printer) -> printer.printValue(self.getOrNull());
 
   private static final Printer.Fn<ClojureCompileOptions> CLOJURE_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
     Map<Object, Object> root = new LinkedHashMap<>();
@@ -123,6 +129,8 @@ public class Edn {
       // Core Printers
       .put(Enum.class, ENUM_PRINTER)
       .put(File.class, FILE_PRINTER)
+      .put(FileCollection.class, FILE_COLLECTION_PRINTER)
+      .put(Property.class, PROPERTY_PRINTER)
       // Clojure
       .put(ClojureCompileOptions.class, CLOJURE_COMPILE_OPTIONS_PRINTER)
       // ClojureScript

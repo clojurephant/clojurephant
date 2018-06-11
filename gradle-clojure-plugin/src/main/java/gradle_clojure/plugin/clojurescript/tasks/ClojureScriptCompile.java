@@ -1,19 +1,18 @@
 package gradle_clojure.plugin.clojurescript.tasks;
 
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.Set;
 
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
+import gradle_clojure.plugin.common.internal.Namespaces;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SkipWhenEmpty;
@@ -23,15 +22,16 @@ import org.gradle.api.tasks.compile.ForkOptions;
 public class ClojureScriptCompile extends DefaultTask {
   private final ClojureExecutor clojureExecutor;
 
-  private SourceDirectorySet source;
+  private ConfigurableFileCollection sourceRoots;
   private final DirectoryProperty destinationDir;
   private final ConfigurableFileCollection classpath;
-  private final ClojureScriptCompileOptions options;
+  private ClojureScriptCompileOptions options;
   private final ForkOptions forkOptions;
 
   public ClojureScriptCompile() {
     this.clojureExecutor = new ClojureExecutor(getProject());
     this.destinationDir = getProject().getLayout().directoryProperty();
+    this.sourceRoots = getProject().files();
     this.classpath = getProject().files();
     this.options = new ClojureScriptCompileOptions(getProject(), destinationDir);
     this.forkOptions = new ForkOptions();
@@ -40,11 +40,12 @@ public class ClojureScriptCompile extends DefaultTask {
   @InputFiles
   @SkipWhenEmpty
   public FileCollection getSource() {
-    return source;
+    return Namespaces.getSources(sourceRoots, Namespaces.CLOJURESCRIPT_EXTENSIONS);
   }
 
-  public void setSource(SourceDirectorySet source) {
-    this.source = source;
+  @Internal
+  public ConfigurableFileCollection getSourceRoots() {
+    return sourceRoots;
   }
 
   @OutputDirectory
@@ -62,9 +63,8 @@ public class ClojureScriptCompile extends DefaultTask {
     return options;
   }
 
-  public ClojureScriptCompile options(Action<? super ClojureScriptCompileOptions> configureAction) {
-    configureAction.execute(options);
-    return this;
+  public void setOptions(ClojureScriptCompileOptions options) {
+    this.options = options;
   }
 
   @Nested
@@ -78,12 +78,12 @@ public class ClojureScriptCompile extends DefaultTask {
 
   @TaskAction
   public void compile() {
-    FileCollection classpath = getClasspath().plus(getProject().files(getSourceRootsFiles()));
+    FileCollection classpath = getClasspath().plus(getSourceRoots());
 
     clojureExecutor.exec(spec -> {
       spec.setClasspath(classpath);
       spec.setMain("gradle-clojure.tools.clojurescript-compiler");
-      spec.args(getSourceRootsFiles(), getOptions());
+      spec.args(getSourceRoots(), getOptions());
       spec.forkOptions(fork -> {
         fork.setJvmArgs(forkOptions.getJvmArgs());
         fork.setMinHeapSize(forkOptions.getMemoryInitialSize());
@@ -91,10 +91,5 @@ public class ClojureScriptCompile extends DefaultTask {
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });
-  }
-
-  private Set<File> getSourceRootsFiles() {
-    // accessing the List<Object> field not the FileTree from getSource
-    return source.getSrcDirs();
   }
 }

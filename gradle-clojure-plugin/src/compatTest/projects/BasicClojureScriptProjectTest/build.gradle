@@ -1,6 +1,6 @@
 plugins {
   id 'java'
-  id 'gradle-clojure.clojurescript-base'
+  id 'gradle-clojure.clojurescript'
 }
 
 repositories {
@@ -25,7 +25,6 @@ clojurescript {
           optimizations = "simple"
           main = "basic-project.core"
           sourceMap = 'js/main.js.map'
-          preloads = ["basic-project.core"]
 
           // foreignLib {
           //   file = "${projectDir}/jquery-3.2.1.js"
@@ -39,6 +38,14 @@ clojurescript {
           //   outputTo = file("${destinationDir}/dupa.js")
           //   entries = ["basic-project.core"]
           // }
+        }
+    }
+    dev {
+      compiler {
+          outputTo = 'js/main.js'
+          outputDir = 'js/out'
+          main = "basic-project.core"
+          preloads = ["basic-project.dev"]
         }
     }
   }

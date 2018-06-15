@@ -3,6 +3,8 @@
             [clojure.core.server :as server]
             [clojure.edn :as edn]))
 
+(defonce context (atom {}))
+
 (def stopper (atom nil))
 
 (defn resolve-fn [qname]
@@ -36,5 +38,6 @@
   (deliver @stopper "stop"))
 
 (defn -main [& args]
-  (let [[repl-port control-port handler middleware] (edn/read)]
+  (let [[repl-port control-port handler middleware ctx] (edn/read)]
+    (reset! context ctx)
     (start! repl-port control-port (make-handler handler middleware))))

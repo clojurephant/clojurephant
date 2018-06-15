@@ -10,11 +10,14 @@ import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
+import gradle_clojure.plugin.common.internal.Edn;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -23,6 +26,7 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
@@ -38,12 +42,17 @@ public class ClojureNRepl extends DefaultTask {
   private final Property<String> handler;
   private final ListProperty<String> userMiddleware;
   private final ListProperty<String> defaultMiddleware;
+  private final Map<String, Object> contextData;
 
   public ClojureNRepl() {
     this.clojureExecutor = new ClojureExecutor(getProject());
     this.handler = getProject().getObjects().property(String.class);
     this.userMiddleware = getProject().getObjects().listProperty(String.class);
     this.defaultMiddleware = getProject().getObjects().listProperty(String.class);
+    this.contextData = new HashMap<>();
+
+    // task is never up-to-date, if you ask for REPL, you get REPL
+    this.getOutputs().upToDateWhen(t -> false);
   }
 
   @TaskAction
@@ -78,7 +87,7 @@ public class ClojureNRepl extends DefaultTask {
     clojureExecutor.exec(spec -> {
       spec.setClasspath(cp);
       spec.setMain("gradle-clojure.tools.clojure-nrepl");
-      spec.setArgs(port, controlPort, handler.getOrNull(), middleware);
+      spec.setArgs(port, controlPort, handler.getOrNull(), middleware, Edn.keywordize(contextData));
       spec.forkOptions(fork -> {
         fork.setJvmArgs(getForkOptions().getJvmArgs());
         fork.setMinHeapSize(getForkOptions().getMemoryInitialSize());
@@ -180,5 +189,10 @@ public class ClojureNRepl extends DefaultTask {
   @Input
   public ListProperty<String> getDefaultMiddleware() {
     return defaultMiddleware;
+  }
+
+  @Internal
+  public Map<String, Object> getContextData() {
+    return contextData;
   }
 }

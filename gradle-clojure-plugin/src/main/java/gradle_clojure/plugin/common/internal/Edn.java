@@ -12,11 +12,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import gradle_clojure.plugin.clojure.tasks.ClojureCompileOptions;
+import gradle_clojure.plugin.clojurescript.ClojureScriptBuild;
 import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
+import gradle_clojure.plugin.clojurescript.tasks.FigwheelOptions;
 import gradle_clojure.plugin.clojurescript.tasks.ForeignLib;
 import gradle_clojure.plugin.clojurescript.tasks.Module;
+import org.gradle.api.NamedDomainObjectCollection;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import us.bpsm.edn.Keyword;
 import us.bpsm.edn.Symbol;
 import us.bpsm.edn.parser.Parseable;
@@ -31,15 +35,63 @@ public class Edn {
 
   private static final Printer.Fn<File> FILE_PRINTER = (self, printer) -> printer.printValue(self.getAbsolutePath());
 
-  private static final Printer.Fn<FileCollection> FILE_COLLECTION_PRINTER = (self, printer) -> printer.printValue(self.getFiles());
+  private static final Printer.Fn<FileCollection> FILE_COLLECTION_PRINTER = (self, printer) -> {
+    if (self.isEmpty()) {
+      printer.printValue(null);
+    } else {
+      printer.printValue(self.getFiles().stream().collect(Collectors.toList()));
+    }
+  };
 
-  private static final Printer.Fn<Property<?>> PROPERTY_PRINTER = (self, printer) -> printer.printValue(self.getOrNull());
+  private static final Printer.Fn<NamedDomainObjectCollection<?>> NAMED_DOMAIN_PRINTER = (self, printer) -> {
+    printer.printValue(self.isEmpty() ? null : self.getAsMap());
+  };
+
+  private static final Printer.Fn<Provider<?>> PROVIDER_PRINTER = (self, printer) -> printer.printValue(self.getOrNull());
 
   private static final Printer.Fn<ClojureCompileOptions> CLOJURE_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
     Map<Object, Object> root = new LinkedHashMap<>();
     root.put(newKeyword("disable-locals-clearing"), self.isDisableLocalsClearing());
     root.put(newKeyword("direct-linking"), self.isDirectLinking());
     root.put(newKeyword("elide-metadata"), self.getElideMeta().stream().map(Keyword::newKeyword).collect(Collectors.toList()));
+    printer.printValue(root);
+  };
+
+  private static final Printer.Fn<ClojureScriptBuild> CLOJURESCRIPT_BUILD_PRINTER = (self, printer) -> {
+    Map<Object, Object> root = new LinkedHashMap<>();
+    root.put(newKeyword("compiler"), self.getCompiler());
+    root.put(newKeyword("figwheel"), self.getFigwheel());
+    printer.printValue(root);
+  };
+
+  private static final Printer.Fn<FigwheelOptions> FIGWHEEL_OPTIONS_PRINTER = (self, printer) -> {
+    Map<Object, Object> root = new LinkedHashMap<>();
+    root.put(newKeyword("watch-dirs"), self.getWatchDirs());
+    root.put(newKeyword("css-dirs"), self.getCssDirs());
+    root.put(newKeyword("ring-handler"), Edn.toSymbol(self.getRingHandler()));
+    root.put(newKeyword("ring-server-options"), keywordize(self.getRingServerOptions()));
+    root.put(newKeyword("rebel-readline"), self.getRebelReadline());
+    root.put(newKeyword("pprint-config"), self.getPprintConfig());
+    root.put(newKeyword("open-file-command"), self.getOpenFileCommand());
+    root.put(newKeyword("figwheel-core"), self.getFigwheelCore());
+    root.put(newKeyword("hot-reload-cljs"), self.getHotReloadCljs());
+    root.put(newKeyword("connect-url"), self.getConnectUrl());
+    root.put(newKeyword("open-url"), self.getOpenUrl());
+    root.put(newKeyword("reload-clj-files"), self.getReloadCljFiles());
+    root.put(newKeyword("log-file"), self.getLogFile().getOrNull());
+    root.put(newKeyword("log-level"), Edn.toKeyword(self.getLogLevel()));
+    root.put(newKeyword("client-log-level"), Edn.toKeyword(self.getClientLogLevel()));
+    root.put(newKeyword("log-syntax-error-style"), Edn.toKeyword(self.getLogSyntaxErrorStyle()));
+    root.put(newKeyword("load-warninged-code"), self.getLoadWarningedCode());
+    root.put(newKeyword("ansi-color-output"), self.getAnsiColorOutput());
+    root.put(newKeyword("validate-config"), self.getValidateConfig());
+    root.put(newKeyword("target-dir"), self.getTargetDir().map(Directory::getAsFile).getOrNull());
+    root.put(newKeyword("launch-node"), self.getLaunchNode());
+    root.put(newKeyword("inspect-node"), self.getInspectNode());
+    root.put(newKeyword("node-command"), self.getNodeCommand());
+    root.put(newKeyword("cljs-devtools"), self.getCljsDevtools());
+
+    Edn.removeEmptyAndNulls(root);
     printer.printValue(root);
   };
 
@@ -54,25 +106,23 @@ public class Edn {
     map.put(newKeyword("verbose"), self.getVerbose());
     map.put(newKeyword("pretty-print"), self.getPrettyPrint());
     map.put(newKeyword("target"), self.getTarget());
-    map.put(newKeyword("foreign-libs"), Edn.emptyToNull(self.getForeignLibs()));
-    map.put(newKeyword("externs"), Edn.emptyToNull(self.getExterns()));
+    map.put(newKeyword("foreign-libs"), self.getForeignLibs());
+    map.put(newKeyword("externs"), self.getExterns());
     map.put(newKeyword("modules"), parseModules(self.getModules()));
     map.put(newKeyword("preloads"), parsePreloads(self.getPreloads()));
-    map.put(newKeyword("npm-deps"), Edn.emptyToNull(self.getNpmDeps()));
+    map.put(newKeyword("npm-deps"), self.getNpmDeps());
     map.put(newKeyword("install-deps"), self.getInstallDeps());
     map.put(newKeyword("checked-arrays"), self.getCheckedArrays());
 
-    map.values().removeIf(Objects::isNull);
+    Edn.removeEmptyAndNulls(map);
     printer.printValue(map);
   };
 
   private static Map<Keyword, Module> parseModules(Map<String, Module> modules) {
-    Map<Keyword, Module> result = modules.entrySet().stream()
+    return modules.entrySet().stream()
         .collect(Collectors.toMap(
             e -> newKeyword(e.getKey()),
             Map.Entry::getValue));
-
-    return Edn.emptyToNull(result);
   }
 
   private static List<Symbol> parsePreloads(Collection<String> preloads) {
@@ -95,7 +145,7 @@ public class Edn {
     map.put(newKeyword("preprocess"), parsePreprocess(self.getPreprocess()));
     map.put(newKeyword("global-exports"), parseGlobalExports(self.getGlobalExports()));
 
-    map.values().removeIf(Objects::isNull);
+    Edn.removeEmptyAndNulls(map);
     printer.printValue(map);
   };
 
@@ -121,7 +171,7 @@ public class Edn {
     map.put(newKeyword("output-to"), module.getOutputTo().getAsFile().getOrNull());
     map.put(newKeyword("entries"), module.getEntries());
     map.put(newKeyword("dependsOn"), module.getDependsOn());
-    map.values().removeIf(Objects::isNull);
+    Edn.removeEmptyAndNulls(map);
     printer.printValue(map);
   };
 
@@ -130,10 +180,13 @@ public class Edn {
       .put(Enum.class, ENUM_PRINTER)
       .put(File.class, FILE_PRINTER)
       .put(FileCollection.class, FILE_COLLECTION_PRINTER)
-      .put(Property.class, PROPERTY_PRINTER)
+      .put(NamedDomainObjectCollection.class, NAMED_DOMAIN_PRINTER)
+      .put(Provider.class, PROVIDER_PRINTER)
       // Clojure
       .put(ClojureCompileOptions.class, CLOJURE_COMPILE_OPTIONS_PRINTER)
       // ClojureScript
+      .put(ClojureScriptBuild.class, CLOJURESCRIPT_BUILD_PRINTER)
+      .put(FigwheelOptions.class, FIGWHEEL_OPTIONS_PRINTER)
       .put(ClojureScriptCompileOptions.class, CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER)
       .put(ForeignLib.class, FOREIGN_LIB_PRINTER)
       .put(Module.class, MODULE_PRINTER)
@@ -143,15 +196,26 @@ public class Edn {
     return Printers.printString(PROTOCOL, value);
   }
 
-  private static <T extends Collection<?>> T emptyToNull(T collection) {
-    return Optional.ofNullable(collection)
-        .filter(c -> !c.isEmpty())
+  private static Symbol toSymbol(String name) {
+    return Optional.ofNullable(name)
+        .map(Symbol::newSymbol)
         .orElse(null);
   }
 
-  private static <T extends Map<?, ?>> T emptyToNull(T collection) {
-    return Optional.ofNullable(collection)
-        .filter(c -> !c.isEmpty())
+  private static Keyword toKeyword(String name) {
+    return Optional.ofNullable(name)
+        .map(Keyword::newKeyword)
         .orElse(null);
+  }
+
+  public static <V> Map<Keyword, V> keywordize(Map<String, V> map) {
+    return map.entrySet().stream()
+        .collect(Collectors.toMap(e -> newKeyword(e.getKey()), e -> e.getValue()));
+  }
+
+  private static <K, V> void removeEmptyAndNulls(Map<K, V> map) {
+    map.values().removeIf(Objects::isNull);
+    map.values().removeIf(obj -> (obj instanceof Collection) && ((Collection<?>) obj).isEmpty());
+    map.values().removeIf(obj -> (obj instanceof Map) && ((Map<?, ?>) obj).isEmpty());
   }
 }

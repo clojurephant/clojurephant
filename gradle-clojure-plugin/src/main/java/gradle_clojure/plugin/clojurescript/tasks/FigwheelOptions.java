@@ -1,5 +1,6 @@
 package gradle_clojure.plugin.clojurescript.tasks;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.gradle.api.Project;
@@ -18,7 +19,7 @@ public final class FigwheelOptions {
   private final ConfigurableFileCollection watchDirs;
   private final ConfigurableFileCollection cssDirs;
   private String ringHandler;
-  private Map<String, String> ringServerOptions;
+  private Map<String, Object> ringServerOptions;
   private Boolean rebelReadline;
   private Boolean pprintConfig;
   private String openFileCommand;
@@ -29,6 +30,7 @@ public final class FigwheelOptions {
   private String reloadCljFiles;
   private final RegularFileProperty logFile;
   private String logLevel;
+  private String clientLogLevel;
   private String logSyntaxErrorStyle;
   private Boolean loadWarningedCode;
   private Boolean ansiColorOutput;
@@ -36,12 +38,14 @@ public final class FigwheelOptions {
   private Boolean launchNode;
   private Boolean inspectNode;
   private String nodeCommand;
+  private Boolean cljsDevtools;
   // skipping the "rarely used" options for now
 
   public FigwheelOptions(Project project, DirectoryProperty destinationDir) {
     this.destinationDir = destinationDir;
     this.watchDirs = project.files();
     this.cssDirs = project.files();
+    this.ringServerOptions = new HashMap<>();
     this.logFile = project.getLayout().fileProperty();
   }
 
@@ -65,11 +69,11 @@ public final class FigwheelOptions {
   }
 
   @Input
-  public Map<String, String> getRingServerOptions() {
+  public Map<String, Object> getRingServerOptions() {
     return ringServerOptions;
   }
 
-  public void setRingServerOptions(Map<String, String> ringServerOptions) {
+  public void setRingServerOptions(Map<String, Object> ringServerOptions) {
     this.ringServerOptions = ringServerOptions;
   }
 
@@ -160,6 +164,15 @@ public final class FigwheelOptions {
   }
 
   @Input
+  public String getClientLogLevel() {
+    return clientLogLevel;
+  }
+
+  public void setClientLogLevel(String clientLogLevel) {
+    this.clientLogLevel = clientLogLevel;
+  }
+
+  @Input
   public String getLogSyntaxErrorStyle() {
     return logSyntaxErrorStyle;
   }
@@ -225,5 +238,14 @@ public final class FigwheelOptions {
 
   public void setNodeCommand(String nodeCommand) {
     this.nodeCommand = nodeCommand;
+  }
+
+  @Input
+  public Boolean getCljsDevtools() {
+    return cljsDevtools;
+  }
+
+  public void setCljsDevtools(Boolean cljsDevtools) {
+    this.cljsDevtools = cljsDevtools;
   }
 }

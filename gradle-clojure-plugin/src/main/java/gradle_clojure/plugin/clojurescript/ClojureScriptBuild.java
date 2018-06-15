@@ -28,6 +28,7 @@ public class ClojureScriptBuild implements Named {
     this.sourceSet = project.getObjects().property(SourceSet.class);
     this.compiler = new ClojureScriptCompileOptions(project, outputDir);
     this.figwheel = new FigwheelOptions(project, outputDir);
+    figwheel.getWatchDirs().from(getSourceRoots());
   }
 
   @Override

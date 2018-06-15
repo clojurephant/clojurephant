@@ -19,7 +19,8 @@ public class ClojureScriptPlugin implements Plugin<Project> {
   }
 
   private void configureBuilds(Project project, ClojureScriptExtension extension) {
-    // TODO wire all builds into nrepl task
+    ClojureNRepl repl = (ClojureNRepl) project.getTasks().getByName(ClojureCommonPlugin.NREPL_TASK_NAME);
+    repl.getContextData().put("cljs-builds", extension.getBuilds());
   }
 
   private void configurePiggieback(Project project) {

@@ -1,12 +1,14 @@
 package gradle_clojure.plugin.clojurescript.tasks;
 
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 
 import gradle_clojure.plugin.common.internal.ClojureExecutor;
 import gradle_clojure.plugin.common.internal.Namespaces;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
@@ -78,6 +80,14 @@ public class ClojureScriptCompile extends DefaultTask {
 
   @TaskAction
   public void compile() {
+    File outputDir = getDestinationDir().get().getAsFile();
+    if (!getProject().delete(outputDir)) {
+      throw new GradleException("Cannot clean destination directory: " + outputDir.getAbsolutePath());
+    }
+    if (!outputDir.mkdirs()) {
+      throw new GradleException("Cannot create destination directory: " + outputDir.getAbsolutePath());
+    }
+
     FileCollection classpath = getClasspath().plus(getSourceRoots());
 
     clojureExecutor.exec(spec -> {

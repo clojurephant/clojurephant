@@ -43,7 +43,22 @@ calculate the namespaces involved, it does not parse the files looking for `ns` 
 
 ### Quick Start
 
-Download [the sample project](https://github.com/gradle-clojure/gradle-clojure-samples) for the basic structure.
+- Install the [Clojure command line tool](https://clojure.org/guides/getting_started) (i.e. clj).
+- Add an alias for [clj-new](https://github.com/seancorfield/clj-new/) to your `~/.clojure/deps.edn`
+
+Create a new Clojure library:
+
+```
+clj -A:new gradle-clj-lib myname/mylib
+```
+
+Create a new Clojure application:
+
+```
+clj -A:new gradle-clj-app myname/myapp
+```
+
+ClojureScript templates coming soon.
 
 #### Common Commands
 

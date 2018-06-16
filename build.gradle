@@ -3,7 +3,7 @@ plugins {
   id 'org.ajoberstar.reckon' version '0.7.0'
   id 'com.diffplug.gradle.spotless' version '3.12.0'
 
-  id 'gradle-clojure.clojure' version '0.4.0-beta.6' apply false
+  id 'gradle-clojure.clojure' version '0.4.0-beta.7' apply false
   id 'org.ajoberstar.stutter' version '0.4.0' apply false
   id 'com.gradle.plugin-publish' version '0.9.10' apply false
   id 'nebula.maven-resolved-dependencies' version '7.2.2' apply false
@@ -13,26 +13,28 @@ plugins {
 // Dependencies
 ///////////////////////////////////////////////////////////////////////////////
 allprojects {
-  repositories {
-    mavenCentral()
-    maven {
-      name = 'Clojars'
-      url = 'https://repo.clojars.org/'
+  plugins.withId('java') {
+    repositories {
+      mavenCentral()
+      maven {
+        name = 'Clojars'
+        url = 'https://repo.clojars.org/'
+      }
     }
-  }
 
-  dependencyLocking {
-    lockAllConfigurations()
-  }
-
-  task lock {
-    doFirst {
-      assert gradle.startParameter.writeDependencyLocks
+    dependencyLocking {
+      lockAllConfigurations()
     }
-    doLast {
-      configurations.all {
-        if (it.canBeResolved) {
-          it.resolve()
+
+    task lock {
+      doFirst {
+        assert gradle.startParameter.writeDependencyLocks
+      }
+      doLast {
+        configurations.all {
+          if (it.canBeResolved) {
+            it.resolve()
+          }
         }
       }
     }

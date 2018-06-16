@@ -21,6 +21,36 @@ repositories {
 
 ## How do I publish to Clojars?
 
+You'll want to set your Clojars credentials in environment variables (in this example, `CLOJARS_USER` and `CLOJARS_PASSWORD`).
+
+```groovy
+plugins {
+  id 'maven-publish'
+}
+
+// other stuff
+
+publishing {
+  publications {
+    main(MavenPublication) {
+      from components.java
+    }
+  }
+  repositories {
+    maven {
+      name = 'clojars'
+      url = 'https://repo.clojars.org'
+      credentials {
+        username = System.env['CLOJARS_USER']
+        password = System.env['CLOJARS_PASSWORD']
+      }
+    }
+  }
+}
+```
+
+Then run the `publish` task.
+
 ## How do I create an uberjar?
 
 Use the Gradle [Shadow plugin](http://imperceptiblethoughts.com/shadow/).

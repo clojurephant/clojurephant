@@ -1,0 +1,48 @@
+plugins {
+  id 'java'
+  id 'gradle-clojure.clojurescript'
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    name = 'Clojars'
+    url = 'https://repo.clojars.org/'
+  }
+  mavenLocal()
+}
+
+dependencies {
+  implementation 'org.clojure:clojurescript:1.10.238'
+}
+
+clojurescript {
+  builds {
+    main {
+      compiler {
+        outputTo = 'public/js/main.js'
+        outputDir = 'public/js/out'
+        assetPath = 'js/out'
+        optimizations = 'simple'
+        main = 'basic-project.core'
+        sourceMap = 'public/js/main.js.map'
+      }
+    }
+    dev {
+      compiler {
+        outputTo = 'public/js/main.js'
+        outputDir = 'public/js/out'
+        assetPath = 'js/out'
+        main = 'basic-project.core'
+        preloads = ['basic-project.dev']
+      }
+    }
+  }
+}
+
+// until clojurescript fixes the Java 9+ issue, we need this to make the tests pass
+if (JavaVersion.current().isJava9Compatible()) {
+  tasks.withType(gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompile) {
+    forkOptions.jvmArgs += ['--add-modules', 'java.xml.bind']
+  }
+}

@@ -1,6 +1,6 @@
 # gradle-clojure
 
-[![Download](https://api.bintray.com/packages/gradle-clojure/maven/gradle-clojure/images/download.svg) ](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
+[![Bintray](https://api.bintray.com/packages/gradle-clojure/maven/gradle-clojure/images/download.svg)](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
 [![CircleCI](https://circleci.com/gh/gradle-clojure/gradle-clojure.svg?style=svg)](https://circleci.com/gh/gradle-clojure/gradle-clojure)
 
 ## What is this?
@@ -19,9 +19,11 @@ A Gradle plugin providing support for the Clojure and ClojureScript languages.
 
 ### ClojureScript Features
 
-**NOTE:** ClojureScript features are very basic at this point.
+**NOTE:** ClojureScript features are pretty new, so let us know if you run into issues or have ideas for improvement.
 
-- ClojureScript compilation
+- Packaging Clojure code (or compiled JS) into a JAR or ZIP
+- ClojureScript compilation (multiple builds supported)
+- Figwheel (via [figwheel.main](https://github.com/bhauman/lein-figwheel/tree/master/figwheel-main))
 
 ## Why should you care?
 
@@ -56,8 +58,8 @@ plugins {
 }
 
 dependencies {
-  // whatever version of clojure you prefer (older versions may not be compatible)
-  implementation 'org.clojure:clojure:1.8.0'
+  // whatever version of clojure you prefer (versions before 1.8.0 may not be compatible)
+  implementation 'org.clojure:clojure:1.9.0'
   // and any other dependencies you want on the compile classpath
   // implementation 'group:artifact:version'
 

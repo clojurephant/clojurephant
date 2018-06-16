@@ -28,7 +28,7 @@ To include plugins from [Gradle's Plugin Portal](https://plugins.gradle.org/) yo
 
 ```groovy
 plugins {
-  id 'gradle-clojure.clojure' version '0.3.1'
+  id 'gradle-clojure.clojure' version '0.4.0'
   // any additional plugins declared here
 }
 ```
@@ -98,7 +98,7 @@ Full `build.gradle` example:
 
 ```groovy
 plugins {
-  id 'gradle-clojure.clojure' version '0.3.1'
+  id 'gradle-clojure.clojure' version '0.4.0'
 }
 
 group = 'my.example'

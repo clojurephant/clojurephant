@@ -1,0 +1,55 @@
+buildscript {
+  repositories {
+    gradlePluginPortal()
+    mavenLocal()
+  }
+  dependencies {
+    classpath 'io.github.gradle-clojure:gradle-clojure-plugin:latest.integration'
+  }
+}
+
+apply plugin: 'gradle-clojure.clojure'
+apply plugin: 'gradle-clojure.clojurescript'
+
+repositories {
+  mavenCentral()
+  maven {
+    name = 'clojars'
+    url = 'https://repo.clojars.org'
+  }
+  mavenLocal()
+}
+
+dependencies {
+  implementation 'org.clojure:clojure:1.10.0-alpha4'
+  implementation 'org.clojure:clojurescript:1.10.238'
+  testImplementation 'junit:junit:4.12'
+}
+
+clojureRepl {
+  port = 7888
+}
+
+clojurescript {
+  builds {
+    main {
+      compiler {
+          outputTo = 'public/js/main.js'
+          outputDir = 'public/js/out'
+          assetPath = 'js/out'
+          optimizations = 'advanced'
+          main = 'sample.main'
+          sourceMap = 'js/main.js.map'
+        }
+    }
+    dev {
+      compiler {
+          outputTo = 'public/js/main.js'
+          outputDir = 'public/js/out'
+          assetPath = 'js/out'
+          main = 'sample.main'
+          preloads = ['sample.dev']
+        }
+    }
+  }
+}

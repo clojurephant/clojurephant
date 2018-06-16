@@ -18,7 +18,16 @@ public class ClojureCommonBasePlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaBasePlugin.class);
+
+    JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+    configureSourceSets(project, javaConvention);
     configureToolsConfigurations(project);
+  }
+
+  private void configureSourceSets(Project project, JavaPluginConvention javaConvention) {
+    javaConvention.getSourceSets().all(sourceSet -> {
+      sourceSet.getResources().exclude("**/.keep");
+    });
   }
 
   private void configureToolsConfigurations(Project project) {

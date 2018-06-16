@@ -25,4 +25,4 @@ bin/
 *~
 
 # Source Deps
-/templates/clj-new/
+/templates/clj-new

@@ -9,6 +9,6 @@
     (gradle/with-project "BasicClojureScriptProjectTest"
       (let [result (gradle/build "classes")]
         (gradle/verify-task-outcome result ":compileClojureScript" :success)
-        (is (seq (gradle/file-tree "build/clojurescript/main/js/out")))
-        (is (true? (file/exists? (gradle/file "build/clojurescript/main/js/main.js"))))
-        (is (true? (file/exists? (gradle/file "build/clojurescript/main/js/main.js.map"))))))))
+        (is (seq (gradle/file-tree "build/clojurescript/main/public/js/out")))
+        (is (true? (file/exists? (gradle/file "build/clojurescript/main/public/js/main.js"))))
+        (is (true? (file/exists? (gradle/file "build/clojurescript/main/public/js/main.js.map"))))))))

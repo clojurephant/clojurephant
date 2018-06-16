@@ -44,7 +44,7 @@ clojurescript {
     }
     dev {
       compiler {
-          outputTo = 'js/main.js'
+          outputTo = 'public/js/main.js'
           outputDir = 'public/js/out'
           assetPath = 'js/out'
           main = 'sample.main'

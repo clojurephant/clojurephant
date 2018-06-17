@@ -58,7 +58,11 @@ Create a new Clojure application:
 clj -A:new gradle-clj-app myname/myapp
 ```
 
-ClojureScript templates coming soon.
+Create a new ClojureScript appliation:
+
+```
+clj -A:new gradle-cljs-app myname/myapp
+```
 
 #### Common Commands
 

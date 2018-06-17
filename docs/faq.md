@@ -140,6 +140,18 @@ Optionally, omit the handler config and provide it on the CLI:
 
 Once your REPL starts, use `cider-connect` within Emacs to connect to the port listed in your Gradle output.
 
+## How do I use Figwheel?
+
+[Figwheel Main](https://github.com/bhauman/lein-figwheel/tree/master/figwheel-main) is included by default, if you apply the `gradle-clojure.clojurescript` plugin. You'll automatically get Piggieback added to your nREPL to support CLJS repls and your `clojurescript.builds` configuration will be available in the REPL to let you start Figwheel.
+
+1. Start the REPL with `./gradlew clojureRepl` (or from your editor, if it supports Gradle).
+1. Connect to the REPL from your favorite editor (see the port in the output).
+1. Require the Figwheel helper ns: `(require '[gradle-clojure.tools.figwheel :as fw])`
+1. Start your Figwheel build: `(fw/start "dev")`
+1. Figwheel should open your browser when its ready to connect.
+
+**NOTE:** Figwheel's docs will talk about `figwheel-main.edn` and `<build>.cljs.edn` files for configuration. These will probably work with your Gradle REPL, but they won't be known to Gradle when its other tasks run. Currently, we recommend configuring Figwheel in your `clojurescript.builds {}` options, though that can be a hassle when tuning build options during initial setup.
+
 ## How do I build Clojure code that depends on Java code?
 
 You can compile Clojure code that depends on Java out of the box. Just put your

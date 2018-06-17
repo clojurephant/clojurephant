@@ -2,10 +2,6 @@
   (:require [clj.new.templates :as t]
             [clojure.string :as string]))
 
-(defn unsanitize-ns
-  [s]
-  (string/replace s "_" "-"))
-
 (defn gradle-clj-app
   [name]
   (let [render (t/renderer "gradle-clj-app")
@@ -15,7 +11,7 @@
               :group (t/group-name name)
               :name (t/project-name name)
               :namespace main-ns
-              :main-class (unsanitize-ns main-ns)
+              :main-class (t/sanitize main-ns)
               :nested-dirs (t/name-to-path main-ns)
               :year (t/year)
               :date (t/date)}]

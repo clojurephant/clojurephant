@@ -18,6 +18,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ComponentModuleMetadataDetails;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -35,6 +36,8 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
     configureDev(project, javaConvention);
     configureDependencyConstraints(project);
+
+    configureDevSource(javaConvention, SourceSet::getResources);
   }
 
   private void configureDev(Project project, JavaPluginConvention javaConvention) {
@@ -55,9 +58,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     dev.setRuntimeClasspath(project.files(
         dev.getAllSource().getSourceDirectories(),
         dev.getOutput(),
-        test.getAllSource().getSourceDirectories(),
         test.getOutput(),
-        main.getAllSource().getSourceDirectories(),
         main.getOutput(),
         project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
 
@@ -124,5 +125,13 @@ public class ClojureCommonPlugin implements Plugin<Project> {
         });
       });
     }
+  }
+
+  public static void configureDevSource(JavaPluginConvention javaConvention, Function<SourceSet, SourceDirectorySet> languageMapper) {
+    SourceSet main = javaConvention.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    SourceSet test = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
+    SourceSet dev = javaConvention.getSourceSets().getByName(DEV_SOURCE_SET_NAME);
+    languageMapper.apply(dev).source(languageMapper.apply(test));
+    languageMapper.apply(dev).source(languageMapper.apply(main));
   }
 }

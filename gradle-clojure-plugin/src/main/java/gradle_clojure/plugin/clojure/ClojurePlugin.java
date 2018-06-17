@@ -2,9 +2,12 @@ package gradle_clojure.plugin.clojure;
 
 import java.util.stream.Collectors;
 
+import gradle_clojure.plugin.clojure.tasks.ClojureSourceSet;
 import gradle_clojure.plugin.common.internal.ClojureCommonPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 
 public class ClojurePlugin implements Plugin<Project> {
@@ -15,6 +18,12 @@ public class ClojurePlugin implements Plugin<Project> {
 
     ClojureExtension extension = project.getExtensions().getByType(ClojureExtension.class);
     configureBuilds(project, extension);
+
+    JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+    ClojureCommonPlugin.configureDevSource(javaConvention, sourceSet -> {
+      ClojureSourceSet src = (ClojureSourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("clojure");
+      return src.getClojure();
+    });
   }
 
   private void configureBuilds(Project project, ClojureExtension extension) {

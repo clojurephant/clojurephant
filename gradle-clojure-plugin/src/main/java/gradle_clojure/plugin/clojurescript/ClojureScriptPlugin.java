@@ -1,9 +1,12 @@
 package gradle_clojure.plugin.clojurescript;
 
 import gradle_clojure.plugin.clojure.tasks.ClojureNRepl;
+import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptSourceSet;
 import gradle_clojure.plugin.common.internal.ClojureCommonPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.plugins.JavaPluginConvention;
 
 public class ClojureScriptPlugin implements Plugin<Project> {
   @Override
@@ -16,6 +19,12 @@ public class ClojureScriptPlugin implements Plugin<Project> {
 
     configurePiggieback(project);
     configureFigwheel(project);
+
+    JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+    ClojureCommonPlugin.configureDevSource(javaConvention, sourceSet -> {
+      ClojureScriptSourceSet src = (ClojureScriptSourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("clojurescript");
+      return src.getClojureScript();
+    });
   }
 
   private void configureBuilds(Project project, ClojureScriptExtension extension) {

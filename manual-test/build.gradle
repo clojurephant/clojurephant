@@ -32,24 +32,24 @@ clojureRepl {
 
 clojurescript {
   builds {
+    all {
+      compiler {
+        outputTo = 'public/js/main.js'
+        outputDir = 'public/js/out'
+        assetPath = 'js/out'
+        main = 'sample.main'
+      }
+    }
     main {
       compiler {
-          outputTo = 'public/js/main.js'
-          outputDir = 'public/js/out'
-          assetPath = 'js/out'
-          optimizations = 'advanced'
-          main = 'sample.main'
-          sourceMap = 'js/main.js.map'
-        }
+        optimizations = 'advanced'
+        sourceMap = 'js/main.js.map'
+      }
     }
     dev {
       compiler {
-          outputTo = 'public/js/main.js'
-          outputDir = 'public/js/out'
-          assetPath = 'js/out'
-          main = 'sample.main'
-          preloads = ['sample.dev']
-        }
+        preloads = ['sample.dev']
+      }
     }
   }
 }

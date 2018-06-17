@@ -2,6 +2,29 @@
 
 {% include nav.md %}
 
+## Quick Start
+
+- Install the [Clojure command line tool](https://clojure.org/guides/getting_started) (i.e. clj).
+- Add an alias for [clj-new](https://github.com/seancorfield/clj-new/) to your `~/.clojure/deps.edn`
+
+Create a new Clojure library:
+
+```
+clj -A:new gradle-clj-lib myname/mylib
+```
+
+Create a new Clojure application:
+
+```
+clj -A:new gradle-clj-app myname/myapp
+```
+
+Create a new ClojureScript appliation:
+
+```
+clj -A:new gradle-cljs-app myname/myapp
+```
+
 ## Plugins
 
 gradle-clojure uses the common pattern of providing _capability_ plugins and _convention_ plugins. Capability plugins provide the basic machinery for using the language, but leaves it to you to configure. Convention plugins provide configuration on top of the capabilities to support common use cases.
@@ -118,8 +141,8 @@ clojurescript {
         checkedArrays = 'warn'
       }
       figwheel {
-        watchDirs = files() // defaults to the source set's CLJS source dirs
-        cssDirs = files('src/main/resources/public/css') // defaults to empty
+        watchDirs.from = files() // defaults to the source set's CLJS source dirs
+        cssDirs.from = files('src/main/resources/public/css') // defaults to empty
         ringHandler = 'my-project.server/handler'
         ringServerOptions = [port: 1234, host: 'my.domain.com']
         rebelReadline = false

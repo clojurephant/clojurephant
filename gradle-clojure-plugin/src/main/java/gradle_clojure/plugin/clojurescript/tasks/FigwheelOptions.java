@@ -26,7 +26,7 @@ public final class FigwheelOptions {
   private Boolean figwheelCore;
   private Boolean hotReloadCljs;
   private String connectUrl;
-  private String openUrl;
+  private Object openUrl;
   private String reloadCljFiles;
   private final RegularFileProperty logFile;
   private String logLevel;
@@ -132,11 +132,15 @@ public final class FigwheelOptions {
   }
 
   @Input
-  public String getOpenUrl() {
+  public Object getOpenUrl() {
     return openUrl;
   }
 
   public void setOpenUrl(String openUrl) {
+    this.openUrl = openUrl;
+  }
+
+  public void setOpenUrl(boolean openUrl) {
     this.openUrl = openUrl;
   }
 

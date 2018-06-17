@@ -6,6 +6,7 @@ include 'gradle-clojure-tools'
 include 'templates:clj-new'
 include 'templates:gradle-clj-lib'
 include 'templates:gradle-clj-app'
+include 'templates:gradle-cljs-app'
 
 enableFeaturePreview('IMPROVED_POM_SUPPORT')
 enableFeaturePreview('STABLE_PUBLISHING')

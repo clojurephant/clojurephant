@@ -20,7 +20,7 @@
     (t/->files data
                ["settings.gradle" (render "settings.gradle" data)]
                ["build.gradle" (render "build.gradle" data)]
-               ["gradlew" (render "gradlew" data)]
+               ["gradlew" (render "gradlew" data) :executable true]
                ["gradlew.bat" (render "gradlew.bat" data)]
                ["gradle/wrapper/gradle-wrapper.properties" (render "gradle-wrapper.properties" data)]
                ["gradle/wrapper/gradle-wrapper.jar" (raw "gradle-wrapper.jar")]

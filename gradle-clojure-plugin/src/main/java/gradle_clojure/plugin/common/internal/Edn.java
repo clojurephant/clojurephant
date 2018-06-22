@@ -59,6 +59,7 @@ public class Edn {
 
   private static final Printer.Fn<ClojureScriptBuild> CLOJURESCRIPT_BUILD_PRINTER = (self, printer) -> {
     Map<Object, Object> root = new LinkedHashMap<>();
+    root.put(newKeyword("output-dir"), self.getOutputDir().map(Directory::getAsFile).getOrNull());
     root.put(newKeyword("compiler"), self.getCompiler());
     root.put(newKeyword("figwheel"), self.getFigwheel());
     printer.printValue(root);

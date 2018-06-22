@@ -50,6 +50,7 @@ public class ClojureNRepl extends DefaultTask {
     this.userMiddleware = getProject().getObjects().listProperty(String.class);
     this.defaultMiddleware = getProject().getObjects().listProperty(String.class);
     this.contextData = new HashMap<>();
+    contextData.put("output-dir", getTemporaryDir().getAbsolutePath());
 
     // task is never up-to-date, if you ask for REPL, you get REPL
     this.getOutputs().upToDateWhen(t -> false);

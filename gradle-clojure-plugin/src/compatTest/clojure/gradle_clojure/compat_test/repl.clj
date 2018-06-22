@@ -1,6 +1,7 @@
 (ns gradle-clojure.compat-test.repl
   (:require [clojure.set :as set]
             [clojure.string :as str]
+            [clojure.edn :as edn]
             [clojure.test :refer :all]
             [gradle-clojure.compat-test.test-kit :as gradle]
             [ike.cljj.file :as file]
@@ -97,3 +98,19 @@
         (gradle/verify-task-outcome result ":compileClojureScript" :skipped)
         (gradle/verify-task-outcome result ":compileTestClojureScript" :skipped)
         (gradle/verify-task-outcome result ":compileDevClojureScript" :skipped)))))
+
+
+(deftest no-compile-output-on-classpath
+  (testing "Compile output from other tasks should not be on classpath of the REPL"
+    (with-client [client "BasicClojureScriptProjectTest"]
+      (let [output-dirs (into #{} (map file/path) ["build/clojurescript/main"
+                                                   "build/clojurescript/test"
+                                                   "build/clojurescript/dev"
+                                                   "build/clojure/main"
+                                                   "build/clojure/test"
+                                                   "build/clojure/dev"])
+            classpath-paths (eval-repl client '(do
+                                                 (require 'clojure.java.classpath)
+                                                 (map str (clojure.java.classpath/classpath))))
+            output-dir? (fn [path] (some #(.endsWith path %) output-dirs))]
+        (is (not-any? output-dir? (map file/path (edn/read-string classpath-paths))))))))

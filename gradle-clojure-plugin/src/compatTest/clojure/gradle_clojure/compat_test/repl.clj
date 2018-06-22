@@ -69,7 +69,7 @@
       (is (= "0.17.0" (-> (send-repl client {:op "cider-version"}) :cider-version :version-string)))
       (is (pr-str 7) (eval-repl client '(do (require 'basic-project.core) (basic-project/use-ns 4)))))))
 
-(deftest task-dependencies
+(deftest task-dependencies-clj
   (testing "No Clojure compiles happen when REPL is requested, but other languages are compiled"
     (gradle/with-project "MixedJavaClojureTest"
       (file/write-str (gradle/file "build.gradle") "clojureRepl { doFirst { throw new GradleException(\"Fail!\") } }\n" :append true)
@@ -84,6 +84,16 @@
         (gradle/verify-task-outcome result ":compileClojure" :skipped)
         (gradle/verify-task-outcome result ":compileTestClojure" :skipped)
         (gradle/verify-task-outcome result ":compileDevClojure" :skipped)))))
-        ; (gradle/verify-task-outcome result ":compileClojureScript" :skipped)
-        ; (gradle/verify-task-outcome result ":compileTestClojureScript" :skipped)
-        ; (gradle/verify-task-outcome result ":compileDevClojureScript" :skipped)))))
+
+(deftest task-dependencies-cljs
+  (testing "No ClojureScript compiles happen when REPL is requested, but other languages are compiled"
+    (gradle/with-project "BasicClojureScriptProjectTest"
+      (file/write-str (gradle/file "build.gradle") "clojureRepl { doFirst { throw new GradleException(\"Fail!\") } }\n" :append true)
+      (let [result (gradle/build-and-fail "clojureRepl")]
+        (gradle/verify-task-outcome result ":clojureRepl" :failed)
+        (gradle/verify-task-outcome result ":compileJava" :success :no-source)
+        (gradle/verify-task-outcome result ":compileTestJava" :success :no-source)
+        (gradle/verify-task-outcome result ":compileDevJava" :success :no-source)
+        (gradle/verify-task-outcome result ":compileClojureScript" :skipped)
+        (gradle/verify-task-outcome result ":compileTestClojureScript" :skipped)
+        (gradle/verify-task-outcome result ":compileDevClojureScript" :skipped)))))

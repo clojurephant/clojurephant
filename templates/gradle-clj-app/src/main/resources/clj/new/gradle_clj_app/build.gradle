@@ -11,6 +11,9 @@ version = '0.1.0-SNAPSHOT'
 mainClassName = '{{main-class}}'
 
 repositories {
+  {{#maven-local}}
+  mavenLocal()
+  {{/maven-local}}
   mavenCentral()
   maven {
     name = 'clojars'

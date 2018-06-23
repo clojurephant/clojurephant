@@ -55,6 +55,8 @@ subprojects {
 
   dependencies {
     compileOnly 'org.clojure:clojure:1.9.0'
+    compileOnly 'org.clojure:tools.deps.alpha:0.5.435'
+    compileOnly 'com.cemerick:pomegranate:1.0.0'
     compileOnly project(':templates:clj-new')
     compileOnly 'stencil:stencil:0.5.0'
   }
@@ -74,6 +76,24 @@ subprojects {
   }
 
   processResources {
-    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: ['gradle-clojure.version': project.version.toString()])
+    eachFile { details ->
+      if (details.name.endsWith('.gradle')) {
+        details.filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: ['gradle-clojure.version': project.version.toString()])
+      }
+    }
+  }
+
+  task newProject(type: JavaExec) {
+    workingDir = file("${rootProject.projectDir}/templates-test")
+    classpath = files(sourceSets.main.output, configurations.compileClasspath)
+    main = 'clojure.main'
+    args '-m', 'clj-new.create', project.name, "my.group/sample-${project.name}", '+localplugin'
+    doFirst {
+      workingDir.mkdirs()
+      delete("${workingDir}/sample-${project.name}")
+    }
+    dependsOn jar
+    dependsOn ':gradle-clojure-tools:publishToMavenLocal'
+    dependsOn ':gradle-clojure-plugin:publishToMavenLocal'
   }
 }

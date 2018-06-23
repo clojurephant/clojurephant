@@ -26,3 +26,6 @@ bin/
 
 # Source Deps
 /templates/clj-new
+
+# Test Stuff
+/templates-test

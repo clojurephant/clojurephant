@@ -7,6 +7,9 @@ group = '{{group}}'
 version = '0.1.0-SNAPSHOT'
 
 repositories {
+  {{#maven-local}}
+  mavenLocal()
+  {{/maven-local}}
   mavenCentral()
   maven {
     name = 'clojars'

@@ -1,5 +1,5 @@
 plugins {
-  id 'gradle-clojure.clojurescript' version '0.4.0-beta.8'
+  id 'gradle-clojure.clojurescript' version '@gradle-clojure.version@'
   id 'distribution'
 }
 

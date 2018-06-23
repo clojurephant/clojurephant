@@ -72,4 +72,8 @@ subprojects {
   tasks.all {
     dependsOn checkoutCljNew
   }
+
+  processResources {
+    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: ['gradle-clojure.version': project.version.toString()])
+  }
 }

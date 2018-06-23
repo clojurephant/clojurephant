@@ -1,5 +1,5 @@
 plugins {
-  id 'gradle-clojure.clojure' version '0.4.0-beta.8'
+  id 'gradle-clojure.clojure' version '@gradle-clojure.version@'
   id 'maven-publish'
 }
 
@@ -7,6 +7,9 @@ group = '{{group}}'
 version = '0.1.0-SNAPSHOT'
 
 repositories {
+  {{#maven-local}}
+  mavenLocal()
+  {{/maven-local}}
   mavenCentral()
   maven {
     name = 'clojars'

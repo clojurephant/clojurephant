@@ -12,3 +12,11 @@
         (is (seq (gradle/file-tree "build/clojurescript/main/public/js/out")))
         (is (true? (file/exists? (gradle/file "build/clojurescript/main/public/js/main.js"))))
         (is (true? (file/exists? (gradle/file "build/clojurescript/main/public/js/main.js.map"))))))))
+
+(deftest dev-build
+  (testing "dev build"
+    (gradle/with-project "BasicClojureScriptProjectTest"
+      (let [result (gradle/build "compileDevClojureScript")]
+        (gradle/verify-task-outcome result ":compileDevClojureScript" :success)
+        (is (seq (gradle/file-tree "build/clojurescript/dev/public/js/out")))
+        (is (true? (file/exists? (gradle/file "build/clojurescript/dev/public/js/main.js"))))))))

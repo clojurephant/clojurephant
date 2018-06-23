@@ -33,10 +33,12 @@ Pull requests are very welcome. Thanks in advance for helping the project (that 
 - Documentation is under `docs/`.
   - If you add a new page, make sure to put a link in the `docs/_includes/nav.md` and include the nav in your page.
 - Modules:
-  - Plugin itself is in `modules/gradle-clojure-plugin/`
-  - Tools library used by Gradle tasks is in `modules/gradle-clojure-tools/`
+  - Plugin itself is in `gradle-clojure-plugin/`
+  - Tools library used by Gradle tasks is in `gradle-clojure-tools/`
 - Test suite:
-  - Functional Gradle tests (run against a range of Gradle versions) are in `modules/gradle-clojure-plugin/src/compatTest`
+  - Functional Gradle tests (run against a range of Gradle versions) are in `gradle-clojure-plugin/src/compatTest`
+- Templates:
+  - clj-new templates are under `templates/*`
 
 ### Gradle Resources
 
@@ -46,6 +48,21 @@ A few helpful resources if you're new to writing Gradle plugins:
   - [Designing Gradle plugins](https://guides.gradle.org/designing-gradle-plugins/) (see bottom of guide for links to further guides)
   - [Lazy task configuration](https://docs.gradle.org/current/userguide/lazy_configuration.html)
 - [Gradle DSL Reference](https://docs.gradle.org/current/dsl/)
+
+### Testing Templates
+
+#### Test Existing Template
+
+1. Run `./gradlew :templates:<template project name>:newProject` (e.g. `./gradlew :templates:gradle-clj-lib:newProject`)
+1. Navigate into the created project (Projects will be added under `templates-test/sample-*`).
+1. Use the project like normal to test its functionality.
+
+#### Create New Template
+
+1. Create a new directory under `templates/` with a name matching what the template should be called. All templates should start with `gradle-`.
+1. Update the `settings.gradle` to list the new template project.
+1. Create the `templates/<my-template>/src/main/clojure` and `templates/<my-template>/src/main/resources`
+1. Add template namespaces and resources (see other templates as examples and clj-new's documentation/source).
 
 ### Code Style
 
@@ -74,12 +91,10 @@ There are two workflows:
 
 ### Updating our dependencies
 
-Until we switch to Gradle's official dependency locking (targeted for 4.8), we're using [Nebula's](https://github.com/nebula-plugins/gradle-dependency-lock-plugin).
-
 To update the lock with the latest versions matching any ranges we specified:
 
 ```
-./gradlew generateGlobalLock saveGlobalLock
+./gradlew lock --write-locks
 ```
 
 ### Supporting new Gradle versions

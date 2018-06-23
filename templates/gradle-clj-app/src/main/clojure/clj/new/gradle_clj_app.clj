@@ -3,8 +3,9 @@
             [clojure.string :as string]))
 
 (defn gradle-clj-app
-  [name]
-  (let [render (t/renderer "gradle-clj-app")
+  [name & args]
+  (let [features (into #{} args)
+        render (t/renderer "gradle-clj-app")
         raw (t/raw-resourcer "gradle-clj-app")
         main-ns (t/multi-segment (t/sanitize-ns name))
         data {:raw-name name
@@ -14,13 +15,14 @@
               :main-class (t/sanitize main-ns)
               :nested-dirs (t/name-to-path main-ns)
               :year (t/year)
-              :date (t/date)}]
+              :date (t/date)
+              :maven-local (features "+localplugin")}]
     (println "Generating a project called"
              (:name data)
              "based on the gradle-clj-app template.")
     (println "The app template is intended for application projects, not libraries.")
     (t/->files data
-               ["settings.gradle" (render "settings.gradle" data)]
+               ["settings.gradle" (render (if (features "+localplugin") "local-settings.gradle" "settings.gradle") data)]
                ["build.gradle" (render "build.gradle" data)]
                ["gradlew" (render "gradlew" data) :executable true]
                ["gradlew.bat" (render "gradlew.bat" data)]

@@ -1,5 +1,6 @@
 package gradle_clojure.plugin.common.internal;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -18,10 +19,12 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ComponentModuleMetadataDetails;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.language.jvm.tasks.ProcessResources;
 
 public class ClojureCommonPlugin implements Plugin<Project> {
   public static final String DEV_SOURCE_SET_NAME = "dev";
@@ -51,15 +54,24 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName()).extendsFrom(nrepl);
     project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()).extendsFrom(nrepl);
 
+    Function<SourceSet, FileCollection> nonClojureOutput = sourceSet -> {
+      FileCollection allOutput = sourceSet.getOutput();
+      return allOutput.filter((File file) -> {
+        return project.getTasks().stream()
+            .filter(task -> task instanceof ClojureCompile || task instanceof ClojureScriptCompile || task instanceof ProcessResources)
+            .allMatch(task -> !task.getOutputs().getFiles().contains(file));
+      });
+    };
+
     dev.setCompileClasspath(project.files(
         test.getOutput(),
         main.getOutput(),
         project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName())));
     dev.setRuntimeClasspath(project.files(
         dev.getAllSource().getSourceDirectories(),
-        dev.getOutput(),
-        test.getOutput(),
-        main.getOutput(),
+        nonClojureOutput.apply(dev),
+        nonClojureOutput.apply(test),
+        nonClojureOutput.apply(main),
         project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
 
     Consumer<Function<SourceSet, String>> devExtendsTest = getConfName -> {

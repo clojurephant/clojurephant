@@ -21,9 +21,16 @@ repositories {
 }
 
 dependencies {
+  // clojure
   implementation 'org.clojure:clojure:1.10.0-alpha4'
-  implementation 'org.clojure:clojurescript:1.10.238'
+  implementation 'org.clojure:clojurescript:1.10.339'
+
+  // testing
   testImplementation 'junit:junit:4.12'
+
+  // frontend
+  implementation 'org.omcljs:om:1.0.0-beta4'
+  devImplementation 'devcards:devcards:0.2.5'
 }
 
 clojureRepl {
@@ -34,21 +41,52 @@ clojurescript {
   builds {
     all {
       compiler {
-        outputTo = 'public/js/main.js'
-        outputDir = 'public/js/out'
-        assetPath = 'js/out'
-        main = 'sample.main'
+        outputDir = "public/js/${name}-out"
+        assetPath = "js/${name}-out"
       }
     }
     main {
       compiler {
+        outputTo = 'public/js/main.js'
+        sourceMap = 'public/js/main.js.map'
         optimizations = 'advanced'
-        sourceMap = 'js/main.js.map'
+        main = 'sample.main'
       }
     }
     dev {
       compiler {
-        preloads = ['sample.dev']
+        outputTo = 'public/js/main.js'
+        main = 'sample.main'
+        preloads = ['sample.dev', 'devtools.preload']
+      }
+    }
+    cards {
+      sourceSet.set(sourceSets.dev)
+      compiler {
+        preloads = ['sample.dev', 'devtools.preload']
+        outputTo = 'public/js/cards.js'
+        main = 'sample.cards'
+        devcards = true
+      }
+    }
+    mods {
+      sourceSet.set(sourceSets.dev)
+      compiler {
+        preloads = ['sample.dev', 'devtools.preload']
+        devcards = true
+        module('main') {
+          outputTo = 'public/js/main.js'
+          entries = ['sample.main']
+          dependsOn = ['cljs-base']
+        }
+        module('cards') {
+          outputTo = 'public/js/cards.js'
+          entries = ['sample.cards']
+          dependsOn = ['cljs-base']
+        }
+      }
+      figwheel {
+        openUrl = 'http://localhost:9500/mods-index.html'
       }
     }
   }

@@ -47,6 +47,8 @@ public final class ClojureScriptCompileOptions {
   // private Boolean staticFns;
   // private Boolean fnInvokeDirect;
 
+  private Boolean devcards;
+
   public ClojureScriptCompileOptions(Project project, DirectoryProperty destinationDir) {
     this.project = project;
     this.destinationDir = destinationDir;
@@ -326,4 +328,14 @@ public final class ClojureScriptCompileOptions {
   // public void setFnInvokeDirect(Boolean fnInvokeDirect) {
   // this.fnInvokeDirect = fnInvokeDirect;
   // }
+
+  @Input
+  @Optional
+  public Boolean getDevcards() {
+    return devcards;
+  }
+
+  public void setDevcards(Boolean devcards) {
+    this.devcards = devcards;
+  }
 }

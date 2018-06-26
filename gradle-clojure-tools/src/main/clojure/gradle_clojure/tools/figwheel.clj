@@ -37,6 +37,7 @@
     (into [] xf dirs)))
 
 (defn build-opts [conf id]
+  (assert (contains? (:cljs-builds conf) id) (str "No build \"" id "\" found. Available builds: " (keys (:cljs-builds conf))))
   (let [build (-> (get-in conf [:cljs-builds id])
                   (re-root-build (:output-dir conf))
                   (update-in [:figwheel :watch-dirs] real-dirs)

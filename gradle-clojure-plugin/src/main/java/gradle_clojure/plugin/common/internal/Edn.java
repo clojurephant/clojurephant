@@ -115,6 +115,8 @@ public class Edn {
     map.put(newKeyword("install-deps"), self.getInstallDeps());
     map.put(newKeyword("checked-arrays"), self.getCheckedArrays());
 
+    map.put(newKeyword("devcards"), self.getDevcards());
+
     Edn.removeEmptyAndNulls(map);
     printer.printValue(map);
   };

@@ -30,7 +30,7 @@ crypto-random:crypto-random:1.2.0
 expound:expound:0.7.0
 hawk:hawk:0.2.11
 hiccup:hiccup:1.0.5
-io.github.gradle-clojure:gradle-clojure-tools:0.4.0-beta.7
+io.github.gradle-clojure:gradle-clojure-tools:0.4.0-beta.10
 javax.servlet:javax.servlet-api:3.1.0
 joda-time:joda-time:2.8.2
 junit:junit:4.12

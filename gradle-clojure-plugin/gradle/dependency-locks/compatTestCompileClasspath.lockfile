@@ -1,7 +1,7 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
-io.github.gradle-clojure:gradle-clojure-tools:0.4.0-beta.7
+io.github.gradle-clojure:gradle-clojure-tools:0.4.0-beta.10
 junit:junit:4.12
 nrepl:nrepl:0.4.1
 org.ajoberstar:ike.cljj:0.4.1

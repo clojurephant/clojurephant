@@ -22,6 +22,11 @@ allprojects {
       }
     }
 
+    // templates don't need locking
+    if (project.path.startsWith(':templates')) {
+      return
+    }
+
     dependencyLocking {
       lockAllConfigurations()
     }

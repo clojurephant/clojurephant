@@ -5,10 +5,10 @@ io.github.gradle-clojure:gradle-clojure-tools:0.4.0-beta.10
 junit:junit:4.12
 nrepl:nrepl:0.4.1
 org.ajoberstar:ike.cljj:0.4.1
-org.clojure:clojure:1.10.0-alpha4
-org.clojure:core.specs.alpha:0.1.24
+org.clojure:clojure:1.10.0-alpha5
+org.clojure:core.specs.alpha:0.2.36
 org.clojure:java.classpath:0.2.3
-org.clojure:spec.alpha:0.1.143
+org.clojure:spec.alpha:0.2.168
 org.clojure:tools.logging:0.4.1
 org.clojure:tools.macro:0.1.2
 org.clojure:tools.namespace:0.3.0-alpha4

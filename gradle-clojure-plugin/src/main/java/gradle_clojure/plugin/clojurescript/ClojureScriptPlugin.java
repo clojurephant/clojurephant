@@ -40,6 +40,6 @@ public class ClojureScriptPlugin implements Plugin<Project> {
   }
 
   private void configureFigwheel(Project project) {
-    project.getDependencies().add(ClojureCommonPlugin.NREPL_CONFIGURATION_NAME, "com.bhauman:figwheel-main:0.1.2");
+    project.getDependencies().add(ClojureCommonPlugin.NREPL_CONFIGURATION_NAME, "com.bhauman:figwheel-main:0.1.4");
   }
 }

@@ -21,28 +21,6 @@ allprojects {
         url = 'https://repo.clojars.org/'
       }
     }
-
-    // templates don't need locking
-    if (project.path.startsWith(':templates')) {
-      return
-    }
-
-    dependencyLocking {
-      lockAllConfigurations()
-    }
-
-    task lock {
-      doFirst {
-        assert gradle.startParameter.writeDependencyLocks
-      }
-      doLast {
-        configurations.all {
-          if (it.canBeResolved) {
-            it.resolve()
-          }
-        }
-      }
-    }
   }
 }
 

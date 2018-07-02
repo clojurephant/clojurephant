@@ -6,7 +6,7 @@ defaults: &defaults
     - checkout
     - restore_cache:
         keys:
-          - &cache v4-gradle-caches-{{ checksum "modules/gradle-clojure-plugin/gradle/dependency-locks/devRuntimeClasspath.lockfile" }}-{{ checksum "modules/gradle-clojure-tools/gradle/dependency-locks/devRuntimeClasspath.lockfile" }}
+          - &cache v5-gradle-caches-{{ checksum "gradle-clojure-plugin/build.gradle" }}-{{ checksum "gradle-clojure-tools/build.gradle" }}
     - attach_workspace:
         at: '.'
     - run:

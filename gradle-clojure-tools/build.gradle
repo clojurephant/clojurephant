@@ -12,7 +12,7 @@ dependencies {
   compileOnly 'org.clojure:clojurescript:1.10.238'
   compileOnly 'nrepl:nrepl:0.3.1'
   compileOnly 'com.bhauman:figwheel-main:0.1.0'
-  compileOnly 'junit:junit:latest.release'
+  compileOnly 'junit:junit:4.12'
 }
 
 publishing {

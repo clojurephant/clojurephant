@@ -23,7 +23,7 @@ A Gradle plugin providing support for the Clojure and ClojureScript languages.
 
 - Packaging Clojure code (or compiled JS) into a JAR or ZIP
 - ClojureScript compilation (multiple builds supported)
-- Figwheel (via [figwheel.main](https://github.com/bhauman/lein-figwheel/tree/master/figwheel-main))
+- Figwheel (via [figwheel.main](https://github.com/bhauman/figwheel-main))
 
 ## Why should you care?
 
@@ -96,7 +96,9 @@ See all available options in the [docs](https://gradle-clojure.github.io).
 
 ## Getting help
 
-Please use the repo's [issues](https://github.com/gradle-clojure/gradle-clojure/issues) for all questions, bug reports, and feature requests.
+For questions or support, please visit either the [ClojureVerse gradle-clojure channel](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/)
+
+For bug reports and feature requests, please use the repo's [issues](https://github.com/gradle-clojure/gradle-clojure/issues).
 
 ## Contributing
 

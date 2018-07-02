@@ -25,14 +25,16 @@ Create a new ClojureScript appliation:
 clj -A:new gradle-cljs-app myname/myapp
 ```
 
+If the documentation doesn't answer your questions, please visit either the [ClojureVerse gradle-clojure channel](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/).
+
 ## Plugins
 
 gradle-clojure uses the common pattern of providing _capability_ plugins and _convention_ plugins. Capability plugins provide the basic machinery for using the language, but leaves it to you to configure. Convention plugins provide configuration on top of the capabilities to support common use cases.
 
-| Convention                       | Capability                           |
-|----------------------------------|--------------------------------------|
-| `gradle-clojure.clojure`         | `gradle-clojure.clojure-base`        |
-| `gradle-clojure.clojurescript`   | `gradle-clojure.clojurescript-base`  |
+| Convention                     | Capability                          |
+| ------------------------------ | ----------------------------------- |
+| `gradle-clojure.clojure`       | `gradle-clojure.clojure-base`       |
+| `gradle-clojure.clojurescript` | `gradle-clojure.clojurescript-base` |
 
 ### gradle-clojure.clojure-base
 
@@ -50,30 +52,30 @@ gradle-clojure uses the common pattern of providing _capability_ plugins and _co
 
 #### Clojure Builds
 
- ```groovy
+```groovy
 clojure {
-  builds {
-    // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
-    mybuild {
-      sourceSet = sourceSets.mystuff // no default
-      // Configuration of the check<Build>Clojure task
-      reflection = 'fail' // defaults to 'silent', can also be 'warn'
-      checkNamespaces = ['my.core', 'my.base'] // defaults to no namespaces checked
-      checkNamespaces.add('my-core') // just add a single namespace
-      checkAll() // checks any namespaces found in the source set
-      // Configuration of the compile<Build>Clojure task
-      compiler {
-        disableLocalsClearing = true // defaults to false
-        elideMeta = ['doc', 'file'] // defaults to empty list
-        directLinking = true // defaults to false
-      }
-      aotNamespaces = ['my.core', 'my.base'] // defaults to no namespaces aoted
-      aotNamespaces.add('my-core') // just add a single namespace
-      aotAll() // aots any namespaces found in the source set
-    }
-  }
+ builds {
+   // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
+   mybuild {
+     sourceSet = sourceSets.mystuff // no default
+     // Configuration of the check<Build>Clojure task
+     reflection = 'fail' // defaults to 'silent', can also be 'warn'
+     checkNamespaces = ['my.core', 'my.base'] // defaults to no namespaces checked
+     checkNamespaces.add('my-core') // just add a single namespace
+     checkAll() // checks any namespaces found in the source set
+     // Configuration of the compile<Build>Clojure task
+     compiler {
+       disableLocalsClearing = true // defaults to false
+       elideMeta = ['doc', 'file'] // defaults to empty list
+       directLinking = true // defaults to false
+     }
+     aotNamespaces = ['my.core', 'my.base'] // defaults to no namespaces aoted
+     aotNamespaces.add('my-core') // just add a single namespace
+     aotAll() // aots any namespaces found in the source set
+   }
+ }
 }
- ```
+```
 
 ### gradle-clojure.clojure
 
@@ -114,61 +116,61 @@ clojure {
 
 See [ClojureScript compiler options](https://clojurescript.org/reference/compiler-options) and [Figwheel Main configuration options](https://github.com/bhauman/lein-figwheel/blob/master/figwheel-main/doc/figwheel-main-options.md) for details on what each option does and defaults to.
 
- ```groovy
+```groovy
 clojurescript {
-  builds {
-    // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
-    mybuild {
-      sourceSet = sourceSets.mystuff // no default
-      // Configuration of the compile<Build>ClojureScript task (defaults match what is defaulted in the ClojureScript compile options)
-      compiler {
-        outputTo = 'public/some/file/path.js' // path is relative to the task's destinationDir
-        outputDir = 'public/some/path' // path is relative to the task's destinationDir
-        optimizations = 'advanced'
-        main = 'foo.bar'
-        assetPath = 'public/some/path'
-        sourceMap = 'public/some/file/path.js.map' // path is relative to the task's destinationDir
-        verbose = true
-        prettyPrint = false
-        target = 'nodejs'
-        // foreignLibs
-        externs = ['jquery-externs.js']
-        // modules
-        // stableNames
-        preloads = ['foo.dev']
-        npmDeps = ['lodash': '4.17.4']
-        installDeps = true
-        checkedArrays = 'warn'
-      }
-      figwheel {
-        watchDirs.from = files() // defaults to the source set's CLJS source dirs
-        cssDirs.from = files('src/main/resources/public/css') // defaults to empty
-        ringHandler = 'my-project.server/handler'
-        ringServerOptions = [port: 1234, host: 'my.domain.com']
-        rebelReadline = false
-        pprintConfig = true
-        openFileCommand = 'myfile-opener'
-        figwheelCore = false
-        hotReloadCljs = false
-        connectUrl = 'ws://[[config-hostname]]:[[server-port]]/figwheel-connect'
-        openUrl = 'http://[[server-hostname]]:[[server-port]]'
-        reloadCljFiles = false
-        logFile = file('figwheel-main.log')
-        logLevel = 'error'
-        clientLogLevel = 'warning'
-        logSyntaxErrorStyle = 'concise'
-        loadWarningedCode = true
-        ansiColorOutput = false
-        validateConfig = false
-        launchNode = false
-        inspectNode = false
-        nodeCommand = 'node'
-        cljsDevtools = false
-      }
-    }
-  }
+ builds {
+   // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
+   mybuild {
+     sourceSet = sourceSets.mystuff // no default
+     // Configuration of the compile<Build>ClojureScript task (defaults match what is defaulted in the ClojureScript compile options)
+     compiler {
+       outputTo = 'public/some/file/path.js' // path is relative to the task's destinationDir
+       outputDir = 'public/some/path' // path is relative to the task's destinationDir
+       optimizations = 'advanced'
+       main = 'foo.bar'
+       assetPath = 'public/some/path'
+       sourceMap = 'public/some/file/path.js.map' // path is relative to the task's destinationDir
+       verbose = true
+       prettyPrint = false
+       target = 'nodejs'
+       // foreignLibs
+       externs = ['jquery-externs.js']
+       // modules
+       // stableNames
+       preloads = ['foo.dev']
+       npmDeps = ['lodash': '4.17.4']
+       installDeps = true
+       checkedArrays = 'warn'
+     }
+     figwheel {
+       watchDirs.from = files() // defaults to the source set's CLJS source dirs
+       cssDirs.from = files('src/main/resources/public/css') // defaults to empty
+       ringHandler = 'my-project.server/handler'
+       ringServerOptions = [port: 1234, host: 'my.domain.com']
+       rebelReadline = false
+       pprintConfig = true
+       openFileCommand = 'myfile-opener'
+       figwheelCore = false
+       hotReloadCljs = false
+       connectUrl = 'ws://[[config-hostname]]:[[server-port]]/figwheel-connect'
+       openUrl = 'http://[[server-hostname]]:[[server-port]]'
+       reloadCljFiles = false
+       logFile = file('figwheel-main.log')
+       logLevel = 'error'
+       clientLogLevel = 'warning'
+       logSyntaxErrorStyle = 'concise'
+       loadWarningedCode = true
+       ansiColorOutput = false
+       validateConfig = false
+       launchNode = false
+       inspectNode = false
+       nodeCommand = 'node'
+       cljsDevtools = false
+     }
+   }
+ }
 }
- ```
+```
 
 ### gradle-clojure.clojurescript
 

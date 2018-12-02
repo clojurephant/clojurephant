@@ -10,7 +10,7 @@ public class ClojureScriptExtension {
   private final NamedDomainObjectContainer<ClojureScriptBuild> builds;
 
   public ClojureScriptExtension(Project project) {
-    this.outputDir = project.getLayout().directoryProperty();
+    this.outputDir = project.getObjects().directoryProperty();
     this.builds = project.container(ClojureScriptBuild.class, name -> {
       ClojureScriptBuild build = new ClojureScriptBuild(project, name);
       build.getOutputDir().set(outputDir.dir(name));

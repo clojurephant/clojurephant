@@ -24,7 +24,7 @@ public class ClojureScriptBuild implements Named {
 
   public ClojureScriptBuild(Project project, String name) {
     this.name = name;
-    this.outputDir = project.getLayout().directoryProperty();
+    this.outputDir = project.getObjects().directoryProperty();
     this.sourceSet = project.getObjects().property(SourceSet.class);
     this.compiler = new ClojureScriptCompileOptions(project, outputDir);
     this.figwheel = new FigwheelOptions(project, outputDir);

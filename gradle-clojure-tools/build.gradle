@@ -33,3 +33,8 @@ checkClojure {
   // prevent it from trying to compile (since there's a circular dependency)
   enabled = false
 }
+
+jar {
+  // workaround for Gradle 5 incompatibility with gradle-clojure 0.4.0
+  from sourceSets.main.allSource
+}

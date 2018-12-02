@@ -50,7 +50,7 @@ public class ClojureCheck extends DefaultTask {
     this.clojureExecutor = new ClojureExecutor(getProject());
     this.sourceRoots = getProject().files();
     this.classpath = getProject().files();
-    this.outputFile = getProject().getLayout().fileProperty();
+    this.outputFile = getProject().getObjects().fileProperty();
     this.reflection = getProject().getObjects().property(ClojureReflection.class);
     this.forkOptions = new ForkOptions();
     this.namespaces = getProject().getObjects().setProperty(String.class);

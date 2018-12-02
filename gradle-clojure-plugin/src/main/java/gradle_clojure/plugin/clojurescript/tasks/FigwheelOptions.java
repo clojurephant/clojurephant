@@ -46,7 +46,7 @@ public final class FigwheelOptions {
     this.watchDirs = project.files();
     this.cssDirs = project.files();
     this.ringServerOptions = new HashMap<>();
-    this.logFile = project.getLayout().fileProperty();
+    this.logFile = project.getObjects().fileProperty();
   }
 
   @InputFiles

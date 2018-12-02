@@ -32,7 +32,7 @@ public class ClojureScriptCompile extends DefaultTask {
 
   public ClojureScriptCompile() {
     this.clojureExecutor = new ClojureExecutor(getProject());
-    this.destinationDir = getProject().getLayout().directoryProperty();
+    this.destinationDir = getProject().getObjects().directoryProperty();
     this.sourceRoots = getProject().files();
     this.classpath = getProject().files();
     this.options = new ClojureScriptCompileOptions(getProject(), destinationDir);

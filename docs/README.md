@@ -86,7 +86,7 @@ clojure {
   - Creates a `test` task that runs tests within the test source set.
 - Applies the internal `ClojureCommonPlugin` which:
   - Creates a dev source set, to be used for REPL development, which extends the test source set.
-  - Adds 'nrepl:nrepl:0.3.1' as a dependency of that source set.
+  - Adds 'nrepl:nrepl:0.5.1' as a dependency of that source set.
   - Adds a `clojureRepl` task which will start an nREPL server.
   - Configures dependency rules to indicate that:
     - `org.clojure:tools.nrepl` is replaced by `nrepl:nrepl`
@@ -181,14 +181,14 @@ clojurescript {
   - Creates a `test` task that runs tests within the test source set.
 - Applies the internal `ClojureCommonPlugin` which:
   - Creates a dev source set, to be used for REPL development, which extends the test source set.
-  - Adds 'nrepl:nrepl:0.3.1' as a dependency of that source set.
+  - Adds 'nrepl:nrepl:0.5.1' as a dependency of that source set.
   - Adds a `clojureRepl` task which will start an nREPL server.
   - Configures dependency rules to indicate that:
     - `org.clojure:tools.nrepl` is replaced by `nrepl:nrepl`
     - If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 0.3.0 to support the new classloader hierarchy.
 - Wires your ClojureScript build configuration into the nREPL for use by Figwheel.
 - Configures the REPL for Piggieback:
-  - Adds a dev dependency `cider:piggieback:0.3.6`
+  - Adds a dev dependency `cider:piggieback:0.3.10`
   - Adds the Piggieback middleware: `cider.piggieback/wrap-cljs-repl`
 - Configures the REPL for Figwheel:
   - Adds a dev dependency `com.bhauman:figwheel-main:0.1.2`

@@ -105,11 +105,12 @@ Right now you need to manually add the dependency and specify the handler/middle
 Either apply to all of your projects via an init script:
 
 **~/.gradle/init.d/cider.gradle**
+
 ```groovy
 allprojects {
   plugins.withId('gradle-clojure.clojure') {
     dependencies {
-      devImplementation 'cider:cider-nrepl:0.17.0'
+      devImplementation 'cider:cider-nrepl:0.18.0'
     }
 
     clojureRepl {
@@ -122,9 +123,10 @@ allprojects {
 Or add it manually to your project:
 
 **build.gradle**
+
 ```groovy
 dependencies {
-  devImplementation 'cider:cider-nrepl:0.17.0'
+  devImplementation 'cider:cider-nrepl:0.18.0'
 }
 
 clojureRepl {

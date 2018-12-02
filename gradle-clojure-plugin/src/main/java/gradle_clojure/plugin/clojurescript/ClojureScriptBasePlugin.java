@@ -46,9 +46,9 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
 
       sourceSet.getOutput().dir(project.provider(() -> {
         if (build.isCompilerConfigured()) {
-          return clojurescriptSourceSet.getClojureScript().getSourceDirectories();
-        } else {
           return build.getOutputDir();
+        } else {
+          return clojurescriptSourceSet.getClojureScript().getSourceDirectories();
         }
       }));
     });

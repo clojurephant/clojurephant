@@ -83,7 +83,7 @@ public class ClojureBuild implements Named {
   }
 
   public boolean isCompilerConfigured() {
-    return getAotNamespaces().map(Set::isEmpty).getOrElse(false);
+    return getAotNamespaces().map(set -> !set.isEmpty()).getOrElse(false);
   }
 
   public SetProperty<String> getAotNamespaces() {

@@ -125,18 +125,4 @@ pluginBundle {
     artifactId = project.name
     version = project.version
   }
-  // since plugin publish doesn't use maven-publish need a different way to use resolved versions in POMs
-  withDependencies { deps ->
-    def resolvedDeps = project.configurations.runtimeClasspath.incoming.resolutionResult.allDependencies
-    deps.each { dep ->
-      String group = dep.groupId
-      String artifact = dep.artifactId
-      ResolvedDependencyResult found = resolvedDeps.find { r ->
-          (r.requested instanceof ModuleComponentSelector) &&
-              (r.requested.group == group) &&
-              (r.requested.module == artifact)
-      }
-      dep.version = found.selected.moduleVersion.version
-    }
-  }
 }

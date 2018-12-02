@@ -42,11 +42,6 @@ project(':templates:clj-new') {
   tasks.all {
     dependsOn checkoutCljNew
   }
-
-  jar {
-    // workaround for Gradle 5 incompatibility with gradle-clojure 0.4.0
-    from sourceSets.main.allSource
-  }
 }
 
 subprojects {

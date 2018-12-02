@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.9.0'
+  implementation 'org.clojure:clojure:1.10.0-RC2'
 
   testImplementation 'junit:junit:4.12'
 

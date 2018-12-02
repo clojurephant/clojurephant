@@ -37,11 +37,15 @@ project(':templates:clj-new') {
     resources.srcDirs = ['src']
   }
 
-  // when we bump to beta.8, use checkNamespaces = []
-  checkClojure.enabled = false
+  clojure.builds.main.checkNamespaces.empty()
 
   tasks.all {
     dependsOn checkoutCljNew
+  }
+
+  jar {
+    // workaround for Gradle 5 incompatibility with gradle-clojure 0.4.0
+    from sourceSets.main.allSource
   }
 }
 

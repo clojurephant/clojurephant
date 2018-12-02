@@ -19,7 +19,7 @@ public class Module {
 
   public Module(Project project, DirectoryProperty destinationDir) {
     this.destinationDir = destinationDir;
-    this.outputTo = project.getLayout().fileProperty();
+    this.outputTo = project.getObjects().fileProperty();
   }
 
   @OutputFile

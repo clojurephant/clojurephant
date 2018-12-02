@@ -8,10 +8,10 @@ dependencies {
   compileOnly gradleApi()
 
   // clojure runtime
-  compileOnly 'org.clojure:clojure:1.8.0'
-  compileOnly 'org.clojure:clojurescript:1.10.238'
-  compileOnly 'nrepl:nrepl:0.3.1'
-  compileOnly 'com.bhauman:figwheel-main:0.1.0'
+  compileOnly 'org.clojure:clojure:1.10.0-RC2'
+  compileOnly 'org.clojure:clojurescript:1.10.439'
+  compileOnly 'nrepl:nrepl:0.5.1'
+  compileOnly 'com.bhauman:figwheel-main:0.1.9'
   compileOnly 'junit:junit:4.12'
 }
 
@@ -32,4 +32,9 @@ compileClojure {
 checkClojure {
   // prevent it from trying to compile (since there's a circular dependency)
   enabled = false
+}
+
+jar {
+  // workaround for Gradle 5 incompatibility with gradle-clojure 0.4.0
+  from sourceSets.main.allSource
 }

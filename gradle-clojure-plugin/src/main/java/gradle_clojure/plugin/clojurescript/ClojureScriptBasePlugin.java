@@ -8,17 +8,17 @@ import gradle_clojure.plugin.clojurescript.tasks.ClojureScriptSourceSet;
 import gradle_clojure.plugin.common.internal.ClojureCommonBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 
 public class ClojureScriptBasePlugin implements Plugin<Project> {
-  private final SourceDirectorySetFactory sourceDirectorySetFactory;
+  private final ObjectFactory objects;
 
   @Inject
-  public ClojureScriptBasePlugin(SourceDirectorySetFactory sourceDirectorySetFactory) {
-    this.sourceDirectorySetFactory = sourceDirectorySetFactory;
+  public ClojureScriptBasePlugin(ObjectFactory objects) {
+    this.objects = objects;
   }
 
   @Override
@@ -31,7 +31,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
 
   private void configureSourceSetDefaults(Project project, ClojureScriptExtension extension) {
     project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all((SourceSet sourceSet) -> {
-      ClojureScriptSourceSet clojurescriptSourceSet = new DefaultClojureScriptSourceSet("clojurescript", sourceDirectorySetFactory);
+      ClojureScriptSourceSet clojurescriptSourceSet = new DefaultClojureScriptSourceSet("clojurescript", objects);
       new DslObject(sourceSet).getConvention().getPlugins().put("clojurescript", clojurescriptSourceSet);
 
       clojurescriptSourceSet.getClojureScript().srcDir(String.format("src/%s/clojurescript", sourceSet.getName()));
@@ -46,9 +46,9 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
 
       sourceSet.getOutput().dir(project.provider(() -> {
         if (build.isCompilerConfigured()) {
-          return clojurescriptSourceSet.getClojureScript().getSourceDirectories();
-        } else {
           return build.getOutputDir();
+        } else {
+          return clojurescriptSourceSet.getClojureScript().getSourceDirectories();
         }
       }));
     });

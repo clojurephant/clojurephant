@@ -21,7 +21,7 @@ dependencies {
   compatTestImplementation gradleTestKit()
   compatTestImplementation 'org.clojure:clojure:1.9.0'
   compatTestImplementation 'org.clojure:tools.namespace:0.3.0-alpha4'
-  compatTestImplementation 'nrepl:nrepl:0.4.1'
+  compatTestImplementation 'nrepl:nrepl:0.5.1'
   compatTestImplementation 'junit:junit:4.12'
   compatTestImplementation 'org.ajoberstar:ike.cljj:0.4.1'
 }
@@ -39,10 +39,7 @@ stutter {
   sparse = true
   includeActiveRc = true
   java(8) {
-    compatibleRange '4.1'
-  }
-  java(9) {
-    compatibleRange '4.2.1'
+    compatibleRange '5.0'
   }
 }
 
@@ -127,19 +124,5 @@ pluginBundle {
     groupId = project.group
     artifactId = project.name
     version = project.version
-  }
-  // since plugin publish doesn't use maven-publish need a different way to use resolved versions in POMs
-  withDependencies { deps ->
-    def resolvedDeps = project.configurations.runtimeClasspath.incoming.resolutionResult.allDependencies
-    deps.each { dep ->
-      String group = dep.groupId
-      String artifact = dep.artifactId
-      ResolvedDependencyResult found = resolvedDeps.find { r ->
-          (r.requested instanceof ModuleComponentSelector) &&
-              (r.requested.group == group) &&
-              (r.requested.module == artifact)
-      }
-      dep.version = found.selected.moduleVersion.version
-    }
   }
 }

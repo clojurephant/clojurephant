@@ -30,7 +30,7 @@ public class ClojureBuild implements Named {
 
   public ClojureBuild(Project project, String name) {
     this.name = name;
-    this.outputDir = project.getLayout().directoryProperty();
+    this.outputDir = project.getObjects().directoryProperty();
     this.sourceSet = project.getObjects().property(SourceSet.class);
     this.checkNamespaces = project.getObjects().setProperty(String.class);
     this.reflection = project.getObjects().property(ClojureReflection.class);
@@ -83,7 +83,7 @@ public class ClojureBuild implements Named {
   }
 
   public boolean isCompilerConfigured() {
-    return getAotNamespaces().map(Set::isEmpty).getOrElse(false);
+    return getAotNamespaces().map(set -> !set.isEmpty()).getOrElse(false);
   }
 
   public SetProperty<String> getAotNamespaces() {

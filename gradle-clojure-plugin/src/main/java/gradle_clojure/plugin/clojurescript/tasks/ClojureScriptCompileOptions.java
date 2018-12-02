@@ -52,9 +52,9 @@ public final class ClojureScriptCompileOptions {
   public ClojureScriptCompileOptions(Project project, DirectoryProperty destinationDir) {
     this.project = project;
     this.destinationDir = destinationDir;
-    this.outputTo = project.getLayout().fileProperty();
-    this.outputDir = project.getLayout().directoryProperty();
-    this.sourceMapFile = project.getLayout().fileProperty();
+    this.outputTo = project.getObjects().fileProperty();
+    this.outputDir = project.getObjects().directoryProperty();
+    this.sourceMapFile = project.getObjects().fileProperty();
   }
 
   @OutputFile

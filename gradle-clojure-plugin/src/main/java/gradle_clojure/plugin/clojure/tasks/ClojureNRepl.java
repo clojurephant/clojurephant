@@ -175,6 +175,7 @@ public class ClojureNRepl extends DefaultTask {
     this.handler.set(handler);
   }
 
+  @org.gradle.api.tasks.Optional
   @Input
   public ListProperty<String> getMiddleware() {
     return userMiddleware;
@@ -187,6 +188,7 @@ public class ClojureNRepl extends DefaultTask {
     }
   }
 
+  @org.gradle.api.tasks.Optional
   @Input
   public ListProperty<String> getDefaultMiddleware() {
     return defaultMiddleware;

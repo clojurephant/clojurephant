@@ -1,5 +1,5 @@
 (ns gradle-clojure.tools.clojure-nrepl
-  (:require [clojure.tools.nrepl.server :as nrepl]
+  (:require [nrepl.server :as nrepl]
             [clojure.core.server :as server]
             [clojure.edn :as edn]))
 

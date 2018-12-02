@@ -1,7 +1,7 @@
 (ns dev
-  (:require [clojure.tools.nrepl.transport :as t]
-            [clojure.tools.nrepl.middleware :refer [set-descriptor!]]
-            [clojure.tools.nrepl.misc :refer [response-for]]
+  (:require [nrepl.transport :as t]
+            [nrepl.middleware :refer [set-descriptor!]]
+            [nrepl.misc :refer [response-for]]
             [gradle-clojure.tools.clojure-nrepl :as repl])
   (:import [java.time LocalDate]))
 

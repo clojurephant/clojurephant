@@ -10,19 +10,19 @@ import gradle_clojure.plugin.common.internal.ClojureCommonBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.internal.tasks.DefaultSourceSetOutput;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 
 public class ClojureBasePlugin implements Plugin<Project> {
-  private final SourceDirectorySetFactory sourceDirectorySetFactory;
+  private final ObjectFactory objects;
 
   @Inject
-  public ClojureBasePlugin(SourceDirectorySetFactory sourceDirectorySetFactory) {
-    this.sourceDirectorySetFactory = sourceDirectorySetFactory;
+  public ClojureBasePlugin(ObjectFactory objects) {
+    this.objects = objects;
   }
 
   @Override
@@ -35,7 +35,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
 
   private void configureSourceSetDefaults(Project project, ClojureExtension extension) {
     project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all(sourceSet -> {
-      ClojureSourceSet clojureSourceSet = new DefaultClojureSourceSet("clojure", sourceDirectorySetFactory);
+      ClojureSourceSet clojureSourceSet = new DefaultClojureSourceSet("clojure", objects);
       new DslObject(sourceSet).getConvention().getPlugins().put("clojure", clojureSourceSet);
 
       clojureSourceSet.getClojure().srcDir(String.format("src/%s/clojure", sourceSet.getName()));
@@ -51,9 +51,9 @@ public class ClojureBasePlugin implements Plugin<Project> {
 
       sourceSet.getOutput().dir(project.provider(() -> {
         if (build.isCompilerConfigured()) {
-          return clojureSourceSet.getClojure().getSourceDirectories();
-        } else {
           return build.getOutputDir();
+        } else {
+          return clojureSourceSet.getClojure().getSourceDirectories();
         }
       }));
     });

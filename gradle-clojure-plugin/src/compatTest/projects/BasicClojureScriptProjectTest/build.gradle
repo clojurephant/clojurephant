@@ -38,10 +38,3 @@ clojurescript {
     }
   }
 }
-
-// until clojurescript fixes the Java 9+ issue, we need this to make the tests pass
-if (JavaVersion.current().isJava9Compatible()) {
-  tasks.withType(gradle_clojure.plugin.clojurescript.tasks.ClojureScriptCompile) {
-    forkOptions.jvmArgs += ['--add-modules', 'java.xml.bind']
-  }
-}

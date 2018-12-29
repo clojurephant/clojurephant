@@ -4,7 +4,7 @@ plugins {
   id 'com.diffplug.gradle.spotless' version '3.16.0'
 
   id 'gradle-clojure.clojure' version '0.5.0-alpha.1' apply false
-  id 'org.ajoberstar.stutter' version '0.4.0' apply false
+  id 'org.ajoberstar.stutter' version '0.5.0-rc.1' apply false
   id 'com.gradle.plugin-publish' version '0.10.0' apply false
   id 'nebula.maven-resolved-dependencies' version '9.2.0' apply false
 }

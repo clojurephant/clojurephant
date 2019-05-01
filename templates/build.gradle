@@ -1,63 +1,10 @@
-// Gradle doesn't have source dependencies (yet), so need to do some weird things (since clj-new doesn't publish JARs)
-import org.ajoberstar.grgit.Grgit
-
-task checkoutCljNew() {
-  ext.commit = '108f27159501f8ce12564b398b0ea50def3892b1'
-  doLast {
-    if (file('clj-new/.git').exists()) {
-      println "Fetching clj-new ${commit}"
-      def repo = Grgit.open(dir: file('clj-new'))
-      try {
-        repo.fetch()
-        repo.reset(mode: 'hard', commit: commit)
-      } finally {
-        repo.close()
-      }
-    } else {
-      if (file('clj-new').exists()) {
-        println "Deleting existing clj-new"
-        delete('clj-new')
-      }
-      println "Cloning clj-new ${commit}"
-      def repo = Grgit.clone(dir: file('clj-new'), uri: 'https://github.com/seancorfield/clj-new.git')
-      try {
-        repo.checkout(branch: commit)
-      } finally {
-        repo.close()
-      }
-    }
-  }
-}
-
-project(':templates:clj-new') {
-  apply plugin: 'gradle-clojure.clojure'
-
-  sourceSets.main {
-    clojure.srcDirs = ['src']
-    resources.srcDirs = ['src']
-  }
-
-  clojure.builds.main.checkNamespaces.empty()
-
-  tasks.all {
-    dependsOn checkoutCljNew
-  }
-}
-
 subprojects {
-  if (name == 'clj-new') {
-    return
-  }
-
   apply plugin: 'gradle-clojure.clojure'
   apply plugin: 'maven-publish'
 
   dependencies {
-    compileOnly 'org.clojure:clojure:1.9.0'
-    compileOnly 'org.clojure:tools.deps.alpha:0.5.435'
-    compileOnly 'com.cemerick:pomegranate:1.0.0'
-    compileOnly project(':templates:clj-new')
-    compileOnly 'stencil:stencil:0.5.0'
+    compileOnly 'org.clojure:clojure:1.10.0'
+    compileOnly 'seancorfield:clj-new:0.5.5'
   }
 
   publishing {
@@ -68,10 +15,6 @@ subprojects {
         from components.java
       }
     }
-  }
-
-  tasks.all {
-    dependsOn checkoutCljNew
   }
 
   processResources {

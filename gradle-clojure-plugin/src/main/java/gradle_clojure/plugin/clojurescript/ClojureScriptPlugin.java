@@ -33,13 +33,13 @@ public class ClojureScriptPlugin implements Plugin<Project> {
   }
 
   private void configurePiggieback(Project project) {
-    project.getDependencies().add(ClojureCommonPlugin.NREPL_CONFIGURATION_NAME, "cider:piggieback:0.3.10");
+    project.getDependencies().add(ClojureCommonPlugin.NREPL_CONFIGURATION_NAME, "cider:piggieback:0.4.0");
 
     ClojureNRepl repl = (ClojureNRepl) project.getTasks().getByName(ClojureCommonPlugin.NREPL_TASK_NAME);
     repl.getDefaultMiddleware().add("cider.piggieback/wrap-cljs-repl");
   }
 
   private void configureFigwheel(Project project) {
-    project.getDependencies().add(ClojureCommonPlugin.NREPL_CONFIGURATION_NAME, "com.bhauman:figwheel-main:0.1.9");
+    project.getDependencies().add(ClojureCommonPlugin.NREPL_CONFIGURATION_NAME, "com.bhauman:figwheel-main:0.2.0");
   }
 }

@@ -14,5 +14,5 @@ repositories {
 dependencies {
   implementation 'org.clojure:clojure:1.8.0'
   testImplementation 'junit:junit:4.12'
-  devImplementation 'cider:cider-nrepl:0.18.0'
+  devImplementation 'cider:cider-nrepl:0.21.1'
 }

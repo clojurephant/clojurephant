@@ -1,7 +1,7 @@
 plugins {
   id 'gradle-clojure.clojure' version '@gradle-clojure.version@'
   id 'application'
-  id 'com.github.johnrengelman.shadow' version '4.0.2'
+  id 'com.github.johnrengelman.shadow' version '5.0.0'
   id 'maven-publish'
 }
 
@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.0-RC2'
+  implementation 'org.clojure:clojure:1.10.0'
 
   testImplementation 'junit:junit:4.12'
 

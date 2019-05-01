@@ -65,7 +65,7 @@ plugins {
   // this tells Gradle you're generating an application with a main class
   id 'application'
   // Pulls in the shadow plugin which produces the uberjar
-  id 'com.github.johnrengelman.shadow' version '2.0.4'
+  id 'com.github.johnrengelman.shadow' version '5.0.0'
 }
 
 mainClassName = 'whatever_your.main.ns.class.is'
@@ -110,7 +110,7 @@ Either apply to all of your projects via an init script:
 allprojects {
   plugins.withId('gradle-clojure.clojure') {
     dependencies {
-      devImplementation 'cider:cider-nrepl:0.18.0'
+      devImplementation 'cider:cider-nrepl:0.21.1'
     }
 
     clojureRepl {
@@ -126,7 +126,7 @@ Or add it manually to your project:
 
 ```groovy
 dependencies {
-  devImplementation 'cider:cider-nrepl:0.18.0'
+  devImplementation 'cider:cider-nrepl:0.21.1'
 }
 
 clojureRepl {

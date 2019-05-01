@@ -22,15 +22,15 @@ repositories {
 
 dependencies {
   // clojure
-  implementation 'org.clojure:clojure:1.10.0-alpha4'
-  implementation 'org.clojure:clojurescript:1.10.339'
+  implementation 'org.clojure:clojure:1.10.0'
+  implementation 'org.clojure:clojurescript:1.10.520'
 
   // testing
   testImplementation 'junit:junit:4.12'
 
   // frontend
   implementation 'org.omcljs:om:1.0.0-beta4'
-  devImplementation 'devcards:devcards:0.2.5'
+  devImplementation 'devcards:devcards:0.2.6'
 }
 
 clojureRepl {

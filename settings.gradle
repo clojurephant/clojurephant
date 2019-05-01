@@ -3,7 +3,6 @@ include 'gradle-clojure-plugin'
 include 'gradle-clojure-tools'
 
 // templates
-include 'templates:clj-new'
 include 'templates:gradle-clj-lib'
 include 'templates:gradle-clj-app'
 include 'templates:gradle-cljs-app'

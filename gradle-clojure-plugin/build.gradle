@@ -94,7 +94,7 @@ gradlePlugin {
 }
 
 pluginBundle {
-  website = 'https://github.com/gradle-clojure/gradle-clojure'
+  website = 'https://gradle-clojure.github.io/gradle-clojure/'
   vcsUrl = 'https://github.com/gradle-clojure/gradle-clojure.git'
   description = 'Clojure and ClojureScript language support for Gradle'
   plugins {

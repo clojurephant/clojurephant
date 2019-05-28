@@ -64,14 +64,26 @@ allprojects {
           }
         }
       }
-      // use static versions in poms
-      publications.all {
+      publications.withType(MavenPublication) {
+        // use static versions in poms
         versionMapping {
           usage('java-api') {
             fromResolutionOf('runtimeClasspath')
           }
           usage('java-runtime') {
             fromResolutionResult()
+          }
+        }
+
+        pom {
+          // include repository info in POM (needed for cljdoc)
+          scm {
+            connection = 'https://github.com/gradle-clojure/gradle-clojure.git'
+            developerConnection = 'git@github.com:gradle-clojure/gradle-clojure.git'
+            url = 'https://github.com/gradle-clojure/gradle-clojure'
+            if (!version.toString().contains('+')) {
+              tag = version.toString()
+            }
           }
         }
       }

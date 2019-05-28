@@ -6,7 +6,6 @@ plugins {
   id 'gradle-clojure.clojure' version '0.5.0-alpha.1' apply false
   id 'org.ajoberstar.stutter' version '0.5.0' apply false
   id 'com.gradle.plugin-publish' version '0.10.1' apply false
-  id 'nebula.maven-resolved-dependencies' version '9.2.0' apply false
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,9 +44,6 @@ allprojects {
 ///////////////////////////////////////////////////////////////////////////////
 allprojects {
   plugins.withId('maven-publish') {
-    // make sure we don't publish any version ranges in our POMs
-    apply plugin: 'nebula.maven-resolved-dependencies'
-
     // Publish to following repositories
     publishing {
       repositories {
@@ -65,6 +61,17 @@ allprojects {
           credentials {
             username = System.env['CLOJARS_USER']
             password = System.env['CLOJARS_PASSWORD']
+          }
+        }
+      }
+      // use static versions in poms
+      publications.all {
+        versionMapping {
+          usage('java-api') {
+            fromResolutionOf('runtimeClasspath')
+          }
+          usage('java-runtime') {
+            fromResolutionResult()
           }
         }
       }

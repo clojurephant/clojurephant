@@ -78,7 +78,7 @@ plugins {
 
 dependencies {
   // whatever version of clojure you prefer (versions before 1.8.0 may not be compatible)
-  implementation 'org.clojure:clojure:1.9.0'
+  implementation 'org.clojure:clojure:1.10.0'
   // and any other dependencies you want on the compile classpath
   // implementation 'group:artifact:version'
 

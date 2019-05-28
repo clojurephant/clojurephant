@@ -1,5 +1,3 @@
-## Context
-
 <!-- Why is this change being made? -->
 
 **Related issues:**
@@ -11,6 +9,6 @@
 - [ ] Provide functional tests. (under `modules/gradle-clojure-plugin/src/compatTest`)
 - [ ] Update documentation for user-facing changes. (under `docs/`)
 - [ ] Ensure all verification tasks pass locally. (`./gradlew check`)
-- [ ] Ensure CI builds pass on all Java versions. (watch for commit statuses once the PR is opened)
+- [ ] Ensure CI builds pass on all Java versions. (watch the checks tab once the PR is opened)
 
   **TIP:** If troubleshooting a CI failure, look for the build scan URL near the bottom of the Gradle output.

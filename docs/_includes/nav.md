@@ -3,4 +3,5 @@
 - [New to Clojure?](new-clojure.html) (TBD)
 - [Migrating from Leiningen](migrate-lein.html) (TBD)
 - [Migrating from Boot](migrate-boot.html) (TBD)
+- [Migrating from Deps.edn](migrate-deps.html) (TBD)
 - [Frequently Asked Questions](faq.html)

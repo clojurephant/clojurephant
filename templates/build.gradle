@@ -38,4 +38,25 @@ subprojects {
     dependsOn ':gradle-clojure-tools:publishToMavenLocal'
     dependsOn ':gradle-clojure-plugin:publishToMavenLocal'
   }
+
+  task verifyGradleVersion(type: Exec, dependsOn: newProject) {
+    workingDir = file("${rootProject.projectDir}/templates-test/sample-${project.name}")
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+      executable = 'gradlew.bat'
+    } else {
+      executable = './gradlew'
+    }
+    args '--version'
+
+    standardOutput = new ByteArrayOutputStream()
+    doLast {
+      def out = standardOutput.toString()
+      def version = (out =~ /Gradle (\d+\S+)/)[0][1]
+      if (org.gradle.util.GradleVersion.version(version) != org.gradle.util.GradleVersion.current()) {
+        throw new GradleException("Templates have incorrect Gradle wrapper \"$version\". Run ./copy-wrapper.ps1 to update.")
+      }
+    }
+  }
+
+  check.dependsOn verifyGradleVersion
 }

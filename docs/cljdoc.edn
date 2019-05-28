@@ -1,0 +1,9 @@
+{:cljdoc.doc/tree [["README" {:file "README.md"}]
+                   ["User Guide" {:file "docs/README.md"}
+                    ["New to Gradle" {:file "docs/new-gradle.md"}]
+                    ["New to Clojure" {:file "docs/new-clojure.md"}]
+                    ["Migrating from Leiningen" {:file "docs/migrate-lein.md"}]
+                    ["Migrating from Boot" {:file "docs/migrate-boot.md"}]
+                    ["Migrating from Deps.edn" {:file "docs/migrate-deps.md"}]
+                    ["Frequently Asked Questions" {:file "docs/faq.md"}]]
+                   ["Contributors" {:file ".github/CONTRIBUTING.md"}]]}

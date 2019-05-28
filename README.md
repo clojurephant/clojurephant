@@ -2,6 +2,7 @@
 
 [![Bintray](https://api.bintray.com/packages/gradle-clojure/maven/gradle-clojure/images/download.svg)](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
 [![CircleCI](https://circleci.com/gh/gradle-clojure/gradle-clojure.svg?style=svg)](https://circleci.com/gh/gradle-clojure/gradle-clojure)
+[![cljdoc](https://cljdoc.org/badge/io.github.gradle-clojure/gradle-clojure)](https://cljdoc.org/d/io.github.gradle-clojure/gradle-clojure/CURRENT)
 
 ## What is this?
 

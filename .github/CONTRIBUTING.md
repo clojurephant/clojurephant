@@ -2,7 +2,11 @@
 
 ## Asking a question or getting help
 
-For now, create an issue. We'll decide on an alternate location for usage help in the future.
+Any of the following will work:
+
+- Create an issue
+- Start a topic in [ClojureVerse Projects/gradle-clojure](https://clojureverse.org/c/projects/gradle-clojure)
+- Ask in [Clojurians Slack #gradle](http://clojurians.net/)
 
 ## Submitting a bug report or feature request
 
@@ -31,7 +35,9 @@ Pull requests are very welcome. Thanks in advance for helping the project (that 
 ### Project Structure
 
 - Documentation is under `docs/`.
-  - If you add a new page, make sure to put a link in the `docs/_includes/nav.md` and include the nav in your page.
+  - If you add a new page, make sure to add it to the following locations so that it's in the nav:
+    - `docs/_includes/nav.md` (for the https://gradle-clojure.github.io site)
+    - `docs/cljdoc.edn` (for the https://cljdoc.org docs)
 - Modules:
   - Plugin itself is in `gradle-clojure-plugin/`
   - Tools library used by Gradle tasks is in `gradle-clojure-tools/`
@@ -66,7 +72,7 @@ A few helpful resources if you're new to writing Gradle plugins:
 
 ### Code Style
 
-This project uses the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html). Google's provides [google-java-format](https://github.com/google/google-java-format) and an [Eclipse formatter profile](https://github.com/google/styleguide/blob/gh-pages/eclipse-java-google-style.xml) to help automate this. Both however have a weakness in how they line wrap, primarily for code that heavily uses lambdas. The style guide's text allows for more discretion in where line wrapping happens, but the automated ones can be overzealous. For this reason, we are using a modified version of the Eclipse profile that disables the automatic line wrapping.
+This project uses the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html). Google provides [google-java-format](https://github.com/google/google-java-format) and an [Eclipse formatter profile](https://github.com/google/styleguide/blob/gh-pages/eclipse-java-google-style.xml) to help automate this. Both however have a weakness in how they line wrap, primarily for code that heavily uses lambdas. The style guide's text allows for more discretion in where line wrapping happens, but the automated ones can be overzealous. For this reason, we are using a modified version of the Eclipse profile that disables the automatic line wrapping.
 
 The style is enforced using the [spotless](https://github.com/diffplug/spotless) plugin, which can also reformat your code to comply with the style with `./gradlew spotlessApply`.
 
@@ -78,16 +84,12 @@ You can import the Eclipse formatter settings `.gradle/eclipse-java-formatter.xm
 
 gradle-clojure is built on [Circle CI](https://circleci.com/gh/gradle-clojure/gradle-clojure). This is configured in `.circleci/config.yml`.
 
-There are two workflows:
+There is one workflow:
 
 - `main` - General build verification running on all branches and PRs on push:
   - Runs full `./gradlew check` test suites and style verification.
   - Runs on all supported Java versions (currently 8, 9, 10).
   - When a tag is pushed, it will also try to do a release/publish (i.e. _don't make a tag unless you're trying to release_).
-- `weekly-deps` - Weekly run of `./gradlew check` against the latest dependencies and Gradle versions
-  - This runs the same suite as `main`, but first updates our dependency lock file and Stutter lock file
-  - These lock file changes are not committed back to GitHub, so it's mostly useful to see if our project will break if we updated our dependencies.
-  - See the `Diff lock files` step output in the `update-dependencies` job for which ones were updated.
 
 ### Updating our dependencies
 
@@ -98,8 +100,6 @@ To update the lock with the latest versions matching any ranges we specified:
 ```
 
 ### Supporting new Gradle versions
-
-A weekly run in Circle CI will pick up new versions and test them for compatibility. To make support _official_, we should update our lock file.
 
 The following task will update our lock files will the latest available versions that match the compatibility rules in our `stutter {}` block in `modules/gradle-clojure-plugin/build.gradle`.
 

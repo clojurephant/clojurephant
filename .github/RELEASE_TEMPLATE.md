@@ -54,7 +54,6 @@ Tested on the following version:
 <!-- We should indicate Clojure version compatibility at some point, but we don't have tests for this yet -->
 
 | Java Version | Gradle Versions     |
-|--------------|---------------------|
+| ------------ | ------------------- |
 | 8            | _min_ through _max_ |
-| 9            | _min_ through _max_ |
-| 10           | _min_ through _max_ |
+| 11           | _min_ through _max_ |

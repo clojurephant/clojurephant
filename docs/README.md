@@ -49,8 +49,12 @@ gradle-clojure uses the common pattern of providing _capability_ plugins and _co
   - Each build gets a `check<Build>Clojure` task that can be used to ensure namespaces compile, and optionally warn or fail on reflection. (by default no namespaces are compiled)
   - Each build gets a `compile<Build>Clojure` task that can be used for AOT compilation. (by default no namespaces are AOTd)
   - If any namespaces are configured to be AOTed for the source sets build, the source sets output will be the AOTd classes. Otherwise, the Clojure source will be the output (i.e. what would get included in a JAR)
+  
+Tip: `gradlew tasks --all` shows all these created tasks. Beware: The `main` build is somewhat special and its name is not included in the task names so it has e.g. `compileClojure`.
 
 #### Clojure Builds
+
+You can define a custom build:
 
 ```groovy
 clojure {
@@ -74,6 +78,18 @@ clojure {
      aotAll() // aots any namespaces found in the source set
    }
  }
+}
+```
+
+You can also _modify_ the configuration of the auto-added builds, f.ex. the "main" one:
+
+```
+clojure {
+    builds {
+      main {
+        reflection = 'warn'
+      }
+    }
 }
 ```
 

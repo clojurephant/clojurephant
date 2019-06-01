@@ -4,9 +4,9 @@
 
 ## Contributor Checklist
 
-- [ ] Review [Contributing Guidelines](https://github.com/gradle-clojure/gradle-clojure/blob/master/.github/CONTRIBUTING.md).
+- [ ] Review [Contributing Guidelines](https://github.com/clojurephant/clojurephant/blob/master/.github/CONTRIBUTING.md).
 - [ ] Commits contain discrete changes, messages include context about why the change was made and reference the relevant issues.
-- [ ] Provide functional tests. (under `modules/gradle-clojure-plugin/src/compatTest`)
+- [ ] Provide functional tests. (under `modules/clojurephant-plugin/src/compatTest`)
 - [ ] Update documentation for user-facing changes. (under `docs/`)
 - [ ] Ensure all verification tasks pass locally. (`./gradlew check`)
 - [ ] Ensure CI builds pass on all Java versions. (watch the checks tab once the PR is opened)

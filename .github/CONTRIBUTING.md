@@ -1,4 +1,4 @@
-# Contributing to gradle-clojure
+# Contributing to clojurephant
 
 ## Asking a question or getting help
 
@@ -14,7 +14,7 @@ Create a new issue and fill out the template. Thanks for providing feedback on w
 
 ## Roadmap
 
-See the [milestones](https://github.com/gradle-clojure/gradle-clojure/milestones) for details on planned features.
+See the [milestones](https://github.com/clojurephant/clojurephant/milestones) for details on planned features.
 
 ## Contributing documentation or code
 
@@ -36,13 +36,13 @@ Pull requests are very welcome. Thanks in advance for helping the project (that 
 
 - Documentation is under `docs/`.
   - If you add a new page, make sure to add it to the following locations so that it's in the nav:
-    - `docs/_includes/nav.md` (for the https://gradle-clojure.github.io site)
+    - `docs/_includes/nav.md` (for the https://clojurephant.dev site)
     - `docs/cljdoc.edn` (for the https://cljdoc.org docs)
 - Modules:
-  - Plugin itself is in `gradle-clojure-plugin/`
-  - Tools library used by Gradle tasks is in `gradle-clojure-tools/`
+  - Plugin itself is in `clojurephant-plugin/`
+  - Tools library used by Gradle tasks is in `clojurephant-tools/`
 - Test suite:
-  - Functional Gradle tests (run against a range of Gradle versions) are in `gradle-clojure-plugin/src/compatTest`
+  - Functional Gradle tests (run against a range of Gradle versions) are in `clojurephant-plugin/src/compatTest`
 - Templates:
   - clj-new templates are under `templates/*`
 
@@ -82,7 +82,7 @@ You can import the Eclipse formatter settings `.gradle/eclipse-java-formatter.xm
 
 ### CI Configuration
 
-gradle-clojure is built on [Circle CI](https://circleci.com/gh/gradle-clojure/gradle-clojure). This is configured in `.circleci/config.yml`.
+clojurephant is built on [Circle CI](https://circleci.com/gh/clojurephant/clojurephant). This is configured in `.circleci/config.yml`.
 
 There is one workflow:
 
@@ -101,7 +101,7 @@ To update the lock with the latest versions matching any ranges we specified:
 
 ### Supporting new Gradle versions
 
-The following task will update our lock files will the latest available versions that match the compatibility rules in our `stutter {}` block in `modules/gradle-clojure-plugin/build.gradle`.
+The following task will update our lock files will the latest available versions that match the compatibility rules in our `stutter {}` block in `modules/clojurephant-plugin/build.gradle`.
 
 ```
 ./gradlew stutterWriteLocks
@@ -121,11 +121,11 @@ We have 3 release stages:
 
 To generate a release:
 
-- (For `rc` or `final`) Make sure all issues in [GitHub milestone](https://github.com/gradle-clojure/gradle-clojure/milestones).
+- (For `rc` or `final`) Make sure all issues in [GitHub milestone](https://github.com/clojurephant/clojurephant/milestones).
 - (For `final`) make sure we've released an `rc` already for this commit.
 - Have the `master` branch checked out
 - Run `./gradlew reckonTagPush -Preckon.scope=<scope> -Preckon.stage=<stage>` (e.g. `./gradlew reckonTagPush -Preckon.scope=patch -Preckon.stage=beta`)
   - This will run `check` on the project, create a version tag, and push that tag
   - The tag push will trigger Circle CI to run the `main` workflow, including the publish step if tests pass on all supported Java versions.
   - The publish will push the plugin to JCenter, Clojars, and the Gradle Plugin Portal.
-- Go to the GitHub [releases](https://github.com/gradle-clojure/gradle-clojure/releases) and draft a new release. Use [the template](https://raw.githubusercontent.com/gradle-clojure/gradle-clojure/master/.github/RELEASE_TEMPLATE.md) for consistency. Ensure you check the _is a pre-release_ if this is a `beta` or `rc`.
+- Go to the GitHub [releases](https://github.com/clojurephant/clojurephant/releases) and draft a new release. Use [the template](https://raw.githubusercontent.com/clojurephant/clojurephant/master/.github/RELEASE_TEMPLATE.md) for consistency. Ensure you check the _is a pre-release_ if this is a `beta` or `rc`.

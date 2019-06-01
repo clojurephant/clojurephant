@@ -1,4 +1,4 @@
-$TemplateDirs = Get-ChildItem -Path templates -Directory -Include 'gradle*'
+$TemplateDirs = Get-ChildItem -Path templates -Directory -Include 'clojurephant*'
 ForEach ($TemplateDir in $TemplateDirs) {
   $TemplateResourceName = $TemplateDir.BaseName -replace '-', '_'
   $TemplateResourceDir = "$($TemplateDir.FullName)\src\main\resources\clj\new\$TemplateResourceName"

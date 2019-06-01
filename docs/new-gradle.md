@@ -28,7 +28,7 @@ To include plugins from [Gradle's Plugin Portal](https://plugins.gradle.org/) yo
 
 ```groovy
 plugins {
-  id 'gradle-clojure.clojure' version '0.4.0'
+  id 'dev.clojurephant.clojure' version '0.4.0'
   // any additional plugins declared here
 }
 ```
@@ -50,7 +50,7 @@ See [Gradle's Introduction to Dependency Management](https://docs.gradle.org/cur
 
 No repositories are specified by default, so you must list any repositories you want to search for your dependencies.
 
-**IMPORTANT:** gradle-clojure currently requires `jcenter()` (or `mavenCentral()` and Clojars) be included in your repository list.
+**IMPORTANT:** clojurephant currently requires `jcenter()` (or `mavenCentral()` and Clojars) be included in your repository list.
 
 ```groovy
 repositories {
@@ -98,7 +98,7 @@ Full `build.gradle` example:
 
 ```groovy
 plugins {
-  id 'gradle-clojure.clojure' version '0.4.0'
+  id 'dev.clojurephant.clojure' version '0.4.0'
 }
 
 group = 'my.example'

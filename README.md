@@ -1,14 +1,14 @@
-# gradle-clojure
+# clojurephant
 
-[![Bintray](https://api.bintray.com/packages/gradle-clojure/maven/gradle-clojure/images/download.svg)](https://bintray.com/gradle-clojure/maven/gradle-clojure/_latestVersion)
-[![CircleCI](https://circleci.com/gh/gradle-clojure/gradle-clojure.svg?style=svg)](https://circleci.com/gh/gradle-clojure/gradle-clojure)
-[![cljdoc](https://cljdoc.org/badge/io.github.gradle-clojure/gradle-clojure-plugin)](https://cljdoc.org/d/io.github.gradle-clojure/gradle-clojure-plugin/CURRENT)
+[![Bintray](https://api.bintray.com/packages/clojurephant/maven/clojurephant/images/download.svg)](https://bintray.com/clojurephant/maven/clojurephant/_latestVersion)
+[![CircleCI](https://circleci.com/gh/clojurephant/clojurephant.svg?style=svg)](https://circleci.com/gh/clojurephant/clojurephant)
+[![cljdoc](https://cljdoc.org/badge/dev.clojurephant/clojurephant-plugin)](https://cljdoc.org/d/dev.clojurephant/clojurephant-plugin/CURRENT)
 
 ## What is this?
 
 A Gradle plugin providing support for the Clojure and ClojureScript languages.
 
-**NOTE:** gradle-clojure should not be considered stable until 1.0.0. Until then, minor versions (e.g. 0.1.0 to 0.2.0) will likely contain breaking changes.
+**NOTE:** clojurephant should not be considered stable until 1.0.0. Until then, minor versions (e.g. 0.1.0 to 0.2.0) will likely contain breaking changes.
 
 ### Clojure Features
 
@@ -36,7 +36,7 @@ The goal is to provide the same creature comforts that [Leiningen](http://leinin
 
 ## Usage
 
-See the [Release Notes](https://github.com/gradle-clojure/gradle-clojure/releases) for available versions, compatibility with Gradle, Java, and Clojure, and detailed change notes.
+See the [Release Notes](https://github.com/clojurephant/clojurephant/releases) for available versions, compatibility with Gradle, Java, and Clojure, and detailed change notes.
 
 This plugin assumes you're using a sane layout for your Clojure code - namespaces corresponding
 to your source code layout, and one namespace per file. The plugin uses the filenames to
@@ -74,7 +74,7 @@ clj -A:new gradle-cljs-app myname/myapp
 
 ```groovy
 plugins {
-  id "gradle-clojure.clojure" version "<version>"
+  id "dev.clojurephant.clojure" version "<version>"
 }
 
 dependencies {
@@ -93,13 +93,13 @@ dependencies {
 }
 ```
 
-See all available options in the [docs](https://gradle-clojure.github.io).
+See all available options in the [docs](https://clojurephant.dev).
 
 ## Getting help
 
 For questions or support, please visit either the [ClojureVerse gradle-clojure channel](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/)
 
-For bug reports and feature requests, please use the repo's [issues](https://github.com/gradle-clojure/gradle-clojure/issues).
+For bug reports and feature requests, please use the repo's [issues](https://github.com/clojurephant/clojurephant/issues).
 
 ## Contributing
 
@@ -111,4 +111,4 @@ This project started from the [cursive.clojure](https://github.com/cursive-ide/g
 
 Thanks to John Szakmeister (@jszakmeister) for organizing a call with Gradle to get us started in the right direction.
 
-Thanks to all [our contributors](https://github.com/gradle-clojure/gradle-clojure/graphs/contributors).
+Thanks to all [our contributors](https://github.com/clojurephant/clojurephant/graphs/contributors).

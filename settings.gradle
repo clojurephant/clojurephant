@@ -1,8 +1,8 @@
-rootProject.name = 'gradle-clojure'
-include 'gradle-clojure-plugin'
-include 'gradle-clojure-tools'
+rootProject.name = 'clojurephant'
+include 'clojurephant-plugin'
+include 'clojurephant-tools'
 
 // templates
-include 'templates:gradle-clj-lib'
-include 'templates:gradle-clj-app'
-include 'templates:gradle-cljs-app'
+include 'templates:clojurephant-clj-lib'
+include 'templates:clojurephant-clj-app'
+include 'templates:clojurephant-cljs-app'

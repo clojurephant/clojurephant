@@ -27,7 +27,7 @@ allprojects {
 // Packaging
 ///////////////////////////////////////////////////////////////////////////////
 allprojects {
-  group = 'io.github.gradle-clojure'
+  group = 'dev.clojurephant'
 
   plugins.withId('java') {
     sourceCompatibility = 8
@@ -49,7 +49,7 @@ allprojects {
       repositories {
         maven {
           name = 'bintray'
-          url = 'https://api.bintray.com/maven/gradle-clojure/maven/gradle-clojure/;publish=1'
+          url = 'https://api.bintray.com/maven/clojurephant/maven/clojurephant/;publish=1'
           credentials {
             username = System.env['BINTRAY_USER']
             password = System.env['BINTRAY_KEY']
@@ -78,9 +78,9 @@ allprojects {
         pom {
           // include repository info in POM (needed for cljdoc)
           scm {
-            connection = 'https://github.com/gradle-clojure/gradle-clojure.git'
-            developerConnection = 'git@github.com:gradle-clojure/gradle-clojure.git'
-            url = 'https://github.com/gradle-clojure/gradle-clojure'
+            connection = 'https://github.com/clojurephant/clojurephant.git'
+            developerConnection = 'git@github.com:clojurephant/clojurephant.git'
+            url = 'https://github.com/clojurephant/clojurephant'
             if (!version.toString().contains('+')) {
               tag = version.toString()
             }

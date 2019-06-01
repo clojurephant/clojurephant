@@ -1,0 +1,40 @@
+plugins {
+  id 'dev.clojurephant.clojurescript'
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    name = 'Clojars'
+    url = 'https://repo.clojars.org/'
+  }
+  mavenLocal()
+}
+
+dependencies {
+  implementation 'org.clojure:clojurescript:1.10.238'
+}
+
+clojurescript {
+  builds {
+    main {
+      compiler {
+        outputTo = 'public/js/main.js'
+        outputDir = 'public/js/out'
+        assetPath = 'js/out'
+        optimizations = 'simple'
+        main = 'basic-project.core'
+        sourceMap = 'public/js/main.js.map'
+      }
+    }
+    dev {
+      compiler {
+        outputTo = 'public/js/main.js'
+        outputDir = 'public/js/out'
+        assetPath = 'js/out'
+        main = 'basic-project.core'
+        preloads = ['basic-project.dev']
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# gradle-clojure
+# clojurephant
 
 {% include nav.md %}
 
@@ -10,46 +10,46 @@
 Create a new Clojure library:
 
 ```
-clj -A:new gradle-clj-lib myname/mylib
+clj -A:new clojurephant-clj-lib myname/mylib
 ```
 
 Create a new Clojure application:
 
 ```
-clj -A:new gradle-clj-app myname/myapp
+clj -A:new clojurephant-clj-app myname/myapp
 ```
 
 Create a new ClojureScript appliation:
 
 ```
-clj -A:new gradle-cljs-app myname/myapp
+clj -A:new clojurephant-cljs-app myname/myapp
 ```
 
 If the documentation doesn't answer your questions, please visit either the [ClojureVerse gradle-clojure channel](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/).
 
 ## Plugins
 
-gradle-clojure uses the common pattern of providing _capability_ plugins and _convention_ plugins. Capability plugins provide the basic machinery for using the language, but leaves it to you to configure. Convention plugins provide configuration on top of the capabilities to support common use cases.
+clojurephant uses the common pattern of providing _capability_ plugins and _convention_ plugins. Capability plugins provide the basic machinery for using the language, but leaves it to you to configure. Convention plugins provide configuration on top of the capabilities to support common use cases.
 
-| Convention                     | Capability                          |
-| ------------------------------ | ----------------------------------- |
-| `gradle-clojure.clojure`       | `gradle-clojure.clojure-base`       |
-| `gradle-clojure.clojurescript` | `gradle-clojure.clojurescript-base` |
+| Convention                       | Capability                            |
+| -------------------------------- | ------------------------------------- |
+| `dev.clojurephant.clojure`       | `dev.clojurephant.clojure-base`       |
+| `dev.clojurephant.clojurescript` | `dev.clojurephant.clojurescript-base` |
 
-### gradle-clojure.clojure-base
+### dev.clojurephant.clojure-base
 
 - Applies `java-base`, which lets you configure source sets. Each source set will get:
   - A Java compilation task
   - Configurations for compile (`implementation`, `compileOnly`) and runtime (`runtimeOnly`) dependencies
 - Applies the internal `ClojureCommonBasePlugin` which:
-  - Includes the gradle-clojure-tools JAR on the compile and runtime classpaths (for use by any Clojure tasks)
+  - Includes the dev.clojurephant-tools JAR on the compile and runtime classpaths (for use by any Clojure tasks)
 - Adds a `clojure` extension which allows you to configure builds of your Clojure code.
   - A build is added for each source set (with the same name as that source set)
   - Additional builds can be configured by the user
   - Each build gets a `check<Build>Clojure` task that can be used to ensure namespaces compile, and optionally warn or fail on reflection. (by default no namespaces are compiled)
   - Each build gets a `compile<Build>Clojure` task that can be used for AOT compilation. (by default no namespaces are AOTd)
   - If any namespaces are configured to be AOTed for the source sets build, the source sets output will be the AOTd classes. Otherwise, the Clojure source will be the output (i.e. what would get included in a JAR)
-  
+
 Tip: `gradlew tasks --all` shows all these created tasks. Beware: The `main` build is somewhat special and its name is not included in the task names so it has e.g. `compileClojure`.
 
 #### Clojure Builds
@@ -93,9 +93,9 @@ clojure {
 }
 ```
 
-### gradle-clojure.clojure
+### dev.clojurephant.clojure
 
-- Applies the `gradle-clojure.clojure-base` plugin (see above)
+- Applies the `dev.clojurephant.clojure-base` plugin (see above)
 - Applies the `java` plugin:
   - Creates a main source set, whose output is packaged into a JAR via the `jar` task.
   - Creates a test source set, which extends the main source set.
@@ -113,13 +113,13 @@ clojure {
   - Compile the other namespaces from the tools JAR needed by the JUnit4 integration
 - Configures the `dev` Clojure build to `checkNamespaces = ['user']` (if you have a user namespace). This ensures that your REPL will start successfully.
 
-### gradle-clojure.clojurescript-base
+### dev.clojurephant.clojurescript-base
 
 - Applies `java-base`, which lets you configure source sets. Each source set will get:
   - A Java compilation task
   - Configurations for compile (`implementation`, `compileOnly`) and runtime (`runtimeOnly`) dependencies
 - Applies the internal `ClojureCommonBasePlugin` which:
-  - Includes the gradle-clojure-tools JAR on the compile and runtime classpaths (for use by any Clojure tasks)
+  - Includes the dev.clojurephant-tools JAR on the compile and runtime classpaths (for use by any Clojure tasks)
 - Adds a `clojurescript` extension which allows you to configure builds of your ClojureScript code.
   - A build is added for each source set (with the same name as that source set)
   - Additional builds can be configured by the user
@@ -188,9 +188,9 @@ clojurescript {
 }
 ```
 
-### gradle-clojure.clojurescript
+### dev.clojurephant.clojurescript
 
-- Applies the `gradle-clojure.clojurescript-base` plugin (see above)
+- Applies the `dev.clojurephant.clojurescript-base` plugin (see above)
 - Applies the `java` plugin:
   - Creates a main source set, whose output is packaged into a JAR via the `jar` task.
   - Creates a test source set, which extends the main source set.

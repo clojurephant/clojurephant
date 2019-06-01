@@ -4,12 +4,12 @@ buildscript {
     mavenLocal()
   }
   dependencies {
-    classpath 'io.github.gradle-clojure:gradle-clojure-plugin:latest.integration'
+    classpath 'dev.clojurephant:clojurephant-plugin:latest.integration'
   }
 }
 
-apply plugin: 'gradle-clojure.clojure'
-apply plugin: 'gradle-clojure.clojurescript'
+apply plugin: 'dev.clojurephant.clojure'
+apply plugin: 'dev.clojurephant.clojurescript'
 
 repositories {
   mavenCentral()

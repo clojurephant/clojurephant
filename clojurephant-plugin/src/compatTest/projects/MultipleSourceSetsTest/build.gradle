@@ -1,0 +1,37 @@
+plugins {
+  id 'dev.clojurephant.clojure'
+}
+
+repositories {
+  mavenCentral()
+  maven {
+    name = 'Clojars'
+    url = 'https://repo.clojars.org/'
+  }
+  mavenLocal()
+}
+
+sourceSets {
+  ss1
+  ss2 {
+    compileClasspath += ss1.output
+    runtimeClasspath += ss1.output
+  }
+  test {
+    compileClasspath += ss1.output
+    compileClasspath += ss2.output
+    runtimeClasspath += ss1.output
+    runtimeClasspath += ss2.output
+  }
+}
+
+dependencies {
+  ss1Implementation 'org.clojure:clojure:1.8.0'
+  ss2Implementation 'org.clojure:clojure:1.8.0'
+  testImplementation 'org.clojure:clojure:1.8.0'
+  testImplementation 'junit:junit:4.12'
+}
+
+clojure.builds.all {
+  checkAll()
+}

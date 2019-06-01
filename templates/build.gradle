@@ -20,7 +20,7 @@ subprojects {
   processResources {
     eachFile { details ->
       if (details.name.endsWith('.gradle')) {
-        details.filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: ['gradle-clojure.version': project.version.toString()])
+        details.filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: ['clojurephant.version': project.version.toString()])
       }
     }
   }
@@ -35,8 +35,8 @@ subprojects {
       delete("${workingDir}/sample-${project.name}")
     }
     dependsOn jar
-    dependsOn ':gradle-clojure-tools:publishToMavenLocal'
-    dependsOn ':gradle-clojure-plugin:publishToMavenLocal'
+    dependsOn ':clojurephant-tools:publishToMavenLocal'
+    dependsOn ':clojurephant-plugin:publishToMavenLocal'
   }
 
   task verifyGradleVersion(type: Exec, dependsOn: newProject) {

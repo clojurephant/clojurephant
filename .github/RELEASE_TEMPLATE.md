@@ -50,7 +50,7 @@ _None_
 
 Tested on the following version:
 
-<!-- Ensure this is in sync with the versions from the `modules/gradle-clojure-plugin/.stutter/ lock files` -->
+<!-- Ensure this is in sync with the versions from the `modules/clojurephant-plugin/.stutter/ lock files` -->
 <!-- We should indicate Clojure version compatibility at some point, but we don't have tests for this yet -->
 
 | Java Version | Gradle Versions     |

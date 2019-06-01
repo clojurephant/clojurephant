@@ -61,7 +61,7 @@ To create an executable uberjar:
 
 ```groovy
 plugins {
-  id 'gradle-clojure.clojure' version '<version>'
+  id 'dev.clojurephant.clojure' version '<version>'
   // this tells Gradle you're generating an application with a main class
   id 'application'
   // Pulls in the shadow plugin which produces the uberjar
@@ -108,7 +108,7 @@ Either apply to all of your projects via an init script:
 
 ```groovy
 allprojects {
-  plugins.withId('gradle-clojure.clojure') {
+  plugins.withId('dev.clojurephant.clojure') {
     dependencies {
       devImplementation 'cider:cider-nrepl:0.21.1'
     }
@@ -144,11 +144,11 @@ Once your REPL starts, use `cider-connect` within Emacs to connect to the port l
 
 ## How do I use Figwheel?
 
-[Figwheel Main](https://github.com/bhauman/lein-figwheel/tree/master/figwheel-main) is included by default, if you apply the `gradle-clojure.clojurescript` plugin. You'll automatically get Piggieback added to your nREPL to support CLJS repls and your `clojurescript.builds` configuration will be available in the REPL to let you start Figwheel.
+[Figwheel Main](https://github.com/bhauman/lein-figwheel/tree/master/figwheel-main) is included by default, if you apply the `dev.clojurephant.clojurescript` plugin. You'll automatically get Piggieback added to your nREPL to support CLJS repls and your `clojurescript.builds` configuration will be available in the REPL to let you start Figwheel.
 
 1. Start the REPL with `./gradlew clojureRepl` (or from your editor, if it supports Gradle).
 1. Connect to the REPL from your favorite editor (see the port in the output).
-1. Require the Figwheel helper ns: `(require '[gradle-clojure.tools.figwheel :as fw])`
+1. Require the Figwheel helper ns: `(require '[dev.clojurephant.tools.figwheel :as fw])`
 1. Start your Figwheel build: `(fw/start "dev")`
 1. Figwheel should open your browser when its ready to connect.
 
@@ -217,11 +217,11 @@ If you only want the Clojure logging turned up and not Gradle's as a whole, use 
 **On the command line:**
 
 ```
-./gradlew check -Pgradle-clojure.tools.logger.level=debug
+./gradlew check -Pdev.clojurephant.tools.logger.level=debug
 ```
 
 **Or in a gradle.properties file**
 
 ```
-gradle-clojure.tools.logger.level=debug
+dev.clojurephant.tools.logger.level=debug
 ```

@@ -1,0 +1,57 @@
+plugins {
+  id 'dev.clojurephant.clojurescript' version '@clojurephant.version@'
+  id 'distribution'
+}
+
+group = '{{group}}'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+  {{#maven-local}}
+  mavenLocal()
+  {{/maven-local}}
+  mavenCentral()
+  maven {
+    name = 'clojars'
+    url = 'https://repo.clojars.org'
+  }
+}
+
+dependencies {
+  implementation 'org.clojure:clojurescript:1.10.520'
+  devImplementation 'org.clojure:java.classpath'
+}
+
+clojurescript {
+  builds {
+    all {
+      compiler {
+        outputTo = 'public/js/main.js'
+        outputDir = 'public/js/out'
+        main = '{{namespace}}'
+        assetPath = 'js/out'
+      }
+      figwheel {
+        cssDirs.from files('src/main/resources/public/css')
+      }
+    }
+    main {
+      compiler {
+        optimizations = 'advanced'
+        sourceMap = 'public/js/main.js.map'
+      }
+    }
+    dev {
+      compiler {
+        optimizations = 'none'
+        preloads = ['{{namespace}}.dev']
+      }
+    }
+  }
+}
+
+distributions {
+  main {
+    contents.from sourceSets.main.output
+  }
+}

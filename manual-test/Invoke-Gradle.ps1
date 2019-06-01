@@ -1,4 +1,4 @@
-Write-Host 'Running gradle-clojure...'
+Write-Host 'Running clojurephant...'
 Push-Location -Path '..'
 & ./gradlew publishToMavenLocal
 Pop-Location

@@ -6,7 +6,7 @@ defaults: &defaults
     - checkout
     - restore_cache:
         keys:
-          - &cache v5-gradle-caches-{{ checksum "gradle-clojure-plugin/build.gradle" }}-{{ checksum "gradle-clojure-tools/build.gradle" }}
+          - &cache v6-gradle-caches-{{ checksum "clojurephant-plugin/build.gradle" }}-{{ checksum "clojurephant-tools/build.gradle" }}
     - attach_workspace:
         at: "."
     - run:

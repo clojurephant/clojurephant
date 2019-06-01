@@ -1,7 +1,6 @@
 ---
 name: Bug Report
 about: Something's not working as expected/documented
-
 ---
 
 ## Expected Behavior
@@ -32,10 +31,10 @@ about: Something's not working as expected/documented
 ## Environment
 
 <!-- A build scan -- https://scans.gradle.com/get-started -- is an ideal way to provide environment info -->
-<!-- If a build scan isn't feasible, the output of ./gradlew --version can be used for all but the gradle-clojure version -->
+<!-- If a build scan isn't feasible, the output of ./gradlew --version can be used for all but the clojurephant version -->
 
 - **Build scan URL:**
-- **gradle-clojure version:**
+- **clojurephant version:**
 - **Gradle version:**
 - **Java version:**
 - **OS version:**

@@ -14,7 +14,8 @@ jobs:
       - uses: "actions/checkout@master"
         with:
           fetch-depth: 0
-      - run: "git fetch origin +refs/tags/*:refs/tags/*"
+      - name: "Fetch all tags"
+        run: "git fetch origin +refs/tags/*:refs/tags/*"
       - uses: "actions/setup-java@master"
         with:
           java-version: ${{ matrix.java }}

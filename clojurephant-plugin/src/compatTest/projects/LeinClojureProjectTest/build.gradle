@@ -12,7 +12,11 @@ repositories {
 }
 
 sourceSets {
-  main.clojure.srcDirs = ['src']
+  main {
+    clojure {
+      srcDirs = ['src']
+    }
+  }
   test.clojure.srcDirs = ['test']
 }
 

@@ -70,6 +70,10 @@ public class ClojureBuild implements Named {
     return checkNamespaces;
   }
 
+  public void setCheckNamespaces(Iterable<String> checkNamespaces) {
+    this.checkNamespaces.set(checkNamespaces);
+  }
+
   public void checkAll() {
     checkNamespaces.set(getAllNamespaces());
   }
@@ -88,6 +92,10 @@ public class ClojureBuild implements Named {
 
   public SetProperty<String> getAotNamespaces() {
     return aotNamespaces;
+  }
+
+  public void setAotNamespaces(Iterable<String> aotNamespaces) {
+    this.aotNamespaces.set(aotNamespaces);
   }
 
   public void aotAll() {

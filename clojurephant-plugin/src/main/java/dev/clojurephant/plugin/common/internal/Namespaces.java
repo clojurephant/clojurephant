@@ -28,6 +28,8 @@ public final class Namespaces {
     return sourceRoots.getAsFileTree().matching(filters -> {
       extensions.forEach(ext -> {
         filters.include("**/*." + ext);
+        filters.exclude("**/data_readers.clj");
+        filters.exclude("**/data_readers.cljc");
       });
     });
   }

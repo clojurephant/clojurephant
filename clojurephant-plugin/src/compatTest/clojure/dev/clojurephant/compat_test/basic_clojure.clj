@@ -62,3 +62,12 @@
         (gradle/verify-task-outcome result ":checkClojure" :success)
         (gradle/verify-task-outcome result ":jar" :success)
         (gradle/verify-jar-contents ["build/clojure/main" "src/main/resources"] "build/libs/BasicClojureProjectTest.jar")))))
+
+(deftest aot-specific-namespaces
+  (testing "with AOT compile, can compile specific namespaces"
+    (gradle/with-project "BasicClojureProjectTest"
+      (file/write-str (gradle/file "build.gradle") "clojure { builds { main { aotNamespaces = ['basic-project.core'] } } }\n" :append true)
+      (let [result (gradle/build "classes")]
+        (gradle/verify-task-outcome result ":compileClojure" :success)
+        (gradle/verify-task-outcome result ":checkClojure" :success)
+        (gradle/verify-compilation-with-aot "src/main/clojure" "build/clojure/main")))))

@@ -91,7 +91,7 @@ dependencies {
   // testImplementation 'group:artifact:version'
 
   // dependencies for REPL use only
-  devImplementation 'org.clojure:tools.namespace:0.3.0-alpha4'
+  devImplementation 'org.clojure:tools.namespace:1.0.0'
 }
 ```
 

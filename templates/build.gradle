@@ -1,5 +1,5 @@
 subprojects {
-  apply plugin: 'gradle-clojure.clojure'
+  apply plugin: 'dev.clojurephant.clojure'
   apply plugin: 'maven-publish'
 
   dependencies {

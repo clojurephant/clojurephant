@@ -80,9 +80,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
       devConf.extendsFrom(testConf);
     };
 
-    devExtendsTest.accept(SourceSet::getCompileConfigurationName);
     devExtendsTest.accept(SourceSet::getImplementationConfigurationName);
-    devExtendsTest.accept(SourceSet::getRuntimeConfigurationName);
     devExtendsTest.accept(SourceSet::getRuntimeOnlyConfigurationName);
 
     Task repl = project.getTasks().create(NREPL_TASK_NAME, ClojureNRepl.class, task -> {
@@ -132,7 +130,10 @@ public class ClojureCommonPlugin implements Plugin<Project> {
 
     if (JavaVersion.current().isJava9Compatible()) {
       project.getDependencies().constraints(constraints -> {
-        constraints.add("devRuntimeClasspath", "org.clojure:java.classpath:0.3.0", constraint -> {
+        constraints.add("devImplementation", "org.clojure:java.classpath:0.3.0", constraint -> {
+          constraint.because("Java 9 has a different classloader architecture. 0.3.0 adds support for this.");
+        });
+        constraints.add("devRuntimeOnly", "org.clojure:java.classpath:0.3.0", constraint -> {
           constraint.because("Java 9 has a different classloader architecture. 0.3.0 adds support for this.");
         });
       });

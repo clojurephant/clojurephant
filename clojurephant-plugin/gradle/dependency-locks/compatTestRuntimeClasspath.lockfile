@@ -7,9 +7,9 @@ nrepl:nrepl:0.6.0
 org.ajoberstar:ike.cljj:0.4.1
 org.clojure:clojure:1.10.0
 org.clojure:core.specs.alpha:0.2.44
-org.clojure:java.classpath:0.2.3
+org.clojure:java.classpath:1.0.0
 org.clojure:spec.alpha:0.2.176
 org.clojure:tools.macro:0.1.2
-org.clojure:tools.namespace:0.3.0-alpha4
-org.clojure:tools.reader:0.10.0
+org.clojure:tools.namespace:1.0.0
+org.clojure:tools.reader:1.3.2
 org.hamcrest:hamcrest-core:1.3

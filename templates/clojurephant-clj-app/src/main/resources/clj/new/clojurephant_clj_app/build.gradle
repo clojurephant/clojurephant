@@ -26,7 +26,7 @@ dependencies {
 
   testImplementation 'junit:junit:4.12'
 
-  devImplementation 'org.clojure:tools.namespace:0.3.0-alpha4'
+  devImplementation 'org.clojure:tools.namespace:1.0.0'
 }
 
 clojure {

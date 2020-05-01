@@ -20,7 +20,7 @@ dependencies {
   // compat testing
   compatTestImplementation gradleTestKit()
   compatTestImplementation 'org.clojure:clojure:1.10.0'
-  compatTestImplementation 'org.clojure:tools.namespace:0.3.0-alpha4'
+  compatTestImplementation 'org.clojure:tools.namespace:1.0.0'
   compatTestImplementation 'nrepl:nrepl:0.6.0'
   compatTestImplementation 'junit:junit:4.12'
   compatTestImplementation 'org.ajoberstar:ike.cljj:0.4.1'

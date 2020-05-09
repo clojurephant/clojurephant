@@ -23,6 +23,10 @@ bin/
 # Other
 *~
 
+# Clojure
+.nrepl-port
+*.edn
+
 # Source Deps
 /templates/clj-new
 

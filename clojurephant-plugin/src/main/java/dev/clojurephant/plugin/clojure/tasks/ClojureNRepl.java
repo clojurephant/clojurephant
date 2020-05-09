@@ -2,21 +2,21 @@ package dev.clojurephant.plugin.clojure.tasks;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.inject.Inject;
 
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
@@ -33,12 +33,13 @@ public class ClojureNRepl extends DefaultTask {
   private final ListProperty<String> defaultMiddleware;
   private final Property<String> transport;
 
-  public ClojureNRepl() {
-    this.bind = getProject().getObjects().property(String.class);
-    this.handler = getProject().getObjects().property(String.class);
-    this.userMiddleware = getProject().getObjects().listProperty(String.class);
-    this.defaultMiddleware = getProject().getObjects().listProperty(String.class);
-    this.transport = getProject().getObjects().property(String.class);
+  @Inject
+  public ClojureNRepl(ObjectFactory objects) {
+    this.bind = objects.property(String.class);
+    this.handler = objects.property(String.class);
+    this.userMiddleware = objects.listProperty(String.class);
+    this.defaultMiddleware = objects.listProperty(String.class);
+    this.transport = objects.property(String.class);
 
     // task is never up-to-date, if you ask for REPL, you get REPL
     this.getOutputs().upToDateWhen(t -> false);
@@ -161,10 +162,5 @@ public class ClojureNRepl extends DefaultTask {
   @Input
   public ListProperty<String> getDefaultMiddleware() {
     return defaultMiddleware;
-  }
-
-  @Internal
-  public Map<String, Object> getContextData() {
-    return contextData;
   }
 }

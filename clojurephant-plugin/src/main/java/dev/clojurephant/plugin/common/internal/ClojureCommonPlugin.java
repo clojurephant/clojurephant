@@ -13,6 +13,8 @@ import dev.clojurephant.plugin.clojure.tasks.ClojureCheck;
 import dev.clojurephant.plugin.clojure.tasks.ClojureCompile;
 import dev.clojurephant.plugin.clojure.tasks.ClojureNRepl;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompile;
+import dev.clojurephant.plugin.clojurescript.tasks.WriteClojureScriptCompileOptions;
+import dev.clojurephant.plugin.clojurescript.tasks.WriteFigwheelOptions;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -87,6 +89,13 @@ public class ClojureCommonPlugin implements Plugin<Project> {
       task.setGroup("run");
       task.setDescription("Starts an nREPL server.");
       task.setClasspath(dev.getRuntimeClasspath());
+
+      project.getTasks().withType(WriteClojureScriptCompileOptions.class, writeTask -> {
+        task.dependsOn(writeTask);
+      });
+      project.getTasks().withType(WriteFigwheelOptions.class, writeTask -> {
+        task.dependsOn(writeTask);
+      });
     });
 
     // if you only ask for the REPL task, don't pre-compile/check the Clojure code (besides the dev one

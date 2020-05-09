@@ -11,6 +11,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 
@@ -60,6 +61,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public String getRingHandler() {
     return ringHandler;
   }
@@ -69,6 +71,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Map<String, Object> getRingServerOptions() {
     return ringServerOptions;
   }
@@ -78,6 +81,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getRebelReadline() {
     return rebelReadline;
   }
@@ -87,6 +91,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getPprintConfig() {
     return pprintConfig;
   }
@@ -96,6 +101,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public String getOpenFileCommand() {
     return openFileCommand;
   }
@@ -105,6 +111,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getFigwheelCore() {
     return figwheelCore;
   }
@@ -114,6 +121,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getHotReloadCljs() {
     return hotReloadCljs;
   }
@@ -123,6 +131,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public String getConnectUrl() {
     return connectUrl;
   }
@@ -132,6 +141,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Object getOpenUrl() {
     return openUrl;
   }
@@ -145,6 +155,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public String getReloadCljFiles() {
     return reloadCljFiles;
   }
@@ -154,11 +165,13 @@ public final class FigwheelOptions {
   }
 
   @OutputFile
+  @Optional
   public RegularFileProperty getLogFile() {
     return logFile;
   }
 
   @Input
+  @Optional
   public String getLogLevel() {
     return logLevel;
   }
@@ -168,6 +181,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public String getClientLogLevel() {
     return clientLogLevel;
   }
@@ -177,6 +191,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public String getLogSyntaxErrorStyle() {
     return logSyntaxErrorStyle;
   }
@@ -186,6 +201,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getLoadWarningedCode() {
     return loadWarningedCode;
   }
@@ -195,6 +211,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getAnsiColorOutput() {
     return ansiColorOutput;
   }
@@ -204,6 +221,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getValidateConfig() {
     return validateConfig;
   }
@@ -218,6 +236,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getLaunchNode() {
     return launchNode;
   }
@@ -227,6 +246,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getInspectNode() {
     return inspectNode;
   }
@@ -236,6 +256,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public String getNodeCommand() {
     return nodeCommand;
   }
@@ -245,6 +266,7 @@ public final class FigwheelOptions {
   }
 
   @Input
+  @Optional
   public Boolean getCljsDevtools() {
     return cljsDevtools;
   }

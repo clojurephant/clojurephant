@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import dev.clojurephant.plugin.clojurescript.internal.DefaultClojureScriptSourceSet;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompile;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptSourceSet;
+import dev.clojurephant.plugin.clojurescript.tasks.WriteClojureScriptCompileOptions;
 import dev.clojurephant.plugin.common.internal.ClojureCommonBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -70,6 +71,14 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       compile.getSourceRoots().from(build.getSourceRoots());
       compile.getClasspath().from(build.getSourceSet().map(SourceSet::getCompileClasspath));
       compile.setOptions(build.getCompiler());
+
+      String writeOptionsTaskName = build.getTaskName("writeOptions");
+      WriteClojureScriptCompileOptions writeOptions = project.getTasks().create(writeOptionsTaskName, WriteClojureScriptCompileOptions.class);
+      writeOptions.setDescription(String.format("Writes the configuration options for the %s ClojureScript build.", build.getName()));
+      writeOptions.getOptions().set(build.getCompiler());
+      writeOptions.getDestinationFile().convention(project.getLayout().getProjectDirectory().file(build.getName() + ".cljs.edn"));
+      // FIXME compile should take a compile opts file as input
+      compile.dependsOn(writeOptions);
     });
   }
 }

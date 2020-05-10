@@ -44,6 +44,9 @@ clojurescript {
         outputDir = "public/js/${name}-out"
         assetPath = "js/${name}-out"
       }
+      figwheel {
+        ringServerOptions = [host: "0.0.0.0"]
+      }
     }
     main {
       compiler {
@@ -86,7 +89,7 @@ clojurescript {
         }
       }
       figwheel {
-        openUrl = 'http://localhost:9500/mods-index.html'
+        openUrl = 'http://[[server-hostname]]:[[server-port]]/mods-index.html'
       }
     }
   }

@@ -36,11 +36,10 @@ public class Edn {
   private static final Printer.Fn<File> FILE_PRINTER = (self, printer) -> printer.printValue(self.getAbsolutePath());
 
   private static final Printer.Fn<FileCollection> FILE_COLLECTION_PRINTER = (self, printer) -> {
-    if (self.isEmpty()) {
-      printer.printValue(null);
-    } else {
-      printer.printValue(self.getFiles().stream().collect(Collectors.toList()));
-    }
+    List<File> list = self.getFiles().stream()
+        .filter(File::exists)
+        .collect(Collectors.toList());
+    printer.printValue(list);
   };
 
   private static final Printer.Fn<NamedDomainObjectCollection<?>> NAMED_DOMAIN_PRINTER = (self, printer) -> {
@@ -220,5 +219,6 @@ public class Edn {
     map.values().removeIf(Objects::isNull);
     map.values().removeIf(obj -> (obj instanceof Collection) && ((Collection<?>) obj).isEmpty());
     map.values().removeIf(obj -> (obj instanceof Map) && ((Map<?, ?>) obj).isEmpty());
+    map.values().removeIf(obj -> (obj instanceof FileCollection) && ((FileCollection) obj).isEmpty());
   }
 }

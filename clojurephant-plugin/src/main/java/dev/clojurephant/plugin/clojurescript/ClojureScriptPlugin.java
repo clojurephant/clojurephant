@@ -21,8 +21,11 @@ import org.gradle.api.Task;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.TaskProvider;
 
 public class ClojureScriptPlugin implements Plugin<Project> {
+  public static final String FIGWHEEL_TASK_NAME = "figwheel";
+
   @Override
   public void apply(Project project) {
     project.getPlugins().apply(ClojureScriptBasePlugin.class);
@@ -52,38 +55,37 @@ public class ClojureScriptPlugin implements Plugin<Project> {
     ClojureScriptExtension extension = project.getExtensions().getByType(ClojureScriptExtension.class);
     extension.getBuilds().named("dev", build -> {
       String writeOptionsTaskName = build.getTaskName("writeFigwheelOptions");
-      WriteFigwheelOptions writeOptions = project.getTasks().create(writeOptionsTaskName, WriteFigwheelOptions.class);
-      writeOptions.setDescription(String.format("Writes the configuration options for the %s Figwheel ClojureScript build.", build.getName()));
-      writeOptions.getOptions().set(build.getFigwheel());
-      writeOptions.getDestinationFile().convention(project.getLayout().getProjectDirectory().file("figwheel-main.edn"));
+      project.getTasks().register(writeOptionsTaskName, WriteFigwheelOptions.class, task -> {
+        task.setDescription(String.format("Writes the configuration options for the %s Figwheel ClojureScript build.", build.getName()));
+        task.getOptions().set(build.getFigwheel());
+        task.getDestinationFile().convention(project.getLayout().getProjectDirectory().file("figwheel-main.edn"));
+      });
     });
 
     SourceSet dev = sourceSets.getByName("dev");
 
-    Task figwheel = project.getTasks().create("figwheel", Figwheel.class, task -> {
+    // using this string concat approach to avoid realizing the task provider, if it's not needed
+    TaskProvider<Figwheel> figwheel = project.getTasks().register(FIGWHEEL_TASK_NAME, Figwheel.class, task -> {
       task.setGroup("run");
       task.setDescription("Start Figwheel main.");
       task.setClasspath(dev.getRuntimeClasspath());
 
-      project.getTasks().withType(WriteClojureScriptCompileOptions.class, writeTask -> {
-        task.dependsOn(writeTask);
-      });
-      project.getTasks().withType(WriteFigwheelOptions.class, writeTask -> {
-        task.dependsOn(writeTask);
-      });
+      task.dependsOn(project.getTasks().withType(WriteClojureScriptCompileOptions.class));
+      task.dependsOn(project.getTasks().withType(WriteFigwheelOptions.class));
     });
 
     // if you only ask for the figwheel task, don't pre-compile/check the Clojure code (besides the dev
     // one
     // for the user namespace)
     project.getGradle().getTaskGraph().whenReady(graph -> {
-      if (!graph.hasTask(figwheel)) {
+      // using this string concat approach to avoid realizing the task provider, if it's not needed
+      if (!graph.hasTask(project.getPath() + FIGWHEEL_TASK_NAME)) {
         return;
       }
       Set<Task> selectedTasks = new HashSet<>(graph.getAllTasks());
 
       Queue<Task> toProcess = new LinkedList<>();
-      toProcess.add(figwheel);
+      toProcess.add(figwheel.get());
 
       Set<Task> toDisable = new HashSet<>();
 

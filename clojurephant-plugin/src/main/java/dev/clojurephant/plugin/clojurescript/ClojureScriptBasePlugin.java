@@ -46,6 +46,10 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       ClojureScriptBuild build = extension.getBuilds().create(sourceSet.getName());
       build.getSourceSet().set(sourceSet);
 
+      project.getTasks().named(sourceSet.getClassesTaskName(), task -> {
+        task.dependsOn(build.getTaskName("compile"));
+      });
+
       Provider<FileCollection> output = project.provider(() -> {
         if (build.isCompilerConfigured()) {
           return project.files(build.getOutputDir());
@@ -65,20 +69,21 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
 
     extension.getBuilds().all(build -> {
       String compileTaskName = build.getTaskName("compile");
-      ClojureScriptCompile compile = project.getTasks().create(compileTaskName, ClojureScriptCompile.class);
-      compile.setDescription(String.format("Compiles the ClojureScript source for the %s build.", build.getName()));
-      compile.getDestinationDir().set(build.getOutputDir());
-      compile.getSourceRoots().from(build.getSourceRoots());
-      compile.getClasspath().from(build.getSourceSet().map(SourceSet::getCompileClasspath));
-      compile.setOptions(build.getCompiler());
+      project.getTasks().register(compileTaskName, ClojureScriptCompile.class, task -> {
+        task.setDescription(String.format("Compiles the ClojureScript source for the %s build.", build.getName()));
+        task.getDestinationDir().set(build.getOutputDir());
+        task.getSourceRoots().from(build.getSourceRoots());
+        task.getClasspath().from(build.getSourceSet().map(SourceSet::getCompileClasspath));
+        task.setOptions(build.getCompiler());
+      });
+
 
       String writeOptionsTaskName = build.getTaskName("writeOptions");
-      WriteClojureScriptCompileOptions writeOptions = project.getTasks().create(writeOptionsTaskName, WriteClojureScriptCompileOptions.class);
-      writeOptions.setDescription(String.format("Writes the configuration options for the %s ClojureScript build.", build.getName()));
-      writeOptions.getOptions().set(build.getCompiler());
-      writeOptions.getDestinationFile().convention(project.getLayout().getProjectDirectory().file(build.getName() + ".cljs.edn"));
-      // FIXME compile should take a compile opts file as input
-      compile.dependsOn(writeOptions);
+      project.getTasks().register(writeOptionsTaskName, WriteClojureScriptCompileOptions.class, task -> {
+        task.setDescription(String.format("Writes the configuration options for the %s ClojureScript build.", build.getName()));
+        task.getOptions().set(build.getCompiler());
+        task.getDestinationFile().convention(project.getLayout().getProjectDirectory().file(build.getName() + ".cljs.edn"));
+      });
     });
   }
 }

@@ -26,6 +26,7 @@ import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.jvm.tasks.ProcessResources;
 
 public class ClojureCommonPlugin implements Plugin<Project> {
@@ -85,29 +86,26 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     devExtendsTest.accept(SourceSet::getImplementationConfigurationName);
     devExtendsTest.accept(SourceSet::getRuntimeOnlyConfigurationName);
 
-    Task repl = project.getTasks().create(NREPL_TASK_NAME, ClojureNRepl.class, task -> {
+    TaskProvider<ClojureNRepl> repl = project.getTasks().register(NREPL_TASK_NAME, ClojureNRepl.class, task -> {
       task.setGroup("run");
       task.setDescription("Starts an nREPL server.");
       task.setClasspath(dev.getRuntimeClasspath());
 
-      project.getTasks().withType(WriteClojureScriptCompileOptions.class, writeTask -> {
-        task.dependsOn(writeTask);
-      });
-      project.getTasks().withType(WriteFigwheelOptions.class, writeTask -> {
-        task.dependsOn(writeTask);
-      });
+      task.dependsOn(project.getTasks().withType(WriteClojureScriptCompileOptions.class));
+      task.dependsOn(project.getTasks().withType(WriteFigwheelOptions.class));
     });
 
     // if you only ask for the REPL task, don't pre-compile/check the Clojure code (besides the dev one
     // for the user namespace)
     project.getGradle().getTaskGraph().whenReady(graph -> {
-      if (!graph.hasTask(repl)) {
+      // using this string concat approach to avoid realizing the task provider, if it's not needed
+      if (!graph.hasTask(project.getPath() + NREPL_TASK_NAME)) {
         return;
       }
       Set<Task> selectedTasks = new HashSet<>(graph.getAllTasks());
 
       Queue<Task> toProcess = new LinkedList<>();
-      toProcess.add(repl);
+      toProcess.add(repl.get());
 
       Set<Task> toDisable = new HashSet<>();
 

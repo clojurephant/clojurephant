@@ -19,8 +19,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.internal.plugins.DslObject;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 
 public class ClojureScriptPlugin implements Plugin<Project> {
   @Override
@@ -28,12 +28,12 @@ public class ClojureScriptPlugin implements Plugin<Project> {
     project.getPlugins().apply(ClojureScriptBasePlugin.class);
     project.getPlugins().apply(ClojureCommonPlugin.class);
 
-    JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+    SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
 
     configurePiggieback(project);
-    configureFigwheel(project, javaConvention);
+    configureFigwheel(project, sourceSets);
 
-    ClojureCommonPlugin.configureDevSource(javaConvention, sourceSet -> {
+    ClojureCommonPlugin.configureDevSource(sourceSets, sourceSet -> {
       ClojureScriptSourceSet src = (ClojureScriptSourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("clojurescript");
       return src.getClojureScript();
     });
@@ -46,7 +46,7 @@ public class ClojureScriptPlugin implements Plugin<Project> {
     repl.getDefaultMiddleware().add("cider.piggieback/wrap-cljs-repl");
   }
 
-  private void configureFigwheel(Project project, JavaPluginConvention javaConvention) {
+  private void configureFigwheel(Project project, SourceSetContainer sourceSets) {
     project.getDependencies().add(ClojureCommonPlugin.NREPL_CONFIGURATION_NAME, "com.bhauman:figwheel-main:0.2.0");
 
     ClojureScriptExtension extension = project.getExtensions().getByType(ClojureScriptExtension.class);
@@ -58,7 +58,7 @@ public class ClojureScriptPlugin implements Plugin<Project> {
       writeOptions.getDestinationFile().convention(project.getLayout().getProjectDirectory().file("figwheel-main.edn"));
     });
 
-    SourceSet dev = javaConvention.getSourceSets().getByName("dev");
+    SourceSet dev = sourceSets.getByName("dev");
 
     Task figwheel = project.getTasks().create("figwheel", Figwheel.class, task -> {
       task.setGroup("run");

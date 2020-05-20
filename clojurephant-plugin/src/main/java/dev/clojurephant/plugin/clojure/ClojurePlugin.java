@@ -7,8 +7,8 @@ import dev.clojurephant.plugin.common.internal.ClojureCommonPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.plugins.DslObject;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 
 public class ClojurePlugin implements Plugin<Project> {
   @Override
@@ -19,8 +19,8 @@ public class ClojurePlugin implements Plugin<Project> {
     ClojureExtension extension = project.getExtensions().getByType(ClojureExtension.class);
     configureBuilds(project, extension);
 
-    JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-    ClojureCommonPlugin.configureDevSource(javaConvention, sourceSet -> {
+    SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
+    ClojureCommonPlugin.configureDevSource(sourceSets, sourceSet -> {
       ClojureSourceSet src = (ClojureSourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("clojure");
       return src.getClojure();
     });

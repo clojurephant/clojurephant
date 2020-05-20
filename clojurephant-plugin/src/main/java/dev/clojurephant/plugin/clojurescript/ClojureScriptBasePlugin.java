@@ -13,9 +13,9 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.internal.tasks.DefaultSourceSetOutput;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 
 public class ClojureScriptBasePlugin implements Plugin<Project> {
   private final ObjectFactory objects;
@@ -34,7 +34,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
   }
 
   private void configureSourceSetDefaults(Project project, ClojureScriptExtension extension) {
-    project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all((SourceSet sourceSet) -> {
+    project.getExtensions().getByType(SourceSetContainer.class).all((SourceSet sourceSet) -> {
       ClojureScriptSourceSet clojurescriptSourceSet = new DefaultClojureScriptSourceSet("clojurescript", objects);
       new DslObject(sourceSet).getConvention().getPlugins().put("clojurescript", clojurescriptSourceSet);
 

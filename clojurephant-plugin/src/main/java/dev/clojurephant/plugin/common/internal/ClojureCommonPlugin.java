@@ -24,8 +24,8 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.language.jvm.tasks.ProcessResources;
 
 public class ClojureCommonPlugin implements Plugin<Project> {
@@ -38,17 +38,17 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     project.getPlugins().apply(ClojureBasePlugin.class);
     project.getPlugins().apply(JavaPlugin.class);
 
-    JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-    configureDev(project, javaConvention);
+    SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
+    configureDev(project, sourceSets);
     configureDependencyConstraints(project);
 
-    configureDevSource(javaConvention, SourceSet::getResources);
+    configureDevSource(sourceSets, SourceSet::getResources);
   }
 
-  private void configureDev(Project project, JavaPluginConvention javaConvention) {
-    SourceSet main = javaConvention.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    SourceSet test = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
-    SourceSet dev = javaConvention.getSourceSets().create(DEV_SOURCE_SET_NAME);
+  private void configureDev(Project project, SourceSetContainer sourceSets) {
+    SourceSet main = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    SourceSet test = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
+    SourceSet dev = sourceSets.create(DEV_SOURCE_SET_NAME);
 
     Configuration nrepl = project.getConfigurations().create(NREPL_CONFIGURATION_NAME);
     project.getDependencies().add(NREPL_CONFIGURATION_NAME, "nrepl:nrepl:0.6.0");
@@ -149,10 +149,10 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     }
   }
 
-  public static void configureDevSource(JavaPluginConvention javaConvention, Function<SourceSet, SourceDirectorySet> languageMapper) {
-    SourceSet main = javaConvention.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    SourceSet test = javaConvention.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
-    SourceSet dev = javaConvention.getSourceSets().getByName(DEV_SOURCE_SET_NAME);
+  public static void configureDevSource(SourceSetContainer sourceSets, Function<SourceSet, SourceDirectorySet> languageMapper) {
+    SourceSet main = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    SourceSet test = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
+    SourceSet dev = sourceSets.getByName(DEV_SOURCE_SET_NAME);
     languageMapper.apply(dev).source(languageMapper.apply(test));
     languageMapper.apply(dev).source(languageMapper.apply(main));
   }

@@ -1,6 +1,6 @@
 plugins {
   id 'java'
-  id 'gradle-clojure.clojure'
+  id 'dev.clojurephant.clojure'
   id 'maven-publish'
   id 'org.ajoberstar.stutter'
   id 'java-gradle-plugin'
@@ -40,8 +40,8 @@ stutter {
   java(8) {
     compatibleRange '5.0'
   }
-  java(13) {
-    compatibleRange '6.0'
+  java(14) {
+    compatibleRange '6.3'
   }
 }
 
@@ -52,8 +52,8 @@ plugins.withId('eclipse') {
 sourceSets.compatTest.runtimeClasspath = files(compileCompatTestClojure, sourceSets.compatTest.runtimeClasspath)
 
 compileCompatTestClojure {
-  namespaces.add 'gradle-clojure.tools.logger'
-  namespaces.add 'gradle-clojure.tools.clojure-test-junit4'
+  namespaces.add 'dev.clojurephant.tools.logger'
+  namespaces.add 'dev.clojurephant.tools.clojure-test-junit4'
 }
 
 tasks.withType(Test).matching { it.name.startsWith('compatTest') }.all {

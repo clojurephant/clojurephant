@@ -25,7 +25,7 @@ com.jcraft:jsch:0.1.54
 commons-codec:commons-codec:1.10
 commons-io:commons-io:2.5
 commons-logging:commons-logging:1.2
-io.github.gradle-clojure:gradle-clojure-tools:0.5.0-alpha.1
+dev.clojurephant:clojurephant-tools:0.5.0
 javax.annotation:jsr250-api:1.0
 javax.enterprise:cdi-api:1.0
 javax.inject:javax.inject:1

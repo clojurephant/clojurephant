@@ -1,0 +1,12 @@
+subprojects {
+  plugins.withId('dev.clojurephant.clojure') {
+    repositories {
+      mavenCentral()
+      maven {
+        name = 'Clojars'
+        url = 'https://repo.clojars.org/'
+      }
+      mavenLocal()
+    }
+  }
+}

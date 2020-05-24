@@ -1,0 +1,9 @@
+plugins {
+  id 'dev.clojurephant.clojure'
+  id 'java-library'
+}
+
+dependencies {
+  api 'org.clojure:clojure:1.8.0'
+  api 'org.clojure:data.json:1.0.0'
+}

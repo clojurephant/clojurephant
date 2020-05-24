@@ -57,11 +57,11 @@
   (testing "only class files are included in jar"
     (gradle/with-project "BasicClojureProjectTest"
       (file/write-str (gradle/file "build.gradle") "clojure { builds { main { aotAll() } } }\n" :append true)
-      (let [result (gradle/build "jar")]
+      (let [result (gradle/build "aotJar")]
         (gradle/verify-task-outcome result ":compileClojure" :success)
         (gradle/verify-task-outcome result ":checkClojure" :success)
-        (gradle/verify-task-outcome result ":jar" :success)
-        (gradle/verify-jar-contents ["build/clojure/main" "src/main/resources"] "build/libs/BasicClojureProjectTest.jar")))))
+        (gradle/verify-task-outcome result ":aotJar" :success)
+        (gradle/verify-jar-contents ["build/clojure/main" "src/main/resources"] "build/libs/BasicClojureProjectTest-aot.jar")))))
 
 (deftest aot-specific-namespaces
   (testing "with AOT compile, can compile specific namespaces"

@@ -6,9 +6,13 @@ import java.io.UncheckedIOException;
 import java.util.Properties;
 
 import dev.clojurephant.plugin.clojure.ClojureBasePlugin;
+import dev.clojurephant.plugin.common.attributes.ClojureElements;
+import dev.clojurephant.plugin.common.attributes.internal.ClojureElementsCompatibilityRule;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.AttributeMatchingStrategy;
+import org.gradle.api.attributes.AttributesSchema;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 
@@ -20,8 +24,17 @@ public class ClojureCommonBasePlugin implements Plugin<Project> {
     project.getPluginManager().apply(JavaBasePlugin.class);
 
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+    configureAttributes(project);
     configureSourceSets(project, javaConvention);
     configureToolsConfigurations(project);
+  }
+
+  private void configureAttributes(Project project) {
+    AttributesSchema schema = project.getDependencies().getAttributesSchema();
+    schema.attribute(ClojureElements.CLJELEMENTS_ATTRIBUTE);
+    AttributeMatchingStrategy<ClojureElements> strategy = schema.getMatchingStrategy(ClojureElements.CLJELEMENTS_ATTRIBUTE);
+    strategy.getCompatibilityRules().add(ClojureElementsCompatibilityRule.class);
+    // strategy.getDisambiguationRules().add(ClojureElementsDisambiguationRule.class);
   }
 
   private void configureSourceSets(Project project, JavaPluginConvention javaConvention) {

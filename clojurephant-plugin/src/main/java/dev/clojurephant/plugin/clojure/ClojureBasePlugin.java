@@ -45,17 +45,18 @@ public class ClojureBasePlugin implements Plugin<Project> {
 
       ClojureBuild build = extension.getBuilds().create(sourceSet.getName());
       build.getSourceSet().set(sourceSet);
-      ((DefaultSourceSetOutput) sourceSet.getOutput()).addClassesDir(() -> build.getOutputDir().get().getAsFile());
-      project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(build.getTaskName("compile"));
-      project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(build.getTaskName("check"));
 
-      sourceSet.getOutput().dir(project.provider(() -> {
+      Provider<FileCollection> output = project.provider(() -> {
         if (build.isCompilerConfigured()) {
-          return build.getOutputDir();
+          return project.files(build.getOutputDir());
         } else {
           return clojureSourceSet.getClojure().getSourceDirectories();
         }
-      }));
+      });
+
+      ((DefaultSourceSetOutput) sourceSet.getOutput()).getClassesDirs().from(output);
+      project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(build.getTaskName("compile"));
+      project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(build.getTaskName("check"));
     });
   }
 

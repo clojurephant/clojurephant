@@ -33,7 +33,9 @@
         xf (comp (drop 1)
                  (filter file/file?)
                  (map (fn [f] (.relativize root f))))]
-    (into #{} xf (file/walk root))))
+    (if (file/exists? root)
+      (into #{} xf (file/walk root))
+      #{})))
 
 (defn verify-compilation-without-aot
   [src-dir dst-dir]

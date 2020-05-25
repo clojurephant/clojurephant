@@ -5,7 +5,7 @@ plugins {
 
   id 'dev.clojurephant.clojure' version '0.5.0' apply false
   id 'org.ajoberstar.stutter' version '0.5.1' apply false
-  id 'com.gradle.plugin-publish' version '0.10.1' apply false
+  id 'com.gradle.plugin-publish' version '0.11.0' apply false
 }
 
 ///////////////////////////////////////////////////////////////////////////////

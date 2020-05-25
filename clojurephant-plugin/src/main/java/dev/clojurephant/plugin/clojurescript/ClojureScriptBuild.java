@@ -2,7 +2,6 @@ package dev.clojurephant.plugin.clojurescript;
 
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptSourceSet;
-import dev.clojurephant.plugin.clojurescript.tasks.FigwheelOptions;
 import groovy.lang.Closure;
 import org.apache.commons.text.WordUtils;
 import org.gradle.api.Action;
@@ -20,15 +19,12 @@ public class ClojureScriptBuild implements Named {
   private final DirectoryProperty outputDir;
   private final Property<SourceSet> sourceSet;
   private final ClojureScriptCompileOptions compiler;
-  private final FigwheelOptions figwheel;
 
   public ClojureScriptBuild(Project project, String name) {
     this.name = name;
     this.outputDir = project.getObjects().directoryProperty();
     this.sourceSet = project.getObjects().property(SourceSet.class);
     this.compiler = new ClojureScriptCompileOptions(project, outputDir);
-    this.figwheel = new FigwheelOptions(project, outputDir);
-    figwheel.getWatchDirs().from(getSourceRoots());
   }
 
   @Override
@@ -72,24 +68,6 @@ public class ClojureScriptBuild implements Named {
     configureAction.setResolveStrategy(Closure.DELEGATE_FIRST);
     configureAction.setDelegate(compiler);
     configureAction.call(compiler);
-  }
-
-  public FigwheelOptions getFigwheel() {
-    return figwheel;
-  }
-
-  public void figwheel(Action<? super FigwheelOptions> configureAction) {
-    configureAction.execute(figwheel);
-  }
-
-  /*
-   * We only have this variant (instead of just Action) since Gradle doesn't currently (as of 4.7)
-   * instrument Action methods on nested config objects
-   */
-  public void figwheel(Closure<?> configureAction) {
-    configureAction.setResolveStrategy(Closure.DELEGATE_FIRST);
-    configureAction.setDelegate(figwheel);
-    configureAction.call(figwheel);
   }
 
   String getTaskName(String task) {

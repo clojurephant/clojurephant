@@ -8,13 +8,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import dev.clojurephant.plugin.clojure.tasks.ClojureCompileOptions;
 import dev.clojurephant.plugin.clojurescript.ClojureScriptBuild;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
-import dev.clojurephant.plugin.clojurescript.tasks.FigwheelOptions;
 import dev.clojurephant.plugin.clojurescript.tasks.ForeignLib;
 import dev.clojurephant.plugin.clojurescript.tasks.Module;
 import org.gradle.api.NamedDomainObjectCollection;
@@ -60,38 +58,6 @@ public class Edn {
     Map<Object, Object> root = new LinkedHashMap<>();
     root.put(newKeyword("output-dir"), self.getOutputDir().map(Directory::getAsFile).getOrNull());
     root.put(newKeyword("compiler"), self.getCompiler());
-    root.put(newKeyword("figwheel"), self.getFigwheel());
-    printer.printValue(root);
-  };
-
-  private static final Printer.Fn<FigwheelOptions> FIGWHEEL_OPTIONS_PRINTER = (self, printer) -> {
-    Map<Object, Object> root = new LinkedHashMap<>();
-    root.put(newKeyword("watch-dirs"), self.getWatchDirs());
-    root.put(newKeyword("css-dirs"), self.getCssDirs());
-    root.put(newKeyword("ring-handler"), Edn.toSymbol(self.getRingHandler()));
-    root.put(newKeyword("ring-server-options"), keywordize(self.getRingServerOptions()));
-    root.put(newKeyword("rebel-readline"), self.getRebelReadline());
-    root.put(newKeyword("pprint-config"), self.getPprintConfig());
-    root.put(newKeyword("open-file-command"), self.getOpenFileCommand());
-    root.put(newKeyword("figwheel-core"), self.getFigwheelCore());
-    root.put(newKeyword("hot-reload-cljs"), self.getHotReloadCljs());
-    root.put(newKeyword("connect-url"), self.getConnectUrl());
-    root.put(newKeyword("open-url"), self.getOpenUrl());
-    root.put(newKeyword("reload-clj-files"), self.getReloadCljFiles());
-    root.put(newKeyword("log-file"), self.getLogFile().getOrNull());
-    root.put(newKeyword("log-level"), Edn.toKeyword(self.getLogLevel()));
-    root.put(newKeyword("client-log-level"), Edn.toKeyword(self.getClientLogLevel()));
-    root.put(newKeyword("log-syntax-error-style"), Edn.toKeyword(self.getLogSyntaxErrorStyle()));
-    root.put(newKeyword("load-warninged-code"), self.getLoadWarningedCode());
-    root.put(newKeyword("ansi-color-output"), self.getAnsiColorOutput());
-    root.put(newKeyword("validate-config"), self.getValidateConfig());
-    root.put(newKeyword("target-dir"), self.getTargetDir().map(Directory::getAsFile).getOrNull());
-    root.put(newKeyword("launch-node"), self.getLaunchNode());
-    root.put(newKeyword("inspect-node"), self.getInspectNode());
-    root.put(newKeyword("node-command"), self.getNodeCommand());
-    root.put(newKeyword("cljs-devtools"), self.getCljsDevtools());
-
-    Edn.removeEmptyAndNulls(root);
     printer.printValue(root);
   };
 
@@ -188,7 +154,6 @@ public class Edn {
       .put(ClojureCompileOptions.class, CLOJURE_COMPILE_OPTIONS_PRINTER)
       // ClojureScript
       .put(ClojureScriptBuild.class, CLOJURESCRIPT_BUILD_PRINTER)
-      .put(FigwheelOptions.class, FIGWHEEL_OPTIONS_PRINTER)
       .put(ClojureScriptCompileOptions.class, CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER)
       .put(ForeignLib.class, FOREIGN_LIB_PRINTER)
       .put(Module.class, MODULE_PRINTER)
@@ -196,18 +161,6 @@ public class Edn {
 
   public static String print(Object value) {
     return Printers.printString(PROTOCOL, value);
-  }
-
-  private static Symbol toSymbol(String name) {
-    return Optional.ofNullable(name)
-        .map(Symbol::newSymbol)
-        .orElse(null);
-  }
-
-  private static Keyword toKeyword(String name) {
-    return Optional.ofNullable(name)
-        .map(Keyword::newKeyword)
-        .orElse(null);
   }
 
   public static <V> Map<Keyword, V> keywordize(Map<String, V> map) {

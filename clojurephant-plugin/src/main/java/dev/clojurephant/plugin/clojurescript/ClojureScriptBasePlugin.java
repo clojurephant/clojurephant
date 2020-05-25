@@ -5,7 +5,6 @@ import javax.inject.Inject;
 import dev.clojurephant.plugin.clojurescript.internal.DefaultClojureScriptSourceSet;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompile;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptSourceSet;
-import dev.clojurephant.plugin.clojurescript.tasks.WriteClojureScriptCompileOptions;
 import dev.clojurephant.plugin.common.internal.ClojureCommonBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -75,14 +74,6 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
         task.getSourceRoots().from(build.getSourceRoots());
         task.getClasspath().from(build.getSourceSet().map(SourceSet::getCompileClasspath));
         task.setOptions(build.getCompiler());
-      });
-
-
-      String writeOptionsTaskName = build.getTaskName("writeOptions");
-      project.getTasks().register(writeOptionsTaskName, WriteClojureScriptCompileOptions.class, task -> {
-        task.setDescription(String.format("Writes the configuration options for the %s ClojureScript build.", build.getName()));
-        task.getOptions().set(build.getCompiler());
-        task.getDestinationFile().convention(project.getLayout().getProjectDirectory().file(build.getName() + ".cljs.edn"));
       });
     });
   }

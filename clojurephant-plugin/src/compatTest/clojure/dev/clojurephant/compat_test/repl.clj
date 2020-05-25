@@ -46,7 +46,7 @@
                (finally
                  (repl/message ~client {:op "eval" :code (pr-str '(do (require 'nrepl.cmdline)  (nrepl.cmdline/exit 0)))})))))
          (throw (ex-info "Could not determine port REPL started on." {:port port#}))))
-      (.interrupt build-thread#)))
+     (.interrupt build-thread#)))
 
 (deftest mixed-java-clojure
   (testing "Java classes are included on classpath of the REPL"

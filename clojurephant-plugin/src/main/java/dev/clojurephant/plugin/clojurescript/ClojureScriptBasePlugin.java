@@ -8,9 +8,12 @@ import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptSourceSet;
 import dev.clojurephant.plugin.common.internal.ClojureCommonBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.internal.tasks.DefaultSourceSetOutput;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 
 public class ClojureScriptBasePlugin implements Plugin<Project> {
@@ -41,16 +44,18 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
 
       ClojureScriptBuild build = extension.getBuilds().create(sourceSet.getName());
       build.getSourceSet().set(sourceSet);
-      sourceSet.getOutput().dir(build.getOutputDir());
-      project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(build.getTaskName("compile"));
 
-      sourceSet.getOutput().dir(project.provider(() -> {
+      Provider<FileCollection> output = project.provider(() -> {
         if (build.isCompilerConfigured()) {
-          return build.getOutputDir();
+          return project.files(build.getOutputDir());
         } else {
           return clojurescriptSourceSet.getClojureScript().getSourceDirectories();
         }
-      }));
+      });
+
+      ((DefaultSourceSetOutput) sourceSet.getOutput()).getClassesDirs().from(output);
+
+      project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(build.getTaskName("compile"));
     });
   }
 

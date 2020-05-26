@@ -14,6 +14,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
@@ -202,7 +203,7 @@ public final class ClojureScriptCompileOptions {
     this.externs = externs;
   }
 
-  @Input
+  @Nested
   @Optional
   public Map<String, Module> getModules() {
     return modules;

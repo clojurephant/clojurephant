@@ -1,82 +1,52 @@
 package dev.clojurephant.plugin.clojure.tasks;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UncheckedIOException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.nio.channels.Channels;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import dev.clojurephant.plugin.common.internal.ClojureExecutor;
-import dev.clojurephant.plugin.common.internal.Edn;
+import javax.inject.Inject;
+
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.api.tasks.options.Option;
 
 public class ClojureNRepl extends DefaultTask {
-  private final ClojureExecutor clojureExecutor;
-
   private ForkOptions forkOptions = new ForkOptions();
   private FileCollection classpath;
-  private int port = -1;
-  private int controlPort = -1;
+  private final Property<String> bind;
+  private int port = 0;
+  private int ackPort = 0;
   private final Property<String> handler;
   private final ListProperty<String> userMiddleware;
   private final ListProperty<String> defaultMiddleware;
-  private final Map<String, Object> contextData;
+  private final Property<String> transport;
 
-  public ClojureNRepl() {
-    this.clojureExecutor = new ClojureExecutor(getProject());
-    this.handler = getProject().getObjects().property(String.class);
-    this.userMiddleware = getProject().getObjects().listProperty(String.class);
-    this.defaultMiddleware = getProject().getObjects().listProperty(String.class);
-    this.contextData = new HashMap<>();
-    contextData.put("output-dir", getTemporaryDir().getAbsolutePath());
+  @Inject
+  public ClojureNRepl(ObjectFactory objects) {
+    this.bind = objects.property(String.class);
+    this.handler = objects.property(String.class);
+    this.userMiddleware = objects.listProperty(String.class);
+    this.defaultMiddleware = objects.listProperty(String.class);
+    this.transport = objects.property(String.class);
 
     // task is never up-to-date, if you ask for REPL, you get REPL
     this.getOutputs().upToDateWhen(t -> false);
   }
 
   @TaskAction
-  public void run() throws InterruptedException {
-    if (port < 0) {
-      try (ServerSocket socket = new ServerSocket(0)) {
-        port = socket.getLocalPort();
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
-    }
-
-    try (ServerSocket socket = new ServerSocket(0)) {
-      controlPort = socket.getLocalPort();
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-
-    stopOnSignal();
-    start();
-  }
-
-  private void start() {
+  public void run() {
     if (!getProject().delete(getTemporaryDir())) {
       throw new GradleException("Cannot clean temporary directory: " + getTemporaryDir().getAbsolutePath());
     }
@@ -85,50 +55,36 @@ public class ClojureNRepl extends DefaultTask {
     List<String> middleware = Stream.of(defaultMiddleware.getOrElse(Collections.emptyList()), userMiddleware.getOrElse(Collections.emptyList()))
         .flatMap(List::stream)
         .collect(Collectors.toList());
-    clojureExecutor.exec(spec -> {
+    getProject().javaexec(spec -> {
       spec.setClasspath(cp);
-      spec.setMain("dev.clojurephant.tools.clojure-nrepl");
-      spec.setArgs(port, controlPort, handler.getOrNull(), middleware, Edn.keywordize(contextData));
-      spec.forkOptions(fork -> {
-        fork.setJvmArgs(getForkOptions().getJvmArgs());
-        fork.setMinHeapSize(getForkOptions().getMemoryInitialSize());
-        fork.setMaxHeapSize(getForkOptions().getMemoryMaximumSize());
-        fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
-      });
-    });
-  }
+      spec.setMain("clojure.main");
 
-  /**
-   * Waits for a EOF (CTRL+D) signal from System.in. When received it will stop the NREPL server.
-   * Using a separate thread, since this loop can prevent seeing errors during REPL startup.
-   */
-  private void stopOnSignal() {
-    Runnable waitLoop = () -> {
-      while (true) {
-        try {
-          int c = System.in.read();
-          if (c == -1 || c == 4) {
-            // Stop on Ctrl-D or EOF
-            stop();
-            break;
-          }
-        } catch (IOException e) {
-          stop();
-        }
+      spec.args("-m", "nrepl.cmdline");
+
+      if (bind.isPresent()) {
+        spec.args("--bind", bind.get());
       }
-    };
-    new Thread(waitLoop).start();
-  }
+      if (port > 0) {
+        spec.args("--port", port);
+      }
+      if (ackPort > 0) {
+        spec.args("--ack", ackPort);
+      }
+      if (handler.isPresent()) {
+        spec.args("--handler", handler.get());
+      }
+      if (!middleware.isEmpty()) {
+        spec.args("--middleware", "[" + String.join(" ", middleware) + "]");
+      }
+      if (transport.isPresent()) {
+        spec.args("--transport", transport.get());
+      }
 
-  private void stop() {
-    try (
-        SocketChannel socket = SocketChannel.open();
-        PrintWriter writer = new PrintWriter(Channels.newWriter(socket, StandardCharsets.UTF_8.name()), true);
-        BufferedReader reader = new BufferedReader(Channels.newReader(socket, StandardCharsets.UTF_8.name()))) {
-      socket.connect(new InetSocketAddress("localhost", controlPort));
-    } catch (IOException e) {
-      // bury
-    }
+      spec.setJvmArgs(getForkOptions().getJvmArgs());
+      spec.setMinHeapSize(getForkOptions().getMemoryInitialSize());
+      spec.setMaxHeapSize(getForkOptions().getMemoryMaximumSize());
+      spec.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
+    });
   }
 
   @Nested
@@ -164,6 +120,20 @@ public class ClojureNRepl extends DefaultTask {
     setPort(Integer.parseInt(port));
   }
 
+  @Input
+  public int getAckPort() {
+    return ackPort;
+  }
+
+  public void setAckPort(int ackPort) {
+    this.ackPort = ackPort;
+  }
+
+  @Option(option = "ackPort", description = "Acknowledge the port of this server to another nREPL server.")
+  public void setAckPort(String ackPort) {
+    setAckPort(Integer.parseInt(ackPort));
+  }
+
   @org.gradle.api.tasks.Optional
   @Input
   public Property<String> getHandler() {
@@ -192,10 +162,5 @@ public class ClojureNRepl extends DefaultTask {
   @Input
   public ListProperty<String> getDefaultMiddleware() {
     return defaultMiddleware;
-  }
-
-  @Internal
-  public Map<String, Object> getContextData() {
-    return contextData;
   }
 }

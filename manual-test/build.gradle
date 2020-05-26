@@ -85,9 +85,6 @@ clojurescript {
           dependsOn = ['cljs-base']
         }
       }
-      figwheel {
-        openUrl = 'http://localhost:9500/mods-index.html'
-      }
     }
   }
 }

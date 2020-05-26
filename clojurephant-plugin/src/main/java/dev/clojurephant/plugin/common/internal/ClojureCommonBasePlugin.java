@@ -10,7 +10,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaBasePlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.SourceSetContainer;
 
 public class ClojureCommonBasePlugin implements Plugin<Project> {
   public static final String TOOLS_CONFIGURATION_NAME = "clojureTools";
@@ -19,13 +19,13 @@ public class ClojureCommonBasePlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPluginManager().apply(JavaBasePlugin.class);
 
-    JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-    configureSourceSets(project, javaConvention);
+    SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
+    configureSourceSets(project, sourceSets);
     configureToolsConfigurations(project);
   }
 
-  private void configureSourceSets(Project project, JavaPluginConvention javaConvention) {
-    javaConvention.getSourceSets().all(sourceSet -> {
+  private void configureSourceSets(Project project, SourceSetContainer sourceSets) {
+    sourceSets.all(sourceSet -> {
       sourceSet.getResources().exclude("**/.keep");
     });
   }
@@ -37,7 +37,7 @@ public class ClojureCommonBasePlugin implements Plugin<Project> {
     });
 
     // TODO does this JAR get included via shadow or application plugins?
-    project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all(sourceSet -> {
+    project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
       project.getConfigurations().getByName(sourceSet.getCompileClasspathConfigurationName()).extendsFrom(tools);
       project.getConfigurations().getByName(sourceSet.getRuntimeClasspathConfigurationName()).extendsFrom(tools);
     });

@@ -2,4 +2,4 @@
 
 (enable-console-print!)
 
-(prn "Hello World3!")
+(prn "Hello World!")

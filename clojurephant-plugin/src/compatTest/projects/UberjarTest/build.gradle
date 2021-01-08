@@ -1,7 +1,7 @@
 plugins {
   id 'dev.clojurephant.clojure'
   id 'application'
-  id 'com.github.johnrengelman.shadow' version '5.0.0'
+  id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 mainClassName = 'sample.core'

@@ -1,8 +1,0 @@
-# This is a Gradle generated file for dependency locking.
-# Manual edits can break the build and are not advised.
-# This file is expected to be part of source control.
-dev.clojurephant:clojurephant-tools:0.5.0
-nrepl:nrepl:0.6.0
-org.apache.commons:commons-lang3:3.8.1
-org.apache.commons:commons-text:1.6
-us.bpsm:edn-java:0.6.0

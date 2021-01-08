@@ -8,11 +8,11 @@ dependencies {
   compileOnly gradleApi()
 
   // clojure runtime
-  compileOnly 'org.clojure:clojure:1.10.0'
-  compileOnly 'org.clojure:clojurescript:1.10.520'
-  compileOnly 'nrepl:nrepl:0.6.0'
-  compileOnly 'com.bhauman:figwheel-main:0.2.0'
-  compileOnly 'junit:junit:4.12'
+  compileOnly 'org.clojure:clojure:1.10.1'
+  compileOnly 'org.clojure:clojurescript:1.10.773'
+  compileOnly 'nrepl:nrepl:0.8.3'
+  compileOnly 'com.bhauman:figwheel-main:0.2.12'
+  compileOnly 'junit:junit:4.13.1'
 }
 
 publishing {

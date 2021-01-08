@@ -24,6 +24,8 @@ bin/
 *~
 
 # Clojure
+.clj-kondo/
+.lsp/
 .nrepl-port
 *.edn
 

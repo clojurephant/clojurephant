@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       scope:
-        description: "SemVer scope to calculate version with Reckon"
+        description: "Reckon scope"
         required: true
       stage:
-        description: "SemVer stage to calculate version with Reckon"
+        description: "Reckon stage"
         required: true
 jobs:
   check:

@@ -67,7 +67,7 @@ publishing {
       url = uri("https://repo.clojars.org")
       credentials {
         username = System.getenv("CLOJARS_USER")
-        password = System.getenv("CLOJARS_PASSWORD")
+        password = System.getenv("CLOJARS_TOKEN")
       }
     }
   }

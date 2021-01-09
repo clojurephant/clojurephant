@@ -36,7 +36,7 @@ tasks.register<JavaExec>("newProject") {
     workingDir.mkdirs()
     delete("${workingDir}/sample-${project.name}")
   }
-  dependsOn("jar")
+  dependsOn(tasks.jar)
   dependsOn(":clojurephant-tools:publishToMavenLocal")
   dependsOn(":clojurephant-plugin:publishToMavenLocal")
 }
@@ -65,5 +65,5 @@ tasks.register<Exec>("verifyGradleVersion") {
 }
 
 tasks.named("check") {
-  dependsOn("verifyGradleVersion")
+  dependsOn(tasks.named("verifyGradleVersion"))
 }

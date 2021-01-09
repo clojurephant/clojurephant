@@ -31,7 +31,7 @@ tasks.register<WriteProperties>("writeProperties") {
 }
 
 tasks.named<Copy>("processResources") {
-  from("writeProperties")
+  from(tasks.named("writeProperties"))
 }
 
 stutter {

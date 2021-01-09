@@ -50,15 +50,10 @@ See [Gradle's Introduction to Dependency Management](https://docs.gradle.org/cur
 
 No repositories are specified by default, so you must list any repositories you want to search for your dependencies.
 
-**IMPORTANT:** clojurephant currently requires `jcenter()` (or `mavenCentral()`) and Clojars be included in your repository list.
+**IMPORTANT:** clojurephant currently requires Clojars be included in your repository list.
 
 ```groovy
 repositories {
-  // shorthand for https://repo1.maven.org/maven2
-  mavenCentral()
-  // shorthand for https://jcenter.bintray.com/
-  jcenter()
-  // for any other maven repository
   maven {
     name = 'Clojars' // name can be ommitted, but is helpful in troubleshooting
     url = 'https://repo.clojars.org/'

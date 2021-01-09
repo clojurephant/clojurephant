@@ -49,14 +49,6 @@ spotless {
 publishing {
   repositories {
     maven {
-      name = "bintray"
-      url = uri("https://api.bintray.com/maven/clojurephant/maven/clojurephant/;publish=1")
-      credentials {
-        username = System.getenv("BINTRAY_USER")
-        password = System.getenv("BINTRAY_KEY")
-      }
-    }
-    maven {
       name = "clojars"
       url = uri("https://repo.clojars.org")
       credentials {

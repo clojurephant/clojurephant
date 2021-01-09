@@ -75,8 +75,6 @@ jobs:
           key: "gradle-caches-${{ runner.os }}-${{ hashFiles('**/gradle/dependency-locks/*.lockfile') }}"
       - name: "Gradle publish"
         env:
-          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-          BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
           CLOJARS_USER: ${{ secrets.CLOJARS_USER }}
           CLOJARS_TOKEN: ${{ secrets.CLOJARS_TOKEN }}
           GRADLE_OPTS: "-Dorg.gradle.project.gradle.publish.key=${{ secrets.GRADLE_PLUGIN_KEY }} -Dorg.gradle.project.gradle.publish.secret=${{ secrets.GRADLE_PLUGIN_SECRET }}"

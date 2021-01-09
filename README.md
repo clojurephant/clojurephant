@@ -2,7 +2,6 @@
 
 Formerly known as "gradle-clojure"
 
-[![Bintray](https://api.bintray.com/packages/clojurephant/maven/clojurephant/images/download.svg)](https://bintray.com/clojurephant/maven/clojurephant/_latestVersion)
 ![](https://github.com/clojurephant/clojurephant/workflows/.github/workflows/build.yaml/badge.svg)
 [![cljdoc](https://cljdoc.org/badge/dev.clojurephant/clojurephant-plugin)](https://cljdoc.org/d/dev.clojurephant/clojurephant-plugin/CURRENT)
 

@@ -10,6 +10,17 @@ pluginManagement {
   }
 }
 
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral()
+    maven {
+      name = "Clojars"
+      url = uri("https://repo.clojars.org/")
+    }
+  }
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+}
+
 rootProject.name = "clojurephant"
 include("clojurephant-plugin")
 include("clojurephant-tools")

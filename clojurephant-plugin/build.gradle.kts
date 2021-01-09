@@ -2,11 +2,20 @@ import dev.clojurephant.plugin.clojure.tasks.ClojureCompile
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
 
 plugins {
-  `library-convention`
-  `java-gradle-plugin`
+  id("convention.clojars-publish")
+  id("convention.lint")
 
-  id("org.ajoberstar.stutter")
+  id("dev.clojurephant.clojure")
+
+  `java-gradle-plugin`
   id("com.gradle.plugin-publish")
+  id("org.ajoberstar.stutter")
+}
+
+group = "dev.clojurephant"
+
+configure<JavaPluginConvention> {
+  sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {
@@ -65,14 +74,6 @@ tasks.withType<Test>().matching { t -> t.name.startsWith("compatTest") }.all {
   systemProperty("clojure.test.dirs", "src/compatTest/clojure")
   systemProperty("stutter.projects", "src/compatTest/projects")
   systemProperty("org.gradle.testkit.dir", file("build/stutter-test-kit").absolutePath)
-}
-
-publishing {
-  publications {
-    create<MavenPublication>("pluginMaven") {
-      artifact(tasks.sourcesJar)
-    }
-  }
 }
 
 gradlePlugin {

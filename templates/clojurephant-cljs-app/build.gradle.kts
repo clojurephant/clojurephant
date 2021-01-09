@@ -1,4 +1,5 @@
 plugins {
-  `clj-new-template`
-  `library-convention`
+  id("convention.clojars-publish")
+  id("convention.lint")
+  id("convention.template")
 }

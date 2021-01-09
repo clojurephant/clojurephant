@@ -2,7 +2,16 @@ import dev.clojurephant.plugin.clojure.tasks.ClojureCheck
 import dev.clojurephant.plugin.clojure.tasks.ClojureCompile
 
 plugins {
-  `library-convention`
+  id("convention.clojars-publish")
+  id("convention.lint")
+
+  id("dev.clojurephant.clojure")
+}
+
+group = "dev.clojurephant"
+
+configure<JavaPluginConvention> {
+  sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {
@@ -18,7 +27,6 @@ publishing {
   publications {
     create<MavenPublication>("main") {
       from(components["java"])
-      artifact(tasks.sourcesJar)
     }
   }
 }

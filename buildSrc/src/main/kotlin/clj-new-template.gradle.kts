@@ -42,7 +42,7 @@ tasks.register<JavaExec>("newProject") {
 }
 
 tasks.register<Exec>("verifyGradleVersion") {
-  dependsOn("newProject")
+  dependsOn(tasks.named("newProject"))
 
   workingDir = file("${rootProject.projectDir}/templates-test/sample-${project.name}")
   if (System.getProperty("os.name").toLowerCase().contains("windows")) {

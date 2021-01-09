@@ -22,9 +22,12 @@ publishing {
   }
 }
 
-
 tasks.named<Copy>("processResources") {
-  filter(ReplaceTokens::class, "tokens" to mapOf("clojurephant.version" to project.version.toString()))
+  eachFile {
+    if (name.endsWith(".gradle")) {
+      filter(ReplaceTokens::class, "tokens" to mapOf("clojurephant.version" to project.version.toString()))
+    }
+  }
 }
 
 tasks.register<JavaExec>("newProject") {

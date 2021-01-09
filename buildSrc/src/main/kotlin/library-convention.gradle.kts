@@ -35,15 +35,9 @@ tasks.register<Jar>("sourcesJar") {
 ///////////////////////////////////////////////////////////////////////////////
 spotless {
   java {
-    importOrder("java", "javax")
+    importOrder("java", "javax", "")
     removeUnusedImports()
     eclipse().configFile(rootProject.file("gradle/eclipse-java-formatter.xml"))
-  }
-  format("gradle") {
-    target("**/*.gradle")
-    trimTrailingWhitespace()
-    indentWithSpaces(2)
-    endWithNewline()
   }
 }
 

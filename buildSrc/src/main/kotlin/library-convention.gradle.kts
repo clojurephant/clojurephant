@@ -25,9 +25,8 @@ configure<JavaPluginConvention> {
   sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
-tasks.register<Jar>("sourcesJar") {
-  from(sourceSets["main"].allSource)
-  archiveClassifier.set("sources")
+java {
+  sourcesJar()
 }
 
 ///////////////////////////////////////////////////////////////////////////////

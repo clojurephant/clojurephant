@@ -10,26 +10,26 @@
 Create a new Clojure library:
 
 ```
-clj -A:new clojurephant-clj-lib myname/mylib
+clj -X:new :template clojurephant-clj-lib :name myname/mylib
 ```
 
 Create a new Clojure application:
 
 ```
-clj -A:new clojurephant-clj-app myname/myapp
+clj -X:new :template clojurephant-clj-app :name myname/myapp
 ```
 
 Create a new ClojureScript appliation:
 
 ```
-clj -A:new clojurephant-cljs-app myname/myapp
+clj -X:new :template clojurephant-cljs-app :name myname/myapp
 ```
 
-If the documentation doesn't answer your questions, please visit either the [ClojureVerse gradle-clojure channel](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/).
+If the documentation doesn't answer your questions, please visit the [Clojurephant Discussions](https://github.com/clojurephant/clojurephant/discussions) [ClojureVerse gradle-clojure category](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/).
 
 ## Plugins
 
-clojurephant uses the common pattern of providing _capability_ plugins and _convention_ plugins. Capability plugins provide the basic machinery for using the language, but leaves it to you to configure. Convention plugins provide configuration on top of the capabilities to support common use cases.
+clojurephant uses the common Gradle pattern of providing _capability_ plugins and _convention_ plugins. Capability plugins provide the basic machinery for using the language, but leaves it to you to configure. Convention plugins provide configuration on top of the capabilities to support common use cases.
 
 | Convention                       | Capability                            |
 | -------------------------------- | ------------------------------------- |
@@ -102,11 +102,11 @@ clojure {
   - Creates a `test` task that runs tests within the test source set.
 - Applies the internal `ClojureCommonPlugin` which:
   - Creates a dev source set, to be used for REPL development, which extends the test source set.
-  - Adds 'nrepl:nrepl:0.5.1' as a dependency of that source set.
+  - Adds 'nrepl:nrepl' as a dependency of that source set.
   - Adds a `clojureRepl` task which will start an nREPL server.
   - Configures dependency rules to indicate that:
     - `org.clojure:tools.nrepl` is replaced by `nrepl:nrepl`
-    - If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 0.3.0 to support the new classloader hierarchy.
+    - If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 1.0.0 to support the new classloader hierarchy.
 - Configures the `main` Clojure build to `checkAll()` namespaces.
 - Configures any build whose name includes `test` to:
   - `aotAll()` namespaces (required for the current JUnit4 integration)
@@ -128,9 +128,7 @@ clojure {
 
 #### ClojureScript Builds
 
-**NOTE:** While Figwheel options are available when `clojurescript-base` is applied, the necessary dependencies and middleware are not configured unless you apply `clojurescript`.
-
-See [ClojureScript compiler options](https://clojurescript.org/reference/compiler-options) and [Figwheel Main configuration options](https://github.com/bhauman/lein-figwheel/blob/master/figwheel-main/doc/figwheel-main-options.md) for details on what each option does and defaults to.
+See [ClojureScript compiler options](https://clojurescript.org/reference/compiler-options) for details on what each option does and defaults to.
 
 ```groovy
 clojurescript {
@@ -158,31 +156,6 @@ clojurescript {
        installDeps = true
        checkedArrays = 'warn'
      }
-     figwheel {
-       watchDirs.from = files() // defaults to the source set's CLJS source dirs
-       cssDirs.from = files('src/main/resources/public/css') // defaults to empty
-       ringHandler = 'my-project.server/handler'
-       ringServerOptions = [port: 1234, host: 'my.domain.com']
-       rebelReadline = false
-       pprintConfig = true
-       openFileCommand = 'myfile-opener'
-       figwheelCore = false
-       hotReloadCljs = false
-       connectUrl = 'ws://[[config-hostname]]:[[server-port]]/figwheel-connect'
-       openUrl = 'http://[[server-hostname]]:[[server-port]]'
-       reloadCljFiles = false
-       logFile = file('figwheel-main.log')
-       logLevel = 'error'
-       clientLogLevel = 'warning'
-       logSyntaxErrorStyle = 'concise'
-       loadWarningedCode = true
-       ansiColorOutput = false
-       validateConfig = false
-       launchNode = false
-       inspectNode = false
-       nodeCommand = 'node'
-       cljsDevtools = false
-     }
    }
  }
 }
@@ -197,17 +170,15 @@ clojurescript {
   - Creates a `test` task that runs tests within the test source set.
 - Applies the internal `ClojureCommonPlugin` which:
   - Creates a dev source set, to be used for REPL development, which extends the test source set.
-  - Adds 'nrepl:nrepl:0.5.1' as a dependency of that source set.
+  - Adds 'nrepl:nrepl' as a dependency of that source set.
   - Adds a `clojureRepl` task which will start an nREPL server.
   - Configures dependency rules to indicate that:
     - `org.clojure:tools.nrepl` is replaced by `nrepl:nrepl`
-    - If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 0.3.0 to support the new classloader hierarchy.
+    - If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 1.0.0 to support the new classloader hierarchy.
 - Wires your ClojureScript build configuration into the nREPL for use by Figwheel.
 - Configures the REPL for Piggieback:
-  - Adds a dev dependency `cider:piggieback:0.3.10`
+  - Adds a dev dependency `cider:piggieback`
   - Adds the Piggieback middleware: `cider.piggieback/wrap-cljs-repl`
-- Configures the REPL for Figwheel:
-  - Adds a dev dependency `com.bhauman:figwheel-main:0.1.2`
 
 ## Project Layout
 
@@ -248,7 +219,7 @@ clojurescript {
 
 ```groovy
 clojureRepl {
-  port = 55555 // defaults to a random open port (which will be printed in the build output)
+  port = 55555 // defaults to a random open port (which will be written to a .nrepl-port file)
 
   // handler and middleware are both optional, but don't provide both
   handler = 'cider.nrepl/cider-nrepl-handler' // fully-qualified name of function

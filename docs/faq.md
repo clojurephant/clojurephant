@@ -65,7 +65,7 @@ plugins {
   // this tells Gradle you're generating an application with a main class
   id 'application'
   // Pulls in the shadow plugin which produces the uberjar
-  id 'com.github.johnrengelman.shadow' version '5.0.0'
+  id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 mainClassName = 'whatever_your.main.ns.class.is'
@@ -110,7 +110,7 @@ Either apply to all of your projects via an init script:
 allprojects {
   plugins.withId('dev.clojurephant.clojure') {
     dependencies {
-      devImplementation 'cider:cider-nrepl:0.21.1'
+      devImplementation 'cider:cider-nrepl:0.25.6'
     }
 
     clojureRepl {
@@ -126,7 +126,7 @@ Or add it manually to your project:
 
 ```groovy
 dependencies {
-  devImplementation 'cider:cider-nrepl:0.21.1'
+  devImplementation 'cider:cider-nrepl:0.25.16
 }
 
 clojureRepl {
@@ -141,18 +141,6 @@ Optionally, omit the handler config and provide it on the CLI:
 ```
 
 Once your REPL starts, use `cider-connect` within Emacs to connect to the port listed in your Gradle output.
-
-## How do I use Figwheel?
-
-[Figwheel Main](https://github.com/bhauman/lein-figwheel/tree/master/figwheel-main) is included by default, if you apply the `dev.clojurephant.clojurescript` plugin. You'll automatically get Piggieback added to your nREPL to support CLJS repls and your `clojurescript.builds` configuration will be available in the REPL to let you start Figwheel.
-
-1. Start the REPL with `./gradlew clojureRepl` (or from your editor, if it supports Gradle).
-1. Connect to the REPL from your favorite editor (see the port in the output).
-1. Require the Figwheel helper ns: `(require '[dev.clojurephant.tools.figwheel :as fw])`
-1. Start your Figwheel build: `(fw/start "dev")`
-1. Figwheel should open your browser when its ready to connect.
-
-**NOTE:** Figwheel's docs will talk about `figwheel-main.edn` and `<build>.cljs.edn` files for configuration. These will probably work with your Gradle REPL, but they won't be known to Gradle when its other tasks run. Currently, we recommend configuring Figwheel in your `clojurescript.builds {}` options, though that can be a hassle when tuning build options during initial setup.
 
 ## How do I build Clojure code that depends on Java code?
 

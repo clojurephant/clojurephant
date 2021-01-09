@@ -4,7 +4,7 @@
 
 Any of the following will work:
 
-- Create an issue
+- Start a discussion in [Clojurephant Discussions](https://github.com/clojurephant/clojurephant/discussions)
 - Start a topic in [ClojureVerse Projects/gradle-clojure](https://clojureverse.org/c/projects/gradle-clojure)
 - Ask in [Clojurians Slack #gradle](http://clojurians.net/)
 

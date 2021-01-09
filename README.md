@@ -51,19 +51,19 @@ calculate the namespaces involved, it does not parse the files looking for `ns` 
 Create a new Clojure library:
 
 ```
-clj -A:new gradle-clj-lib myname/mylib
+clj -X:new :template clojurephant-clj-lib :name myname/mylib
 ```
 
 Create a new Clojure application:
 
 ```
-clj -A:new gradle-clj-app myname/myapp
+clj -X:new :template clojurephant-clj-app :name myname/myapp
 ```
 
 Create a new ClojureScript appliation:
 
 ```
-clj -A:new gradle-cljs-app myname/myapp
+clj -X:new :template clojurephant-cljs-app :name myname/myapp
 ```
 
 #### Common Commands
@@ -88,17 +88,17 @@ repositories {
 
 dependencies {
   // whatever version of clojure you prefer (versions before 1.8.0 may not be compatible)
-  implementation 'org.clojure:clojure:1.10.0'
+  implementation 'org.clojure:clojure:1.10.1'
   // and any other dependencies you want on the compile classpath
   // implementation 'group:artifact:version'
 
   // needed for test integration
-  testImplementation 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.13.1'
   // and any other test-specific dependencies
   // testImplementation 'group:artifact:version'
 
   // dependencies for REPL use only
-  devImplementation 'org.clojure:tools.namespace:1.0.0'
+  devImplementation 'org.clojure:tools.namespace:1.1.0'
 }
 ```
 
@@ -109,7 +109,7 @@ See all available options in the [docs](https://clojurephant.dev).
 
 Read the online Clojurephant documentation [https://clojurephant.dev](https://clojurephant.dev).
 
-For questions or support, please visit either the [ClojureVerse gradle-clojure channel](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/)
+For questions or support, please visit the [Clojurephant Discussions](https://github.com/clojurephant/clojurephant/discussions), [ClojureVerse gradle-clojure channel](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/)
 
 For bug reports and feature requests, please use the repo's [issues](https://github.com/clojurephant/clojurephant/issues).
 

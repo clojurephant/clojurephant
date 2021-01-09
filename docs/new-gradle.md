@@ -2,7 +2,7 @@
 
 {% include nav.md %}
 
-**NOTE:** This example assumes Gradle 4 or higher.
+**NOTE:** This example assumes Gradle 6 or higher.
 
 [Gradle](https://docs.gradle.org/current/userguide/userguide.html) is a build automation tool in the same space as [Maven](https://maven.apache.org), [Leiningen](https://leiningen.org), and [Boot](https://boot-clj.com). Gradle is primarily targeted at projects using the JVM, but has plugins for many other languages. (Now including Clojure!)
 
@@ -20,7 +20,7 @@ $ gradle init
 
 > From here on out you'll use `./gradlew` instead of `gradle` in your commands. `gradlew` is the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) which allows you to set a per-project Gradle version. This ensures all developers use the same Gradle version for the project, instead of whatever happens to be on their `PATH`.
 
-Also see [Gradle's Creating New Gradle Builds](https://guides.gradle.org/creating-new-gradle-builds).
+Also see [Gradle's Learning the Basics](https://docs.gradle.org/current/userguide/tutorial_using_tasks.html).
 
 ## Adding the plugin
 
@@ -28,7 +28,7 @@ To include plugins from [Gradle's Plugin Portal](https://plugins.gradle.org/) yo
 
 ```groovy
 plugins {
-  id 'dev.clojurephant.clojure' version '0.4.0'
+  id 'dev.clojurephant.clojure' version '0.6.0-alpha.9'
   // any additional plugins declared here
 }
 ```
@@ -44,7 +44,7 @@ version = '0.1.0-SNAPSHOT' // the version your artifacts should be published und
 
 ## Define dependencies
 
-See [Gradle's Introduction to Dependency Management](https://docs.gradle.org/current/userguide/introduction_dependency_management.html).
+See [Gradle's Dependency Management docs](https://docs.gradle.org/current/userguide/core_dependency_management.html).
 
 ### Repositories
 
@@ -75,13 +75,13 @@ Dependencies are put in different configurations (somewhat similar to Maven scop
 
 ```groovy
 dependencies {
-  implementation 'org.clojure:clojure:1.9.0'
+  implementation 'org.clojure:clojure:1.10.1'
 
   // due to how clojure.test is executed, an explicit JUnit 4 dependency is needed
-  testImplementation 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.13.1'
 
   // due to the way Gradle's REPL is started, if you need tools.namespace, you must be on 0.3+
-  devImplementation 'org.clojure:tools.namespace:1.0.0'
+  devImplementation 'org.clojure:tools.namespace:1.1.0'
 }
 ```
 
@@ -93,7 +93,7 @@ Full `build.gradle` example:
 
 ```groovy
 plugins {
-  id 'dev.clojurephant.clojure' version '0.4.0'
+  id 'dev.clojurephant.clojure' version '0.6.0-alpha.9'
 }
 
 group = 'my.example'
@@ -104,10 +104,10 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.9.0'
+  implementation 'org.clojure:clojure:1.10.1'
 
-  testImplementation 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.13.1'
 
-  devImplementation 'org.clojure:tools.namespace:1.0.0'
+  devImplementation 'org.clojure:tools.namespace:1.1.0'
 }
 ```

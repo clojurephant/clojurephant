@@ -13,6 +13,10 @@ repositories {
 
 dependencies {
   implementation 'org.clojure:clojure:1.8.0'
-  testImplementation 'junit:junit:4.12'
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
   devImplementation 'cider:cider-nrepl:0.21.1'
+}
+
+tasks.withType(Test) {
+  useJUnitPlatform()
 }

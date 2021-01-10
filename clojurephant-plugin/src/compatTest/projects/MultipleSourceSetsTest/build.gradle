@@ -29,8 +29,13 @@ dependencies {
   ss1Implementation 'org.clojure:clojure:1.8.0'
   ss2Implementation 'org.clojure:clojure:1.8.0'
   testImplementation 'org.clojure:clojure:1.8.0'
-  testImplementation 'junit:junit:4.12'
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 }
+
+tasks.withType(Test) {
+  useJUnitPlatform()
+}
+
 
 clojure.builds.all {
   checkAll()

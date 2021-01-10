@@ -77,12 +77,18 @@ Dependencies are put in different configurations (somewhat similar to Maven scop
 dependencies {
   implementation 'org.clojure:clojure:1.10.1'
 
-  // due to how clojure.test is executed, an explicit JUnit 4 dependency is needed
-  testImplementation 'junit:junit:4.13.1'
+  // due to how clojure.test is executed, a JUnit test engine (Jovial) is needed
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 
   // due to the way Gradle's REPL is started, if you need tools.namespace, you must be on 0.3+
   devImplementation 'org.clojure:tools.namespace:1.1.0'
 }
+
+// due to how clojure.test is executed, the JUnit platform is needed
+tasks.withType(Test) {
+  useJUnitPlatform()
+}
+
 ```
 
 Also see [Gradle's Declaring Dependencies](https://docs.gradle.org/current/userguide/declaring_dependencies.html)
@@ -106,8 +112,12 @@ repositories {
 dependencies {
   implementation 'org.clojure:clojure:1.10.1'
 
-  testImplementation 'junit:junit:4.13.1'
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 
   devImplementation 'org.clojure:tools.namespace:1.1.0'
+}
+
+tasks.withType(Test) {
+  useJUnitPlatform()
 }
 ```

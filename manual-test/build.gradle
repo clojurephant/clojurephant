@@ -26,11 +26,15 @@ dependencies {
   implementation 'org.clojure:clojurescript:1.10.520'
 
   // testing
-  testImplementation 'junit:junit:4.12'
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 
   // frontend
   implementation 'org.omcljs:om:1.0.0-beta4'
   devImplementation 'devcards:devcards:0.2.6'
+}
+
+tasks.withType(Test) {
+  useJUnitPlatform()
 }
 
 clojureRepl {

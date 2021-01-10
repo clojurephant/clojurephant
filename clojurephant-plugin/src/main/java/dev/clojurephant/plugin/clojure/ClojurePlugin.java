@@ -33,8 +33,6 @@ public class ClojurePlugin implements Plugin<Project> {
     // any test ns needs this config to work with the Test task
     extension.getBuilds().matching(build -> build.getName().toLowerCase().contains("test")).all(test -> {
       test.aotAll();
-      test.getAotNamespaces().add("dev.clojurephant.tools.logger");
-      test.getAotNamespaces().add("dev.clojurephant.tools.clojure-test-junit4");
     });
 
     ClojureBuild dev = extension.getBuilds().getByName(ClojureCommonPlugin.DEV_SOURCE_SET_NAME);

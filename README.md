@@ -93,13 +93,19 @@ dependencies {
   // implementation 'group:artifact:version'
 
   // needed for test integration
-  testImplementation 'junit:junit:4.13.1'
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
   // and any other test-specific dependencies
   // testImplementation 'group:artifact:version'
 
   // dependencies for REPL use only
   devImplementation 'org.clojure:tools.namespace:1.1.0'
 }
+
+// needed for test integration
+tasks.withType(Test) {
+  useJUnitPlatform()
+}
+
 ```
 
 See all available options in the [docs](https://clojurephant.dev).

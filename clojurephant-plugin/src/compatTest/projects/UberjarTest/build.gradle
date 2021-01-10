@@ -18,7 +18,12 @@ repositories {
 dependencies {
   implementation 'org.clojure:clojure:1.8.0'
   implementation 'clojure.java-time:clojure.java-time:0.3.2'
-  testImplementation 'junit:junit:4.12'
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 }
+
+tasks.withType(Test) {
+  useJUnitPlatform()
+}
+
 
 clojure.builds.main.aotAll()

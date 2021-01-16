@@ -34,15 +34,6 @@ dependencies {
   compatTestImplementation("org.ajoberstar:ike.cljj:0.4.1")
 }
 
-tasks.register<WriteProperties>("writeProperties") {
-  outputFile = file("${buildDir}/clojurephant.properties")
-  property("version", version)
-}
-
-tasks.named<Copy>("processResources") {
-  from(tasks.named("writeProperties"))
-}
-
 stutter {
   setSparse(true)
   java(8) {
@@ -66,8 +57,6 @@ tasks.named<ClojureCompile>("compileCompatTestClojure") {
 }
 
 tasks.withType<Test>().matching { t -> t.name.startsWith("compatTest") }.all {
-  dependsOn(":clojurephant-tools:publishToMavenLocal")
-
   testClassesDirs = files(tasks.compileCompatTestClojure, sourceSets["compatTest"].output)
 
   inputs.dir("src/compatTest/projects")

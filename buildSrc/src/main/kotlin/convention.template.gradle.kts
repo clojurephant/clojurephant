@@ -40,7 +40,6 @@ tasks.register<JavaExec>("newProject") {
     delete("${workingDir}/sample-${project.name}")
   }
   dependsOn(tasks.jar)
-  dependsOn(":clojurephant-tools:publishToMavenLocal")
   dependsOn(":clojurephant-plugin:publishToMavenLocal")
 }
 

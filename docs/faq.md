@@ -195,21 +195,3 @@ configurations {
 
 **NOTE:** you could be more thorough in your configuration to get all of the
 configurations to line up consistently, but this covers the main use case.
-
-## How do I troubleshoot what the Clojure-specific tasks are doing?
-
-If you use the Gradle standard `--info` or `--debug` flags, the Clojure-specific tasks provided by this plugin will also output more logging information (such as diagnostics about the worker processes).
-
-If you only want the Clojure logging turned up and not Gradle's as a whole, use the Gradle property either:
-
-**On the command line:**
-
-```
-./gradlew check -Pdev.clojurephant.tools.logger.level=debug
-```
-
-**Or in a gradle.properties file**
-
-```
-dev.clojurephant.tools.logger.level=debug
-```

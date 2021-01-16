@@ -87,7 +87,7 @@ repositories {
 }
 
 dependencies {
-  // whatever version of clojure you prefer (versions before 1.8.0 may not be compatible)
+  // requires a version of Clojure with prepl (1.10+)
   implementation 'org.clojure:clojure:1.10.1'
   // and any other dependencies you want on the compile classpath
   // implementation 'group:artifact:version'

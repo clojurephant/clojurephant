@@ -3,8 +3,11 @@ package dev.clojurephant.plugin.common.internal;
 import static us.bpsm.edn.Keyword.newKeyword;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,6 +35,8 @@ public class Edn {
   private static final Printer.Fn<Enum<?>> ENUM_PRINTER = (self, printer) -> printer.printValue(newKeyword(self.name()));
 
   private static final Printer.Fn<File> FILE_PRINTER = (self, printer) -> printer.printValue(self.getAbsolutePath());
+
+  private static final Printer.Fn<Directory> DIRECTORY_PRINTER = (self, printer) -> printer.printValue(self.getAsFile());
 
   private static final Printer.Fn<FileCollection> FILE_COLLECTION_PRINTER = (self, printer) -> {
     List<File> list = self.getFiles().stream()
@@ -93,14 +98,15 @@ public class Edn {
             Map.Entry::getValue));
   }
 
-  private static List<Symbol> parsePreloads(Collection<String> preloads) {
+  private static List<?> parsePreloads(Collection<String> preloads) {
     if (preloads == null) {
       return null;
     }
 
-    return preloads.stream()
+    List<Symbol> syms = preloads.stream()
         .map(Symbol::newSymbol)
         .collect(Collectors.toList());
+    return list(Symbol.newSymbol("quote"), syms);
   }
 
   private static final Printer.Fn<ForeignLib> FOREIGN_LIB_PRINTER = (self, printer) -> {
@@ -147,6 +153,7 @@ public class Edn {
       // Core Printers
       .put(Enum.class, ENUM_PRINTER)
       .put(File.class, FILE_PRINTER)
+      .put(Directory.class, DIRECTORY_PRINTER)
       .put(FileCollection.class, FILE_COLLECTION_PRINTER)
       .put(NamedDomainObjectCollection.class, NAMED_DOMAIN_PRINTER)
       .put(Provider.class, PROVIDER_PRINTER)
@@ -173,5 +180,13 @@ public class Edn {
     map.values().removeIf(obj -> (obj instanceof Collection) && ((Collection<?>) obj).isEmpty());
     map.values().removeIf(obj -> (obj instanceof Map) && ((Map<?, ?>) obj).isEmpty());
     map.values().removeIf(obj -> (obj instanceof FileCollection) && ((FileCollection) obj).isEmpty());
+  }
+
+  public static List<Object> list(Object... elements) {
+    return Arrays.stream(elements).collect(Collectors.toCollection(LinkedList::new));
+  }
+
+  public static List<Object> vector(Object... elements) {
+    return Arrays.stream(elements).collect(Collectors.toCollection(ArrayList::new));
   }
 }

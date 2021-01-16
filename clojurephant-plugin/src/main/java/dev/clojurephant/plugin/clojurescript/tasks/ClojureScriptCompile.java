@@ -3,9 +3,13 @@ package dev.clojurephant.plugin.clojurescript.tasks;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-import dev.clojurephant.plugin.common.internal.ClojureExecutor;
+import dev.clojurephant.plugin.common.internal.ClojureException;
+import dev.clojurephant.plugin.common.internal.Edn;
 import dev.clojurephant.plugin.common.internal.Namespaces;
+import dev.clojurephant.plugin.common.internal.Prepl;
+import dev.clojurephant.plugin.common.internal.PreplClient;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -20,9 +24,10 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
+import us.bpsm.edn.Symbol;
 
 public class ClojureScriptCompile extends DefaultTask {
-  private final ClojureExecutor clojureExecutor;
+  private final Prepl prepl;
 
   private ConfigurableFileCollection sourceRoots;
   private final DirectoryProperty destinationDir;
@@ -31,7 +36,7 @@ public class ClojureScriptCompile extends DefaultTask {
   private final ForkOptions forkOptions;
 
   public ClojureScriptCompile() {
-    this.clojureExecutor = new ClojureExecutor(getProject());
+    this.prepl = new Prepl(getProject());
     this.destinationDir = getProject().getObjects().directoryProperty();
     this.sourceRoots = getProject().files();
     this.classpath = getProject().files();
@@ -90,10 +95,9 @@ public class ClojureScriptCompile extends DefaultTask {
 
     FileCollection classpath = getClasspath().plus(getSourceRoots());
 
-    clojureExecutor.exec(spec -> {
+    PreplClient preplClient = prepl.start(spec -> {
       spec.setClasspath(classpath);
-      spec.setMain("dev.clojurephant.tools.clojurescript-compiler");
-      spec.args(getSourceRoots(), getOptions());
+      spec.setPort(0);
       spec.forkOptions(fork -> {
         fork.setJvmArgs(forkOptions.getJvmArgs());
         fork.setMinHeapSize(forkOptions.getMemoryInitialSize());
@@ -101,5 +105,29 @@ public class ClojureScriptCompile extends DefaultTask {
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });
+
+    boolean failures = false;
+    try {
+      preplClient.evalEdn("(require '[cljs.build.api :as api])");
+      List<?> form = Edn.list(
+          Symbol.newSymbol("api", "build"),
+          Edn.list(Symbol.newSymbol("apply"), Symbol.newSymbol("api", "inputs"), getSourceRoots()),
+          getOptions());
+      preplClient.evalData(form);
+      preplClient.evalEdn("(.flush *err*)");
+    } catch (ClojureException e) {
+      System.err.println(e.getMessage());
+      failures = true;
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+    }
+
+    preplClient.close();
+
+    preplClient.pollOutput().forEach(System.out::println);
+
+    if (failures) {
+      throw new GradleException("Compilation failed. See output above.");
+    }
   }
 }

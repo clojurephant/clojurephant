@@ -22,8 +22,8 @@ repositories {
 
 dependencies {
   // clojure
-  implementation 'org.clojure:clojure:1.10.0'
-  implementation 'org.clojure:clojurescript:1.10.520'
+  implementation 'org.clojure:clojure:1.10.1'
+  implementation 'org.clojure:clojurescript:1.10.773'
 
   // testing
   testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
@@ -39,6 +39,15 @@ tasks.withType(Test) {
 
 clojureRepl {
   port = 7888
+}
+
+clojure {
+  builds {
+    main {
+      aotAll()
+      reflection = 'warn'
+    }
+  }
 }
 
 clojurescript {

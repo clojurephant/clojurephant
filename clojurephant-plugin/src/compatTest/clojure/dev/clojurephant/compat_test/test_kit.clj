@@ -66,7 +66,7 @@
   (println "***** Args:" args "*****")
   (-> (GradleRunner/create)
       (.withProjectDir (-> *project-dir* .toFile))
-      (.withArguments (into-array String (conj args "--stacktrace" "-Pdev.clojurephant.tools.logger.level=debug")))
+      (.withArguments (into-array String (conj args "--stacktrace")))
       (.withPluginClasspath)
       (.forwardOutput)))
 

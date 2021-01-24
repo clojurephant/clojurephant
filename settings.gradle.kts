@@ -23,7 +23,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "clojurephant"
 include("clojurephant-plugin")
-include("clojurephant-tools")
 
 // templates
 include("templates:clojurephant-clj-lib")

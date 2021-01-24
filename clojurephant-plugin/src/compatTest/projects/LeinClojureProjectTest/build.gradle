@@ -21,7 +21,7 @@ sourceSets {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.8.0'
+  implementation 'org.clojure:clojure:1.10.1'
   testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 }
 

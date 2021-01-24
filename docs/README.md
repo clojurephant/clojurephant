@@ -41,8 +41,6 @@ clojurephant uses the common Gradle pattern of providing _capability_ plugins an
 - Applies `java-base`, which lets you configure source sets. Each source set will get:
   - A Java compilation task
   - Configurations for compile (`implementation`, `compileOnly`) and runtime (`runtimeOnly`) dependencies
-- Applies the internal `ClojureCommonBasePlugin` which:
-  - Includes the dev.clojurephant-tools JAR on the compile and runtime classpaths (for use by any Clojure tasks)
 - Adds a `clojure` extension which allows you to configure builds of your Clojure code.
   - A build is added for each source set (with the same name as that source set)
   - Additional builds can be configured by the user
@@ -110,7 +108,6 @@ clojure {
 - Configures the `main` Clojure build to `checkAll()` namespaces.
 - Configures any build whose name includes `test` to:
   - `aotAll()` namespaces (required for the current JUnit4 integration)
-  - Compile the other namespaces from the tools JAR needed by the JUnit4 integration
 - Configures the `dev` Clojure build to `checkNamespaces = ['user']` (if you have a user namespace). This ensures that your REPL will start successfully.
 
 ### dev.clojurephant.clojurescript-base
@@ -118,8 +115,6 @@ clojure {
 - Applies `java-base`, which lets you configure source sets. Each source set will get:
   - A Java compilation task
   - Configurations for compile (`implementation`, `compileOnly`) and runtime (`runtimeOnly`) dependencies
-- Applies the internal `ClojureCommonBasePlugin` which:
-  - Includes the dev.clojurephant-tools JAR on the compile and runtime classpaths (for use by any Clojure tasks)
 - Adds a `clojurescript` extension which allows you to configure builds of your ClojureScript code.
   - A build is added for each source set (with the same name as that source set)
   - Additional builds can be configured by the user

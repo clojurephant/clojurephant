@@ -1,13 +1,10 @@
 (ns dev.clojurephant.compat-test.repl
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
-            [clojure.edn :as edn]
+  (:require [clojure.edn :as edn]
             [clojure.test :refer :all]
             [dev.clojurephant.compat-test.test-kit :as gradle]
             [ike.cljj.file :as file]
             [nrepl.core :as repl])
-  (:import [org.gradle.testkit.runner TaskOutcome]
-           [dev.clojurephant.compat_test LineProcessingWriter]
+  (:import [dev.clojurephant.compat_test LineProcessingWriter]
            [java.time LocalDate]))
 
 (defn parse-port [port]
@@ -37,14 +34,14 @@
   `(let [port-promise# (promise)
          build-thread# (Thread. #(start-repl port-promise# ~project ~@args))]
      (.start build-thread#)
-     (let [port# (deref port-promise# 30000 :timeout)]
+     (let [port# (deref port-promise# 60000 :timeout)]
        (if (int? port#)
          (with-open [conn# (repl/connect :port port#)]
            (let [~client (repl/client conn# 1000)]
              (try
                ~@body
                (finally
-                 (repl/message ~client {:op "eval" :code (pr-str '(do (require 'nrepl.cmdline)  (nrepl.cmdline/exit 0)))})))))
+                 (repl/message ~client {:op "eval" :code (pr-str '(System/exit 0))})))))
          (throw (ex-info "Could not determine port REPL started on." {:port port#}))))
      (.interrupt build-thread#)))
 
@@ -61,7 +58,7 @@
 (deftest custom-middleware
   (testing "Custom nREPL middlewares can be provided"
     (with-client [client "MixedJavaClojureTest" "--middleware=dev/current-date" "--middleware=dev/number-1"]
-      (is (= (#{(str (LocalDate/now)) (pr-str (str (LocalDate/now)))} (send-repl client {:op "now"}))))
+      (is (#{(str (LocalDate/now)) (pr-str (str (LocalDate/now)))} (send-repl client {:op "now"})))
       ;; I have no idea why locally (Win10) I get "\"one\"" back, but in Circle CI, I get "one"
       (is (#{"one" (pr-str "one")} (send-repl client {:op "num1"}))))))
 

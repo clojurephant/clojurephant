@@ -55,6 +55,7 @@ public class ClojureNRepl extends DefaultTask {
     List<String> middleware = Stream.of(defaultMiddleware.getOrElse(Collections.emptyList()), userMiddleware.getOrElse(Collections.emptyList()))
         .flatMap(List::stream)
         .collect(Collectors.toList());
+
     getProject().javaexec(spec -> {
       spec.setClasspath(cp);
       spec.setMain("clojure.main");
@@ -84,7 +85,8 @@ public class ClojureNRepl extends DefaultTask {
       spec.setMinHeapSize(getForkOptions().getMemoryInitialSize());
       spec.setMaxHeapSize(getForkOptions().getMemoryMaximumSize());
       spec.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
-    });
+    }).assertNormalExitValue();
+    System.out.println("nREPL server stopped");
   }
 
   @Nested

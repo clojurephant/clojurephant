@@ -3,7 +3,7 @@ plugins {
 }
 
 repositories {
-  jcenter()
+  mavenCentral()
   maven(url = "https://repo.clojars.org")
 }
 

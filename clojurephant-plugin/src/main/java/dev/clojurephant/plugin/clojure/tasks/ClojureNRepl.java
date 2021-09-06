@@ -58,7 +58,7 @@ public class ClojureNRepl extends DefaultTask {
 
     getProject().javaexec(spec -> {
       spec.setClasspath(cp);
-      spec.setMain("clojure.main");
+      spec.getMainClass().set("clojure.main");
 
       spec.args("-m", "nrepl.cmdline");
 

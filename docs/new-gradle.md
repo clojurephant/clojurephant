@@ -106,7 +106,7 @@ group = 'my.example'
 version = '0.1.0-SNAPSHOT'
 
 repositories {
-  jcenter()
+  mavenCentral()
 }
 
 dependencies {

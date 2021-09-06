@@ -33,7 +33,7 @@ tasks.named<Copy>("processResources") {
 tasks.register<JavaExec>("newProject") {
   workingDir = file("${rootProject.projectDir}/templates-test")
   classpath = files(sourceSets["main"].output, configurations["compileClasspath"])
-  main = "clojure.main"
+  mainClass.set("clojure.main")
   args("-m", "clj-new.create", project.name, "my.group/sample-${project.name}", "+localplugin")
   doFirst {
     workingDir.mkdirs()

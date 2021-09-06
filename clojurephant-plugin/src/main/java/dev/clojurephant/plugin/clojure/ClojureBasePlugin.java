@@ -71,7 +71,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
     extension.getBuilds().all(build -> {
       Provider<FileCollection> classpath = build.getSourceSet().map(sourceSet -> {
         return sourceSet.getCompileClasspath()
-            .plus(project.files(sourceSet.getJava().getOutputDir()))
+            .plus(project.files(sourceSet.getJava().getClassesDirectory()))
             .plus(project.files(sourceSet.getOutput().getResourcesDir()));
       });
 

@@ -42,6 +42,9 @@ stutter {
   java(14) {
     compatibleRange("6.3")
   }
+  java(16) {
+    compatibleRange("7.0")
+  }
 }
 
 plugins.withId("eclipse") {

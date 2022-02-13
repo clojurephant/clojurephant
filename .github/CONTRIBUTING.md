@@ -82,14 +82,15 @@ You can import the Eclipse formatter settings `.gradle/eclipse-java-formatter.xm
 
 ### CI Configuration
 
-clojurephant is built on [Circle CI](https://circleci.com/gh/clojurephant/clojurephant). This is configured in `.circleci/config.yml`.
+clojurephant is built on GitHub Actions. This is configured in `.github/workflows/*.yaml`.
 
-There is one workflow:
+There are two workflows:
 
-- `main` - General build verification running on all branches and PRs on push:
-  - Runs full `./gradlew check` test suites and style verification.
-  - Runs on all supported Java versions (currently 8, 9, 10).
-  - When a tag is pushed, it will also try to do a release/publish (i.e. _don't make a tag unless you're trying to release_).
+- `ci` - General build verification running on all branches and PRs on push:
+  - Runs full `./gradlew check` and `./gradlew compatTest` test suites and style verification.
+  - Runs on all supported Java versions (currently 8, 11, 17).
+- `release` - Publishing the plugin to Gradle's Plugin Portal and Clojars
+  - When a tag is pushed, it will do a release/publish (i.e. _don't make a tag unless you're trying to release_).
 
 ### Updating our dependencies
 
@@ -101,7 +102,7 @@ To update the lock with the latest versions matching any ranges we specified:
 
 ### Supporting new Gradle versions
 
-The following task will update our lock files will the latest available versions that match the compatibility rules in our `stutter {}` block in `modules/clojurephant-plugin/build.gradle`.
+The following task will update our lock files will the latest available versions that match the compatibility rules in our `stutter {}` block in `clojurephant-plugin/build.gradle`.
 
 ```
 ./gradlew stutterWriteLocks
@@ -124,7 +125,7 @@ To generate a release:
 - (For `rc` or `final`) Make sure all issues in [GitHub milestone](https://github.com/clojurephant/clojurephant/milestones).
 - (For `final`) make sure we've released an `rc` already for this commit.
 - Have the `master` branch checked out
-- Run `./gradlew reckonTagPush -Preckon.scope=<scope> -Preckon.stage=<stage>` (e.g. `./gradlew reckonTagPush -Preckon.scope=patch -Preckon.stage=beta`)
+- Run `./gradlew reckonTagPush -Preckon.stage=<stage>` (e.g. `./gradlew reckonTagPush -Preckon.scope=patch -Preckon.stage=beta`)
   - This will run `check` on the project, create a version tag, and push that tag
   - The tag push will trigger Circle CI to run the `main` workflow, including the publish step if tests pass on all supported Java versions.
   - The publish will push the plugin to JCenter, Clojars, and the Gradle Plugin Portal.

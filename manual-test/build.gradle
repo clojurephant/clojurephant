@@ -1,15 +1,7 @@
-buildscript {
-  repositories {
-    gradlePluginPortal()
-    mavenLocal()
-  }
-  dependencies {
-    classpath 'dev.clojurephant:clojurephant-plugin:latest.integration'
-  }
+plugins {
+  id 'dev.clojurephant.clojure'
+  id 'dev.clojurephant.clojurescript'
 }
-
-apply plugin: 'dev.clojurephant.clojure'
-apply plugin: 'dev.clojurephant.clojurescript'
 
 repositories {
   mavenCentral()
@@ -17,13 +9,12 @@ repositories {
     name = 'clojars'
     url = 'https://repo.clojars.org'
   }
-  mavenLocal()
 }
 
 dependencies {
   // clojure
-  implementation 'org.clojure:clojure:1.10.1'
-  implementation 'org.clojure:clojurescript:1.10.773'
+  implementation 'org.clojure:clojure:1.10.3'
+  implementation 'org.clojure:clojurescript:1.11.4'
 
   // testing
   testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
@@ -99,5 +90,19 @@ clojurescript {
         }
       }
     }
+  }
+}
+
+// accept build scan terms
+if (hasProperty('buildScan')) {
+  buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+  }
+}
+
+tasks.named("compileClojureScript") {
+  forkOptions {
+    jvmArgs += '-XX:StartFlightRecording=disk=true,dumponexit=true,filename=cljs-compile-recording.jfr,settings=profile,path-to-gc-roots=true'
   }
 }

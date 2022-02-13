@@ -6,6 +6,10 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        task: [check, compatTestJava8, compatTestJava11, compatTestJava17]
+      fail-fast: false
     env:
       GRADLE_OPTS: -Dorg.gradle.java.installations.fromEnv=JAVA_HOME_8_x64,JAVA_HOME_11_x64,JAVA_HOME_17_x64
     steps:
@@ -34,5 +38,5 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-      - name: Gradle check
-        run: ./gradlew check --continue --scan
+      - name: Gradle ${{ matrix.task }}
+        run: ./gradlew ${{ matrix.task }} --scan

@@ -78,10 +78,6 @@ tasks.withType<Test>() {
   systemProperty("org.gradle.testkit.dir", file("build/stutter-test-kit").absolutePath)
 }
 
-tasks.named("check") {
-  dependsOn(tasks.named("compatTest"))
-}
-
 gradlePlugin {
   plugins {
     create("clojureBase") {

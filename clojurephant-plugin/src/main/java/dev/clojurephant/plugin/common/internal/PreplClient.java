@@ -20,8 +20,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import us.bpsm.edn.Keyword;
 import us.bpsm.edn.parser.Parser;
 import us.bpsm.edn.parser.Parsers;
-import us.bpsm.edn.printer.Printer;
-import us.bpsm.edn.printer.Printers;
 
 public class PreplClient implements AutoCloseable {
   private static final Keyword TAG = Keyword.newKeyword("tag");
@@ -41,7 +39,6 @@ public class PreplClient implements AutoCloseable {
   private final PrintWriter writer;
 
   private final Parser parser;
-  private final Printer printer;
 
   private boolean closed = false;
 
@@ -55,7 +52,6 @@ public class PreplClient implements AutoCloseable {
     this.writer = writer;
 
     this.parser = Parsers.newParser(Parsers.defaultConfiguration());
-    this.printer = Printers.newPrinter(writer);
 
     this.inputThread = new Thread(this::inputLoop);
   }
@@ -76,7 +72,7 @@ public class PreplClient implements AutoCloseable {
         }
       }
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
     }
   }
 
@@ -150,7 +146,7 @@ public class PreplClient implements AutoCloseable {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
     }
   }
 
@@ -173,7 +169,7 @@ public class PreplClient implements AutoCloseable {
         }
       }
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
     }
 
     if (socket == null) {

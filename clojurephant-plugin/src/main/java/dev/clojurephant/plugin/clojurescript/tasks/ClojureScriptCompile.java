@@ -119,7 +119,7 @@ public class ClojureScriptCompile extends DefaultTask {
       System.err.println(e.getMessage());
       failures = true;
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
     }
 
     preplClient.close();

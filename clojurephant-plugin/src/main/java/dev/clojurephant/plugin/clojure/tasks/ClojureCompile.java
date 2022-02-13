@@ -153,7 +153,7 @@ public class ClojureCompile extends DefaultTask {
         failures = true;
         System.err.println(e.getMessage());
       } catch (InterruptedException e) {
-        Thread.interrupted();
+        Thread.currentThread().interrupt();
         break;
       }
     }

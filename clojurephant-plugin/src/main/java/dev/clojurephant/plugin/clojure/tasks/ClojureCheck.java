@@ -154,7 +154,7 @@ public class ClojureCheck extends DefaultTask {
         }
       }
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
     }
 
     preplClient.close();

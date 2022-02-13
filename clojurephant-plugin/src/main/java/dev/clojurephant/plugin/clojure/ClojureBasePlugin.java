@@ -69,11 +69,9 @@ public class ClojureBasePlugin implements Plugin<Project> {
     extension.getRootOutputDir().set(project.getLayout().getBuildDirectory().dir("clojure"));
 
     extension.getBuilds().all(build -> {
-      Provider<FileCollection> classpath = build.getSourceSet().map(sourceSet -> {
-        return sourceSet.getCompileClasspath()
-            .plus(project.files(sourceSet.getJava().getOutputDir()))
-            .plus(project.files(sourceSet.getOutput().getResourcesDir()));
-      });
+      Provider<FileCollection> classpath = build.getSourceSet().map(sourceSet -> sourceSet.getCompileClasspath()
+          .plus(project.files(sourceSet.getJava().getOutputDir()))
+          .plus(project.files(sourceSet.getOutput().getResourcesDir())));
 
       String checkTaskName = build.getTaskName("check");
       project.getTasks().register(checkTaskName, ClojureCheck.class, task -> {

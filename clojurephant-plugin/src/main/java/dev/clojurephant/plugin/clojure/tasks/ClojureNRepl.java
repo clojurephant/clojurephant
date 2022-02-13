@@ -23,7 +23,7 @@ import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.api.tasks.options.Option;
 
 public class ClojureNRepl extends DefaultTask {
-  private ForkOptions forkOptions = new ForkOptions();
+  private final ForkOptions forkOptions = new ForkOptions();
   private FileCollection classpath;
   private final Property<String> bind;
   private int port = 0;

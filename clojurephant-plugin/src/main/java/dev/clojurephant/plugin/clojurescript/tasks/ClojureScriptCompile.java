@@ -1,6 +1,5 @@
 package dev.clojurephant.plugin.clojurescript.tasks;
 
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;

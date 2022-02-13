@@ -166,9 +166,7 @@ public class ClojureCheck extends DefaultTask {
         String sourceFile = m.group(1);
         boolean isProjectFile = getSourceRoots().getFiles().stream()
             .map(sourceRoot -> new File(sourceRoot, sourceFile))
-            .filter(File::exists)
-            .findAny()
-            .isPresent();
+            .anyMatch(File::exists);
         projectReflectionWarnings = projectReflectionWarnings || isProjectFile;
       }
     }

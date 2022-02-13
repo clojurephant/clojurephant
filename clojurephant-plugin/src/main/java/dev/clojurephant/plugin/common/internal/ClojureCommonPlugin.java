@@ -34,7 +34,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    project.getPlugins().apply(ClojureBasePlugin.class);
+    project.getPlugins().apply(ClojureCommonBasePlugin.class);
     project.getPlugins().apply(JavaPlugin.class);
 
     SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);

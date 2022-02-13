@@ -1,18 +1,18 @@
 package dev.clojurephant.plugin.clojure.tasks;
 
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import dev.clojurephant.plugin.common.internal.ClojureException;
 import dev.clojurephant.plugin.common.internal.Edn;
 import dev.clojurephant.plugin.common.internal.Namespaces;
 import dev.clojurephant.plugin.common.internal.Prepl;
 import dev.clojurephant.plugin.common.internal.PreplClient;
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -21,8 +21,10 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Classpath;
+import org.gradle.api.tasks.IgnoreEmptyDirectories;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -31,79 +33,47 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
+import org.gradle.process.ExecOperations;
 import us.bpsm.edn.Symbol;
 
-public class ClojureCompile extends DefaultTask {
+public abstract class ClojureCompile extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
   private final Prepl prepl;
 
-  private final DirectoryProperty destinationDir;
-  private final ConfigurableFileCollection sourceRoots;
-  private final ConfigurableFileCollection classpath;
-  private ClojureCompileOptions options;
-  private final ForkOptions forkOptions;
-
-  private final SetProperty<String> namespaces;
-
-  public ClojureCompile() {
-    this.prepl = new Prepl(getProject());
-    this.destinationDir = getProject().getObjects().directoryProperty();
-    this.sourceRoots = getProject().files();
-    this.classpath = getProject().files();
-    this.options = new ClojureCompileOptions();
-    this.forkOptions = new ForkOptions();
-    this.namespaces = getProject().getObjects().setProperty(String.class);
+  @Inject
+  public ClojureCompile(ExecOperations execOperations) {
+    this.prepl = new Prepl(execOperations);
 
     // skip if no namespaces defined
-    onlyIf(task -> {
-      return !getNamespaces().getOrElse(Collections.emptySet()).isEmpty();
-    });
+    onlyIf(task -> !getNamespaces().getOrElse(Collections.emptySet()).isEmpty());
   }
 
   @OutputDirectory
-  public DirectoryProperty getDestinationDir() {
-    return destinationDir;
-  }
+  public abstract DirectoryProperty getDestinationDir();
 
   @InputFiles
   @SkipWhenEmpty
+  @IgnoreEmptyDirectories
   public FileTree getSource() {
-    return Namespaces.getSources(sourceRoots, Namespaces.CLOJURE_EXTENSIONS);
+    // TODO can this be done another way?
+    return Namespaces.getSources(getSourceRoots(), Namespaces.CLOJURE_EXTENSIONS);
   }
 
   @Internal
-  public ConfigurableFileCollection getSourceRoots() {
-    return sourceRoots;
-  }
+  public abstract ConfigurableFileCollection getSourceRoots();
 
   @Classpath
-  public ConfigurableFileCollection getClasspath() {
-    return classpath;
-  }
+  public abstract ConfigurableFileCollection getClasspath();
 
   @Nested
-  public ClojureCompileOptions getOptions() {
-    return options;
-  }
-
-  public void setOptions(ClojureCompileOptions options) {
-    this.options = options;
-  }
+  public abstract Property<ClojureCompileOptions> getOptions();
 
   @Nested
-  public ForkOptions getForkOptions() {
-    return forkOptions;
-  }
-
-  public void forkOptions(Action<? super ForkOptions> configureAction) {
-    configureAction.execute(forkOptions);
-  }
+  public abstract ForkOptions getForkOptions();
 
   @Input
-  public SetProperty<String> getNamespaces() {
-    return namespaces;
-  }
+  public abstract SetProperty<String> getNamespaces();
 
   @TaskAction
   public void compile() {
@@ -124,16 +94,16 @@ public class ClojureCompile extends DefaultTask {
     logger.info("Compiling {}", String.join(", ", namespaces));
 
     FileCollection classpath = getClasspath()
-        .plus(sourceRoots)
+        .plus(getSourceRoots())
         .plus(getProject().files(outputDir));
 
     PreplClient preplClient = prepl.start(spec -> {
       spec.setClasspath(classpath);
       spec.setPort(0);
       spec.forkOptions(fork -> {
-        fork.setJvmArgs(forkOptions.getJvmArgs());
-        fork.setMinHeapSize(forkOptions.getMemoryInitialSize());
-        fork.setMaxHeapSize(forkOptions.getMemoryMaximumSize());
+        fork.setJvmArgs(getForkOptions().getJvmArgs());
+        fork.setMinHeapSize(getForkOptions().getMemoryInitialSize());
+        fork.setMaxHeapSize(getForkOptions().getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });
@@ -144,7 +114,7 @@ public class ClojureCompile extends DefaultTask {
           Symbol.newSymbol("binding"),
           Edn.vector(
               Symbol.newSymbol("*compile-path*"), getDestinationDir(),
-              Symbol.newSymbol("*compiler-options*"), options),
+              Symbol.newSymbol("*compiler-options*"), getOptions()),
           Edn.list(Symbol.newSymbol("compile"), Edn.list(Symbol.newSymbol("quote"), Symbol.newSymbol(namespace))));
       try {
         preplClient.evalData(form);

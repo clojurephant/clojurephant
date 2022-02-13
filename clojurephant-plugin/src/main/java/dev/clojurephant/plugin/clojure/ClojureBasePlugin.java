@@ -1,5 +1,8 @@
 package dev.clojurephant.plugin.clojure;
 
+import java.io.File;
+import java.util.Collections;
+
 import javax.inject.Inject;
 
 import dev.clojurephant.plugin.clojure.internal.DefaultClojureSourceSet;
@@ -16,6 +19,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.TaskContainer;
 
 public class ClojureBasePlugin implements Plugin<Project> {
   private final ObjectFactory objects;
@@ -28,9 +32,10 @@ public class ClojureBasePlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(ClojureCommonBasePlugin.class);
-    ClojureExtension extension = project.getExtensions().create("clojure", ClojureExtension.class, project);
+    ClojureExtension extension = project.getExtensions().create("clojure", ClojureExtension.class);
     configureSourceSetDefaults(project, extension);
     configureBuildDefaults(project, extension);
+    configureCheckDefaults(project.getTasks());
   }
 
   private void configureSourceSetDefaults(Project project, ClojureExtension extension) {
@@ -68,7 +73,13 @@ public class ClojureBasePlugin implements Plugin<Project> {
   private void configureBuildDefaults(Project project, ClojureExtension extension) {
     extension.getRootOutputDir().set(project.getLayout().getBuildDirectory().dir("clojure"));
 
-    extension.getBuilds().all(build -> {
+    extension.getBuilds().configureEach(build -> {
+      build.getOutputDir().convention(extension.getRootOutputDir().dir(build.getName()));
+      build.getReflection().convention(ClojureCheck.REFLECTION_SILENT);
+      build.getCompiler().getDirectLinking().convention(false);
+      build.getCompiler().getDisableLocalsClearing().convention(false);
+      build.getCompiler().getElideMeta().convention(Collections.emptyList());
+
       Provider<FileCollection> classpath = build.getSourceSet().map(sourceSet -> sourceSet.getCompileClasspath()
           .plus(project.files(sourceSet.getJava().getOutputDir()))
           .plus(project.files(sourceSet.getOutput().getResourcesDir())));
@@ -90,11 +101,17 @@ public class ClojureBasePlugin implements Plugin<Project> {
         task.getDestinationDir().set(build.getOutputDir());
         task.getSourceRoots().from(build.getSourceRoots());
         task.getClasspath().from(classpath);
-        task.setOptions(build.getCompiler());
+        task.getOptions().set(build.getCompiler());
         task.getNamespaces().set(build.getAotNamespaces());
         task.dependsOn(build.getSourceSet().map(SourceSet::getCompileJavaTaskName));
         task.dependsOn(build.getSourceSet().map(SourceSet::getProcessResourcesTaskName));
       });
+    });
+  }
+
+  private void configureCheckDefaults(TaskContainer tasks) {
+    tasks.withType(ClojureCheck.class, task -> {
+      task.getInternalOutputFile().set(new File(task.getTemporaryDir(), "internal.txt"));
     });
   }
 }

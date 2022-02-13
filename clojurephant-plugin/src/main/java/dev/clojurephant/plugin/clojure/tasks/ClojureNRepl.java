@@ -8,39 +8,25 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.api.tasks.options.Option;
 
-public class ClojureNRepl extends DefaultTask {
+public abstract class ClojureNRepl extends DefaultTask {
   private final ForkOptions forkOptions = new ForkOptions();
-  private FileCollection classpath;
-  private final Property<String> bind;
-  private int port = 0;
-  private int ackPort = 0;
-  private final Property<String> handler;
-  private final ListProperty<String> userMiddleware;
-  private final ListProperty<String> defaultMiddleware;
-  private final Property<String> transport;
 
   @Inject
-  public ClojureNRepl(ObjectFactory objects) {
-    this.bind = objects.property(String.class);
-    this.handler = objects.property(String.class);
-    this.userMiddleware = objects.listProperty(String.class);
-    this.defaultMiddleware = objects.listProperty(String.class);
-    this.transport = objects.property(String.class);
-
+  public ClojureNRepl() {
     // task is never up-to-date, if you ask for REPL, you get REPL
     this.getOutputs().upToDateWhen(t -> false);
   }
@@ -52,33 +38,30 @@ public class ClojureNRepl extends DefaultTask {
     }
 
     FileCollection cp = getProject().files(getTemporaryDir(), getClasspath());
-    List<String> middleware = Stream.of(defaultMiddleware.getOrElse(Collections.emptyList()), userMiddleware.getOrElse(Collections.emptyList()))
+    List<String> middleware = Stream.of(getDefaultMiddleware().getOrElse(Collections.emptyList()), getMiddleware().getOrElse(Collections.emptyList()))
         .flatMap(List::stream)
         .collect(Collectors.toList());
 
     getProject().javaexec(spec -> {
       spec.setClasspath(cp);
-      spec.setMain("clojure.main");
+      spec.getMainClass().set("clojure.main");
 
       spec.args("-m", "nrepl.cmdline");
 
-      if (bind.isPresent()) {
-        spec.args("--bind", bind.get());
+      if (getBind().isPresent()) {
+        spec.args("--bind", getBind().get());
       }
-      if (port > 0) {
-        spec.args("--port", port);
+      if (getPort().isPresent()) {
+        spec.args("--port", getPort().get());
       }
-      if (ackPort > 0) {
-        spec.args("--ack", ackPort);
+      if (getAckPort().isPresent()) {
+        spec.args("--ack", getAckPort().get());
       }
-      if (handler.isPresent()) {
-        spec.args("--handler", handler.get());
+      if (getHandler().isPresent()) {
+        spec.args("--handler", getHandler().get());
       }
       if (!middleware.isEmpty()) {
         spec.args("--middleware", "[" + String.join(" ", middleware) + "]");
-      }
-      if (transport.isPresent()) {
-        spec.args("--transport", transport.get());
       }
 
       spec.setJvmArgs(getForkOptions().getJvmArgs());
@@ -94,75 +77,50 @@ public class ClojureNRepl extends DefaultTask {
     return forkOptions;
   }
 
-  public ClojureNRepl forkOptions(Action<? super ForkOptions> configureAction) {
-    configureAction.execute(forkOptions);
-    return this;
-  }
-
   @Classpath
-  public FileCollection getClasspath() {
-    return classpath;
-  }
-
-  public void setClasspath(FileCollection classpath) {
-    this.classpath = classpath;
-  }
+  public abstract ConfigurableFileCollection getClasspath();
 
   @Input
-  public int getPort() {
-    return port;
-  }
+  @Optional
+  @Option(option = "bind", description = "Bind address")
+  public abstract Property<String> getBind();
 
-  public void setPort(int port) {
-    this.port = port;
-  }
+  @Input
+  @Optional
+  public abstract Property<Integer> getPort();
 
+  // workaround for lack of support for @Option on Property<Integer>
   @Option(option = "port", description = "Port the nREPL server should listen on.")
-  public void setPort(String port) {
-    setPort(Integer.parseInt(port));
+  protected void setPortFromCli(String port) {
+    getPort().set(Integer.parseInt(port));
   }
 
   @Input
-  public int getAckPort() {
-    return ackPort;
-  }
+  @Optional
+  public abstract Property<Integer> getAckPort();
 
-  public void setAckPort(int ackPort) {
-    this.ackPort = ackPort;
-  }
-
+  // workaround for lack of support for @Option on Property<Integer>
   @Option(option = "ackPort", description = "Acknowledge the port of this server to another nREPL server.")
-  public void setAckPort(String ackPort) {
-    setAckPort(Integer.parseInt(ackPort));
+  protected void setAckPortFromCli(String ackPort) {
+    getAckPort().set(Integer.parseInt(ackPort));
   }
 
-  @org.gradle.api.tasks.Optional
   @Input
-  public Property<String> getHandler() {
-    return handler;
-  }
-
+  @Optional
   @Option(option = "handler", description = "Qualified name of nREPL handler function.")
-  public void setHandler(String handler) {
-    this.handler.set(handler);
-  }
+  public abstract Property<String> getHandler();
 
-  @org.gradle.api.tasks.Optional
   @Input
-  public ListProperty<String> getMiddleware() {
-    return userMiddleware;
-  }
+  @Optional
+  public abstract ListProperty<String> getMiddleware();
 
+  // This is just a workaround for lack of https://github.com/gradle/gradle/issues/10517
   @Option(option = "middleware", description = "Qualified names of nREPL middleware functions.")
-  public void setMiddleware(List<String> middleware) {
-    if (middleware != null) {
-      this.userMiddleware.set(middleware);
-    }
+  protected void setMiddlewareFromCli(List<String> middleware) {
+    this.getMiddleware().set(middleware);
   }
 
-  @org.gradle.api.tasks.Optional
   @Input
-  public ListProperty<String> getDefaultMiddleware() {
-    return defaultMiddleware;
-  }
+  @Optional
+  public abstract ListProperty<String> getDefaultMiddleware();
 }

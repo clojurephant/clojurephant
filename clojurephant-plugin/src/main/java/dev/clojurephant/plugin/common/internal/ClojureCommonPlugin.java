@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import dev.clojurephant.plugin.clojure.ClojureBasePlugin;
 import dev.clojurephant.plugin.clojure.tasks.ClojureCheck;
 import dev.clojurephant.plugin.clojure.tasks.ClojureCompile;
 import dev.clojurephant.plugin.clojure.tasks.ClojureNRepl;
@@ -19,6 +18,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ComponentModuleMetadataDetails;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
@@ -39,7 +39,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
 
     SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
     configureDev(project, sourceSets);
-    configureDependencyConstraints(project);
+    configureDependencyConstraints(project.getDependencies());
 
     configureDevSource(sourceSets, SourceSet::getResources);
   }
@@ -57,11 +57,9 @@ public class ClojureCommonPlugin implements Plugin<Project> {
 
     Function<SourceSet, FileCollection> nonClojureOutput = sourceSet -> {
       FileCollection allOutput = sourceSet.getOutput();
-      return allOutput.filter((File file) -> {
-        return project.getTasks().stream()
-            .filter(task -> task instanceof ClojureCompile || task instanceof ClojureScriptCompile || task instanceof ProcessResources)
-            .allMatch(task -> !task.getOutputs().getFiles().contains(file));
-      });
+      return allOutput.filter((File file) -> project.getTasks().stream()
+          .filter(task -> task instanceof ClojureCompile || task instanceof ClojureScriptCompile || task instanceof ProcessResources)
+          .allMatch(task -> !task.getOutputs().getFiles().contains(file)));
     };
 
     dev.setCompileClasspath(project.files(
@@ -87,7 +85,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     TaskProvider<ClojureNRepl> repl = project.getTasks().register(NREPL_TASK_NAME, ClojureNRepl.class, task -> {
       task.setGroup("run");
       task.setDescription("Starts an nREPL server.");
-      task.setClasspath(dev.getRuntimeClasspath());
+      task.getClasspath().from(dev.getRuntimeClasspath());
     });
 
     // if you only ask for the REPL task, don't pre-compile/check the Clojure code (besides the dev one
@@ -124,14 +122,14 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     });
   }
 
-  private void configureDependencyConstraints(Project project) {
-    project.getDependencies().getModules().module("org.clojure:tools.nrepl", module -> {
+  private void configureDependencyConstraints(DependencyHandler dependencies) {
+    dependencies.getModules().module("org.clojure:tools.nrepl", module -> {
       ComponentModuleMetadataDetails details = (ComponentModuleMetadataDetails) module;
       details.replacedBy("nrepl:nrepl", "nREPL was moved out of Clojure Contrib to its own project.");
     });
 
     if (JavaVersion.current().isJava9Compatible()) {
-      project.getDependencies().constraints(constraints -> {
+      dependencies.constraints(constraints -> {
         constraints.add("devImplementation", "org.clojure:java.classpath:0.3.0", constraint -> {
           constraint.because("Java 9 has a different classloader architecture. 0.3.0 adds support for this.");
         });

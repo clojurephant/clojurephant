@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,9 +54,11 @@ public class Edn {
 
   private static final Printer.Fn<ClojureCompileOptions> CLOJURE_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
     Map<Object, Object> root = new LinkedHashMap<>();
-    root.put(newKeyword("disable-locals-clearing"), self.isDisableLocalsClearing());
-    root.put(newKeyword("direct-linking"), self.isDirectLinking());
-    root.put(newKeyword("elide-metadata"), self.getElideMeta().stream().map(Keyword::newKeyword).collect(Collectors.toList()));
+    root.put(newKeyword("disable-locals-clearing"), self.getDisableLocalsClearing().get());
+    root.put(newKeyword("direct-linking"), self.getDirectLinking().get());
+    root.put(newKeyword("elide-metadata"), self.getElideMeta().get().stream()
+        .map(Keyword::newKeyword)
+        .collect(Collectors.toList()));
     printer.printValue(root);
   };
 

@@ -4,6 +4,8 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import dev.clojurephant.plugin.common.internal.ClojureException;
 import dev.clojurephant.plugin.common.internal.Edn;
 import dev.clojurephant.plugin.common.internal.Namespaces;
@@ -23,6 +25,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
+import org.gradle.process.ExecOperations;
 import us.bpsm.edn.Symbol;
 
 public class ClojureScriptCompile extends DefaultTask {
@@ -34,8 +37,9 @@ public class ClojureScriptCompile extends DefaultTask {
   private ClojureScriptCompileOptions options;
   private final ForkOptions forkOptions;
 
-  public ClojureScriptCompile() {
-    this.prepl = new Prepl(getProject());
+  @Inject
+  public ClojureScriptCompile(ExecOperations execOperations) {
+    this.prepl = new Prepl(execOperations);
     this.destinationDir = getProject().getObjects().directoryProperty();
     this.sourceRoots = getProject().files();
     this.classpath = getProject().files();

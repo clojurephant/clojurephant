@@ -13,12 +13,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 import dev.clojurephant.plugin.common.internal.ClojureException;
 import dev.clojurephant.plugin.common.internal.Edn;
 import dev.clojurephant.plugin.common.internal.Namespaces;
 import dev.clojurephant.plugin.common.internal.Prepl;
 import dev.clojurephant.plugin.common.internal.PreplClient;
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -29,6 +30,7 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Classpath;
+import org.gradle.api.tasks.IgnoreEmptyDirectories;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -37,78 +39,52 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
+import org.gradle.process.ExecOperations;
 import us.bpsm.edn.Symbol;
 
-public class ClojureCheck extends DefaultTask {
+public abstract class ClojureCheck extends DefaultTask {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
   private static final Pattern REFLECTION_WARNING = Pattern.compile("Reflection warning, (.+?):.*");
 
+  public static final String REFLECTION_SILENT = "silent";
+  public static final String REFLECTION_WARN = "warn";
+  public static final String REFLECTION_FAIL = "fail";
+
   private final Prepl prepl;
 
-  private final ConfigurableFileCollection sourceRoots;
-  private final ConfigurableFileCollection classpath;
-  private final RegularFileProperty outputFile;
-  private final Property<ClojureReflection> reflection;
-  private final ForkOptions forkOptions;
-
-  private final SetProperty<String> namespaces;
-
-  public ClojureCheck() {
-    this.prepl = new Prepl(getProject());
-    this.sourceRoots = getProject().files();
-    this.classpath = getProject().files();
-    this.outputFile = getProject().getObjects().fileProperty();
-    this.reflection = getProject().getObjects().property(ClojureReflection.class);
-    this.forkOptions = new ForkOptions();
-    this.namespaces = getProject().getObjects().setProperty(String.class);
-
-    outputFile.set(new File(getTemporaryDir(), "internal.txt"));
+  @Inject
+  public ClojureCheck(ExecOperations execOperations) {
+    this.prepl = new Prepl(execOperations);
 
     // skip if no namespaces defined
-    onlyIf(task -> {
-      return !getNamespaces().getOrElse(Collections.emptySet()).isEmpty();
-    });
+    onlyIf(task -> !getNamespaces().getOrElse(Collections.emptySet()).isEmpty());
   }
 
   @InputFiles
+  @IgnoreEmptyDirectories
   @SkipWhenEmpty
   public FileCollection getSource() {
-    return Namespaces.getSources(sourceRoots, Namespaces.CLOJURE_EXTENSIONS);
+    // TODO can this be done another way?
+    return Namespaces.getSources(getSourceRoots(), Namespaces.CLOJURE_EXTENSIONS);
   }
 
   @Internal
-  public ConfigurableFileCollection getSourceRoots() {
-    return sourceRoots;
-  }
+  public abstract ConfigurableFileCollection getSourceRoots();
 
   @Classpath
-  public ConfigurableFileCollection getClasspath() {
-    return classpath;
-  }
+  public abstract ConfigurableFileCollection getClasspath();
 
   @OutputFile
-  public RegularFileProperty getInternalOutputFile() {
-    return outputFile;
-  }
+  public abstract RegularFileProperty getInternalOutputFile();
 
   @Input
-  public Property<ClojureReflection> getReflection() {
-    return reflection;
-  }
+  public abstract Property<String> getReflection();
 
   @Nested
-  public ForkOptions getForkOptions() {
-    return forkOptions;
-  }
-
-  public void forkOptions(Action<? super ForkOptions> configureAction) {
-    configureAction.execute(forkOptions);
-  }
+  public abstract ForkOptions getForkOptions();
 
   @Input
-  public SetProperty<String> getNamespaces() {
-    return namespaces;
-  }
+  public abstract SetProperty<String> getNamespaces();
 
   @TaskAction
   public void check() {
@@ -127,9 +103,9 @@ public class ClojureCheck extends DefaultTask {
       spec.setClasspath(classpath);
       spec.setPort(0);
       spec.forkOptions(fork -> {
-        fork.setJvmArgs(forkOptions.getJvmArgs());
-        fork.setMinHeapSize(forkOptions.getMemoryInitialSize());
-        fork.setMaxHeapSize(forkOptions.getMemoryMaximumSize());
+        fork.setJvmArgs(getForkOptions().getJvmArgs());
+        fork.setMinHeapSize(getForkOptions().getMemoryInitialSize());
+        fork.setMaxHeapSize(getForkOptions().getMemoryMaximumSize());
         fork.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
       });
     });
@@ -141,7 +117,7 @@ public class ClojureCheck extends DefaultTask {
       preplClient.evalData(Edn.list(
           Symbol.newSymbol("set!"),
           Symbol.newSymbol("clojure.core", "*warn-on-reflection*"),
-          ClojureReflection.silent != getReflection().get()));
+          REFLECTION_SILENT != getReflection().get()));
 
       for (String namespace : namespaces) {
         String nsFilePath = namespace.replace('-', '_').replace('.', '/');
@@ -171,7 +147,7 @@ public class ClojureCheck extends DefaultTask {
       }
     }
 
-    if (ClojureReflection.fail == getReflection().get() && projectReflectionWarnings) {
+    if (REFLECTION_FAIL == getReflection().get() && projectReflectionWarnings) {
       throw new GradleException("Reflection warnings found. See output above.");
     }
 

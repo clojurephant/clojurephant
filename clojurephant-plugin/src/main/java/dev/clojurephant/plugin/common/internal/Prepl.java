@@ -6,13 +6,13 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 
 import org.gradle.api.Action;
-import org.gradle.api.Project;
+import org.gradle.process.ExecOperations;
 
 public class Prepl {
-  private final Project project;
+  private final ExecOperations execOperations;
 
-  public Prepl(Project project) {
-    this.project = project;
+  public Prepl(ExecOperations execOperations) {
+    this.execOperations = execOperations;
   }
 
   public PreplClient start(Action<PreplSpec> action) {
@@ -34,7 +34,7 @@ public class Prepl {
     }
 
     new Thread(() -> {
-      project.javaexec(spec -> {
+      execOperations.javaexec(spec -> {
         spec.getMainClass().set("clojure.main");
         spec.systemProperty("clojure.server.clojurephant", String.format("{:port %d :accept clojure.core.server/io-prepl :client-daemon false}", port));
         spec.args("-e", "(do (ns dev.clojurephant.prepl) (def connected (promise)) @connected nil)");

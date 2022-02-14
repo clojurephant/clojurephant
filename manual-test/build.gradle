@@ -70,20 +70,18 @@ clojurescript {
         preloads = ['sample.dev', 'devtools.preload']
         outputTo = 'public/js/cards.js'
         main = 'sample.cards'
-        devcards = true
       }
     }
     mods {
       sourceSet.set(sourceSets.dev)
       compiler {
         preloads = ['sample.dev', 'devtools.preload']
-        devcards = true
-        module('main') {
+        modules.create('main') {
           outputTo = 'public/js/main.js'
           entries = ['sample.main']
           dependsOn = ['cljs-base']
         }
-        module('cards') {
+        modules.create('cards') {
           outputTo = 'public/js/cards.js'
           entries = ['sample.cards']
           dependsOn = ['cljs-base']
@@ -98,11 +96,5 @@ if (hasProperty('buildScan')) {
   buildScan {
     termsOfServiceUrl = 'https://gradle.com/terms-of-service'
     termsOfServiceAgree = 'yes'
-  }
-}
-
-tasks.named("compileClojureScript") {
-  forkOptions {
-    jvmArgs += '-XX:StartFlightRecording=disk=true,dumponexit=true,filename=cljs-compile-recording.jfr,settings=profile,path-to-gc-roots=true'
   }
 }

@@ -6,6 +6,7 @@ import dev.clojurephant.plugin.clojure.tasks.ClojureCompileOptions;
 import dev.clojurephant.plugin.clojure.tasks.ClojureSourceSet;
 import dev.clojurephant.plugin.common.internal.Namespaces;
 import org.apache.commons.text.WordUtils;
+import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
@@ -52,6 +53,10 @@ public abstract class ClojureBuild implements Named {
 
   @Nested
   public abstract ClojureCompileOptions getCompiler();
+
+  public void compiler(Action<? super ClojureCompileOptions> configureAction) {
+    configureAction.execute(getCompiler());
+  }
 
   String getTaskName(String task) {
     if ("main".equals(getName())) {

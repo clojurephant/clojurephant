@@ -27,7 +27,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(ClojureCommonBasePlugin.class);
-    ClojureScriptExtension extension = project.getExtensions().create("clojurescript", ClojureScriptExtension.class, project);
+    ClojureScriptExtension extension = project.getExtensions().create("clojurescript", ClojureScriptExtension.class);
     configureSourceSetDefaults(project, extension);
     configureBuildDefaults(project, extension);
   }
@@ -66,14 +66,20 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
   private void configureBuildDefaults(Project project, ClojureScriptExtension extension) {
     extension.getRootOutputDir().set(project.getLayout().getBuildDirectory().dir("clojurescript"));
 
-    extension.getBuilds().all(build -> {
+    extension.getBuilds().configureEach(build -> {
+      build.getOutputDir().set(extension.getRootOutputDir().dir(build.getName()));
+      build.getCompiler().getBaseOutputDirectory().set(build.getOutputDir());
+      build.getCompiler().getModules().configureEach(module -> {
+        module.getBaseOutputDirectory().set(build.getCompiler().getBaseOutputDirectory());
+      });
+
       String compileTaskName = build.getTaskName("compile");
       project.getTasks().register(compileTaskName, ClojureScriptCompile.class, task -> {
         task.setDescription(String.format("Compiles the ClojureScript source for the %s build.", build.getName()));
         task.getDestinationDir().set(build.getOutputDir());
         task.getSourceRoots().from(build.getSourceRoots());
         task.getClasspath().from(build.getSourceSet().map(SourceSet::getCompileClasspath));
-        task.setOptions(build.getCompiler());
+        task.getOptions().set(build.getCompiler());
       });
     });
   }

@@ -109,26 +109,27 @@ public abstract class ClojureCompile extends DefaultTask {
     });
 
     boolean failures = false;
-    for (String namespace : namespaces) {
-      List<?> form = Edn.list(
-          Symbol.newSymbol("binding"),
-          Edn.vector(
-              Symbol.newSymbol("*compile-path*"), getDestinationDir(),
-              Symbol.newSymbol("*compiler-options*"), getOptions()),
-          Edn.list(Symbol.newSymbol("compile"), Edn.list(Symbol.newSymbol("quote"), Symbol.newSymbol(namespace))));
-      try {
-        preplClient.evalData(form);
-        preplClient.evalEdn("(.flush *err*)");
-      } catch (ClojureException e) {
-        failures = true;
-        System.err.println(e.getMessage());
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        break;
+
+    try (PreplClient p = preplClient) {
+      for (String namespace : namespaces) {
+        List<?> form = Edn.list(
+            Symbol.newSymbol("binding"),
+            Edn.vector(
+                Symbol.newSymbol("*compile-path*"), getDestinationDir(),
+                Symbol.newSymbol("*compiler-options*"), getOptions()),
+            Edn.list(Symbol.newSymbol("compile"), Edn.list(Symbol.newSymbol("quote"), Symbol.newSymbol(namespace))));
+        try {
+          preplClient.evalData(form);
+          preplClient.evalEdn("(.flush *err*)");
+        } catch (ClojureException e) {
+          failures = true;
+          System.err.println(e.getMessage());
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          break;
+        }
       }
     }
-
-    preplClient.close();
 
     preplClient.pollOutput().forEach(System.out::println);
     if (failures) {

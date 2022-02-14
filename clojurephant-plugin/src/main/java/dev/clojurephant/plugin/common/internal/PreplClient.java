@@ -60,6 +60,7 @@ public class PreplClient implements AutoCloseable {
   }
 
   void start() {
+    boolean started = false;
     this.inputThread.start();
     try {
       // we're waiting for this promise to exist, so give it a few trys
@@ -72,6 +73,7 @@ public class PreplClient implements AutoCloseable {
         }
         try {
           evalEdn("(do (require 'dev.clojurephant.prepl) (deliver dev.clojurephant.prepl/connected true))");
+          started = true;
           break;
         } catch (ClojureException e) {
           // retry
@@ -79,6 +81,10 @@ public class PreplClient implements AutoCloseable {
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
+    }
+
+    if (!started) {
+      throw new IllegalStateException(String.format("Timed out trying to initiate communication with prepl."));
     }
   }
 
@@ -125,7 +131,7 @@ public class PreplClient implements AutoCloseable {
 
   @SuppressWarnings("unchecked")
   public void inputLoop() {
-    try {
+    try (BufferedReader rdr = reader) {
       while (!closed) {
         String line = reader.readLine();
         Object obj = parser.nextValue(Parsers.newParseable(line));
@@ -143,8 +149,6 @@ public class PreplClient implements AutoCloseable {
           } else if (ERR.equals(tag)) {
             this.output.put(data);
           }
-        } else {
-          // unknown
         }
       }
     } catch (ClosedByInterruptException e) {

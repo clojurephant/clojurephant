@@ -10,6 +10,10 @@ import org.gradle.api.tasks.Optional;
 
 public abstract class Module implements Named {
   @Internal
+  @Override
+  public abstract String getName();
+
+  @Internal
   public abstract DirectoryProperty getBaseOutputDirectory();
 
   @Optional

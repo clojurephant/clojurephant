@@ -84,7 +84,7 @@ public abstract class ClojureScriptCompile extends DefaultTask {
     });
 
     boolean failures = false;
-    try {
+    try (PreplClient p = preplClient) {
       preplClient.evalEdn("(require '[cljs.build.api :as api])");
       List<?> form = Edn.list(
           Symbol.newSymbol("api", "build"),
@@ -98,8 +98,6 @@ public abstract class ClojureScriptCompile extends DefaultTask {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
-
-    preplClient.close();
 
     preplClient.pollOutput().forEach(System.out::println);
 

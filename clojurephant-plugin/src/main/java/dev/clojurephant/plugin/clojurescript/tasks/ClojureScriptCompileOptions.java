@@ -30,8 +30,7 @@ public abstract class ClojureScriptCompileOptions {
   @Optional
   public abstract ListProperty<String> getExterns();
 
-  @Input
-  @Optional
+  @Nested
   public abstract NamedDomainObjectContainer<ForeignLib> getForeignLibs();
 
   @Input

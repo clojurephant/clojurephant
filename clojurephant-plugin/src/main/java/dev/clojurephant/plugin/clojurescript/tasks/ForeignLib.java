@@ -5,9 +5,14 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 
 public abstract class ForeignLib implements Named {
+  @Internal
+  @Override
+  public abstract String getName();
+
   @Input
   public abstract Property<String> getFile();
 

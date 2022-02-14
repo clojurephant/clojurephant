@@ -113,7 +113,7 @@ public abstract class ClojureCheck extends DefaultTask {
     boolean failures = false;
     boolean projectReflectionWarnings = false;
 
-    try {
+    try (PreplClient p = preplClient) {
       preplClient.evalData(Edn.list(
           Symbol.newSymbol("set!"),
           Symbol.newSymbol("clojure.core", "*warn-on-reflection*"),
@@ -132,8 +132,6 @@ public abstract class ClojureCheck extends DefaultTask {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
-
-    preplClient.close();
 
     for (String out : preplClient.pollOutput()) {
       System.out.println(out);

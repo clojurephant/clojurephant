@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import us.bpsm.edn.Keyword;
 import us.bpsm.edn.parser.Parser;
@@ -37,6 +38,7 @@ public class PreplClient implements AutoCloseable {
 
   private final BufferedReader reader;
   private final PrintWriter writer;
+  private final AtomicBoolean serverStopped;
 
   private final Parser parser;
 
@@ -47,9 +49,10 @@ public class PreplClient implements AutoCloseable {
   private final BlockingQueue<Map<Object, Object>> taps = new LinkedBlockingQueue<>();
   private final Thread inputThread;
 
-  private PreplClient(BufferedReader reader, PrintWriter writer) {
+  private PreplClient(BufferedReader reader, PrintWriter writer, AtomicBoolean serverStopped) {
     this.reader = reader;
     this.writer = writer;
+    this.serverStopped = serverStopped;
 
     this.parser = Parsers.newParser(Parsers.defaultConfiguration());
 
@@ -59,10 +62,13 @@ public class PreplClient implements AutoCloseable {
   void start() {
     this.inputThread.start();
     try {
-      // there's a race condition while waiting for this promise to exist, so give it a few trys
-      for (int i = 0; i < 10; i++) {
+      // we're waiting for this promise to exist, so give it a few trys
+      for (int i = 0; i < 30; i++) {
+        if (serverStopped.get()) {
+          break;
+        }
         if (i != 0) {
-          Thread.sleep(100 * (i + 1));
+          Thread.sleep(1000);
         }
         try {
           evalEdn("(do (require 'dev.clojurephant.prepl) (deliver dev.clojurephant.prepl/connected true))");
@@ -150,13 +156,17 @@ public class PreplClient implements AutoCloseable {
     }
   }
 
-  public static PreplClient socketConnect(InetAddress address, int port) {
+  public static PreplClient socketConnect(InetAddress address, int port, AtomicBoolean serverStopped) {
     SocketChannel socket = null;
-    // there's a race condition while waiting for the server to start, so give it a few trys
+    // we're waiting for the server to start, so give it a few trys
     try {
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 30; i++) {
+        if (serverStopped.get()) {
+          break;
+        }
+
         if (i != 0) {
-          Thread.sleep(100 * (i + 1));
+          Thread.sleep(1000);
         }
         try {
           InetSocketAddress addr = new InetSocketAddress(address, port);
@@ -179,7 +189,7 @@ public class PreplClient implements AutoCloseable {
     BufferedReader reader = new BufferedReader(Channels.newReader(socket, StandardCharsets.UTF_8.name()));
     PrintWriter writer = new PrintWriter(Channels.newWriter(socket, StandardCharsets.UTF_8.name()), true);
 
-    PreplClient client = new PreplClient(reader, writer);
+    PreplClient client = new PreplClient(reader, writer, serverStopped);
     client.start();
     return client;
   }

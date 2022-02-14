@@ -50,7 +50,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     SourceSet dev = sourceSets.create(DEV_SOURCE_SET_NAME);
 
     Configuration nrepl = project.getConfigurations().create(NREPL_CONFIGURATION_NAME);
-    project.getDependencies().add(NREPL_CONFIGURATION_NAME, "nrepl:nrepl:0.6.0");
+    project.getDependencies().add(NREPL_CONFIGURATION_NAME, "nrepl:nrepl:0.9.0");
 
     project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName()).extendsFrom(nrepl);
     project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()).extendsFrom(nrepl);

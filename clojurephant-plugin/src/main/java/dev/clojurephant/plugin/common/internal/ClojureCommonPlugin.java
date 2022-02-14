@@ -59,7 +59,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
       FileCollection allOutput = sourceSet.getOutput();
       return allOutput.filter((File file) -> project.getTasks().stream()
           .filter(task -> task instanceof ClojureCompile || task instanceof ClojureScriptCompile || task instanceof ProcessResources)
-          .allMatch(task -> !task.getOutputs().getFiles().contains(file)));
+          .noneMatch(task -> task.getOutputs().getFiles().contains(file)));
     };
 
     dev.setCompileClasspath(project.files(
@@ -112,7 +112,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
           toDisable.add(next);
         }
 
-        graph.getDependencies(next).forEach(toProcess::add);
+        toProcess.addAll(graph.getDependencies(next));
       }
 
       // if empty, only the REPL was requested to run, so we can optimize for that use case

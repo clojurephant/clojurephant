@@ -81,7 +81,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
       build.getCompiler().getElideMeta().convention(Collections.emptyList());
 
       Provider<FileCollection> classpath = build.getSourceSet().map(sourceSet -> sourceSet.getCompileClasspath()
-          .plus(project.files(sourceSet.getJava().getOutputDir()))
+          .plus(project.files(sourceSet.getJava().getClassesDirectory()))
           .plus(project.files(sourceSet.getOutput().getResourcesDir())));
 
       String checkTaskName = build.getTaskName("check");

@@ -38,7 +38,7 @@
   (testing "without Clojure on classpath, build fails"
     (gradle/with-project "BasicClojureProjectTest"
       (file/write-str (gradle/file "build.gradle") (str/replace (file/read-str (gradle/file "build.gradle"))
-                                                                #"implementation 'org.clojure:clojure:1.10.1'"
+                                                                #"implementation 'org.clojure:clojure:1.10.3'"
                                                                 ""))
       (let [result (gradle/build-and-fail "clean" "check")]
         (gradle/verify-task-outcome result ":checkClojure" :failed)

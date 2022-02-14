@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.1'
+  implementation 'org.clojure:clojure:1.10.3'
   testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 }
 

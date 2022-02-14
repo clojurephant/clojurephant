@@ -31,17 +31,15 @@ public class ClojurePlugin implements Plugin<Project> {
     main.checkAll();
 
     // any test ns needs this config to work with the Test task
-    extension.getBuilds().matching(build -> build.getName().toLowerCase().contains("test")).all(test -> {
-      test.aotAll();
-    });
+    extension.getBuilds()
+        .matching(build -> build.getName().toLowerCase().contains("test"))
+        .all(ClojureBuild::aotAll);
 
     ClojureBuild dev = extension.getBuilds().getByName(ClojureCommonPlugin.DEV_SOURCE_SET_NAME);
     // REPL crashes if the user namespace doesn't compile, so make sure it does before starting
     // but also have to account project not having a user ns
-    dev.getCheckNamespaces().set(dev.getAllNamespaces().map(nses -> {
-      return nses.stream()
-          .filter("user"::equals)
-          .collect(Collectors.toSet());
-    }));
+    dev.getCheckNamespaces().set(dev.getAllNamespaces().map(nses -> nses.stream()
+        .filter("user"::equals)
+        .collect(Collectors.toSet())));
   }
 }

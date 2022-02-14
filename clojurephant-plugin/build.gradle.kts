@@ -3,7 +3,7 @@ import org.gradle.plugins.ide.eclipse.model.EclipseModel
 
 plugins {
   id("convention.clojars-publish")
-  id("convention.lint")
+  id("com.diffplug.spotless")
 
   id("dev.clojurephant.clojure")
 
@@ -14,8 +14,10 @@ plugins {
 
 group = "dev.clojurephant"
 
-configure<JavaPluginConvention> {
-  sourceCompatibility = JavaVersion.VERSION_1_8
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(8))
+  }
 }
 
 dependencies {
@@ -27,20 +29,37 @@ dependencies {
 
   // compat testing
   compatTestImplementation(gradleTestKit())
-  compatTestImplementation("org.clojure:clojure:1.10.1")
+  compatTestImplementation("org.clojure:clojure:1.10.3")
   compatTestImplementation("org.clojure:tools.namespace:1.1.0")
-  compatTestImplementation("nrepl:nrepl:0.8.3")
+  compatTestImplementation("nrepl:nrepl:0.9.0")
   compatTestImplementation("org.ajoberstar:ike.cljj:0.4.1")
   compatTestRuntimeOnly("org.ajoberstar:jovial:0.3.0")
 }
 
 stutter {
-  setSparse(true)
-  java(8) {
-    compatibleRange("5.0")
+  val java8 by matrices.creating {
+    javaToolchain {
+      languageVersion.set(JavaLanguageVersion.of(8))
+    }
+    gradleVersions {
+      compatibleRange("6.4")
+    }
   }
-  java(14) {
-    compatibleRange("6.3")
+  val java11 by matrices.creating {
+    javaToolchain {
+      languageVersion.set(JavaLanguageVersion.of(11))
+    }
+    gradleVersions {
+      compatibleRange("6.4")
+    }
+  }
+  val java17 by matrices.creating {
+    javaToolchain {
+      languageVersion.set(JavaLanguageVersion.of(17))
+    }
+    gradleVersions {
+      compatibleRange("7.3")
+    }
   }
 }
 
@@ -53,7 +72,7 @@ tasks.withType<Test>() {
   useJUnitPlatform()
 }
 
-tasks.withType<Test>().matching { t -> t.name.startsWith("compatTest") }.all {
+tasks.withType<Test>() {
   inputs.dir("src/compatTest/projects")
   systemProperty("stutter.projects", "src/compatTest/projects")
   systemProperty("org.gradle.testkit.dir", file("build/stutter-test-kit").absolutePath)
@@ -63,18 +82,22 @@ gradlePlugin {
   plugins {
     create("clojureBase") {
       id = "dev.clojurephant.clojure-base"
+      displayName = "Clojure base language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojure.ClojureBasePlugin"
     }
     create("clojure") {
       id = "dev.clojurephant.clojure"
+      displayName = "Clojure language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojure.ClojurePlugin"
     }
     create("clojurescriptBase") {
       id = "dev.clojurephant.clojurescript-base"
+      displayName = "ClojureScript base language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojurescript.ClojureScriptBasePlugin"
     }
     create("clojurescript") {
       id = "dev.clojurephant.clojurescript"
+      displayName = "ClojureScript language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojurescript.ClojureScriptPlugin"
     }
   }
@@ -84,31 +107,12 @@ pluginBundle {
   website = "https://clojurephant.dev/"
   vcsUrl = "https://github.com/clojurephant/clojurephant.git"
   description = "Clojure and ClojureScript language support for Gradle"
-  (plugins) {
-    "clojureBase" {
-      id = "dev.clojurephant.clojure-base"
-      displayName = "Clojure base language plugin for Gradle"
-      tags = listOf("clojure", "language")
-    }
-    "clojure" {
-      id = "dev.clojurephant.clojure"
-      displayName = "Clojure language plugin for Gradle"
-      tags = listOf("clojure", "language")
-    }
-    "clojurescriptBase" {
-      id = "dev.clojurephant.clojurescript-base"
-      displayName = "ClojureScript base language plugin for Gradle"
-      tags = listOf("clojurescript", "language")
-    }
-    "clojurescript" {
-      id = "dev.clojurephant.clojurescript"
-      displayName = "ClojureScript language plugin for Gradle"
-      tags = listOf("clojurescript", "language")
-    }
-  }
-  mavenCoordinates {
-    groupId = project.group.toString()
-    artifactId = project.name.toString()
-    version = project.version.toString()
+  tags = listOf("clojure", "clojurescript", "language")
+}
+
+spotless {
+  java {
+    importOrder("java", "javax", "")
+    eclipse().configFile(rootProject.file("gradle/eclipse-java-formatter.xml"))
   }
 }

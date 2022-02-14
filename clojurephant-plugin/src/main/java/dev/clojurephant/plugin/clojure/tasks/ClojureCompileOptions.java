@@ -1,40 +1,16 @@
 package dev.clojurephant.plugin.clojure.tasks;
 
-
-import java.util.Collections;
-import java.util.List;
-
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 
-public final class ClojureCompileOptions {
-  private boolean disableLocalsClearing = false;
-  private List<String> elideMeta = Collections.emptyList();
-  private boolean directLinking = false;
+public abstract class ClojureCompileOptions {
+  @Input
+  public abstract Property<Boolean> getDisableLocalsClearing();
 
   @Input
-  public boolean isDisableLocalsClearing() {
-    return disableLocalsClearing;
-  }
-
-  public void setDisableLocalsClearing(boolean disableLocalsClearing) {
-    this.disableLocalsClearing = disableLocalsClearing;
-  }
+  public abstract ListProperty<String> getElideMeta();
 
   @Input
-  public List<String> getElideMeta() {
-    return elideMeta;
-  }
-
-  public void setElideMeta(List<String> elideMeta) {
-    this.elideMeta = elideMeta;
-  }
-
-  @Input
-  public boolean isDirectLinking() {
-    return directLinking;
-  }
-
-  public void setDirectLinking(boolean directLinking) {
-    this.directLinking = directLinking;
-  }
+  public abstract Property<Boolean> getDirectLinking();
 }

@@ -23,6 +23,10 @@ bin/
 # Other
 *~
 
+# Java Profiling
+*.jfr
+*.hprof
+
 # Clojure
 .clj-kondo/
 .lsp/

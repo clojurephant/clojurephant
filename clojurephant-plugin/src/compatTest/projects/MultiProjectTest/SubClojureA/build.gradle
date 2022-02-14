@@ -4,6 +4,6 @@ plugins {
 }
 
 dependencies {
-  api 'org.clojure:clojure:1.10.1'
+  api 'org.clojure:clojure:1.10.3'
   api project(':SubClojureB')
 }

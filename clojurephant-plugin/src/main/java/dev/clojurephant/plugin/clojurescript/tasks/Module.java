@@ -1,57 +1,30 @@
 package dev.clojurephant.plugin.clojurescript.tasks;
 
-
-import java.io.File;
-import java.util.Set;
-
-import org.gradle.api.Project;
+import org.gradle.api.Named;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputFile;
 
-public class Module {
-  private final DirectoryProperty destinationDir;
-  private final RegularFileProperty outputTo;
-  private Set<String> entries;
-  private Set<String> dependsOn;
+public abstract class Module implements Named {
+  @Internal
+  @Override
+  public abstract String getName();
 
-  public Module(Project project, DirectoryProperty destinationDir) {
-    this.destinationDir = destinationDir;
-    this.outputTo = project.getObjects().fileProperty();
-  }
+  @Internal
+  public abstract DirectoryProperty getBaseOutputDirectory();
 
-  @OutputFile
-  public RegularFileProperty getOutputTo() {
-    return outputTo;
-  }
-
-  public void setOutputTo(String outputTo) {
-    this.outputTo.set(destinationDir.file(outputTo));
-  }
-
-  public void setOutputTo(File outputTo) {
-    this.outputTo.set(outputTo);
-  }
+  @Optional
+  @Input
+  public abstract Property<String> getOutputTo();
 
   @Input
   @Optional
-  public Set<String> getEntries() {
-    return entries;
-  }
-
-  public void setEntries(Set<String> entries) {
-    this.entries = entries;
-  }
+  public abstract SetProperty<String> getEntries();
 
   @Input
   @Optional
-  public Set<String> getDependsOn() {
-    return dependsOn;
-  }
-
-  public void setDependsOn(Set<String> dependsOn) {
-    this.dependsOn = dependsOn;
-  }
+  public abstract SetProperty<String> getDependsOn();
 }

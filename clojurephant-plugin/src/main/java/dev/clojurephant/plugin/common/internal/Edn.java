@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +22,8 @@ import dev.clojurephant.plugin.clojurescript.tasks.Module;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import us.bpsm.edn.Keyword;
 import us.bpsm.edn.Symbol;
@@ -53,9 +56,11 @@ public class Edn {
 
   private static final Printer.Fn<ClojureCompileOptions> CLOJURE_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
     Map<Object, Object> root = new LinkedHashMap<>();
-    root.put(newKeyword("disable-locals-clearing"), self.isDisableLocalsClearing());
-    root.put(newKeyword("direct-linking"), self.isDirectLinking());
-    root.put(newKeyword("elide-metadata"), self.getElideMeta().stream().map(Keyword::newKeyword).collect(Collectors.toList()));
+    root.put(newKeyword("disable-locals-clearing"), self.getDisableLocalsClearing().get());
+    root.put(newKeyword("direct-linking"), self.getDirectLinking().get());
+    root.put(newKeyword("elide-metadata"), self.getElideMeta().get().stream()
+        .map(Keyword::newKeyword)
+        .collect(Collectors.toList()));
     printer.printValue(root);
   };
 
@@ -68,24 +73,28 @@ public class Edn {
 
   private static final Printer.Fn<ClojureScriptCompileOptions> CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER = (self, printer) -> {
     Map<Object, Object> map = new LinkedHashMap<>();
-    map.put(newKeyword("output-to"), self.getOutputTo().getAsFile().getOrNull());
-    map.put(newKeyword("output-dir"), self.getOutputDir().getAsFile().getOrNull());
-    map.put(newKeyword("optimizations"), self.getOptimizations());
-    map.put(newKeyword("main"), self.getMain());
-    map.put(newKeyword("asset-path"), self.getAssetPath());
-    map.put(newKeyword("source-map"), self.getSourceMap());
-    map.put(newKeyword("verbose"), self.getVerbose());
-    map.put(newKeyword("pretty-print"), self.getPrettyPrint());
-    map.put(newKeyword("target"), self.getTarget());
-    map.put(newKeyword("foreign-libs"), self.getForeignLibs());
-    map.put(newKeyword("externs"), self.getExterns());
-    map.put(newKeyword("modules"), parseModules(self.getModules()));
-    map.put(newKeyword("preloads"), parsePreloads(self.getPreloads()));
-    map.put(newKeyword("npm-deps"), self.getNpmDeps());
-    map.put(newKeyword("install-deps"), self.getInstallDeps());
-    map.put(newKeyword("checked-arrays"), self.getCheckedArrays());
-
-    map.put(newKeyword("devcards"), self.getDevcards());
+    map.put(newKeyword("output-to"), self.getBaseOutputDirectory().file(self.getOutputTo()).map(RegularFile::getAsFile).getOrNull());
+    map.put(newKeyword("output-dir"), self.getBaseOutputDirectory().dir(self.getOutputDir()).map(Directory::getAsFile).getOrNull());
+    map.put(newKeyword("optimizations"), self.getOptimizations().map(Keyword::newKeyword));
+    map.put(newKeyword("main"), self.getMain().getOrNull());
+    map.put(newKeyword("asset-path"), self.getAssetPath().getOrNull());
+    map.put(newKeyword("source-map"), self.getSourceMap().map(sourceMap -> {
+      if (sourceMap instanceof String) {
+        return self.getBaseOutputDirectory().file((String) sourceMap).get().getAsFile();
+      } else {
+        return sourceMap;
+      }
+    }));
+    map.put(newKeyword("verbose"), self.getVerbose().getOrNull());
+    map.put(newKeyword("pretty-print"), self.getPrettyPrint().getOrNull());
+    map.put(newKeyword("target"), self.getTarget().map(Keyword::newKeyword));
+    map.put(newKeyword("foreign-libs"), self.getForeignLibs().getAsMap().values());
+    map.put(newKeyword("externs"), self.getExterns().getOrNull());
+    map.put(newKeyword("modules"), parseModules(self.getModules().getAsMap()));
+    map.put(newKeyword("preloads"), parsePreloads(self.getPreloads().getOrNull()));
+    map.put(newKeyword("npm-deps"), self.getNpmDeps().getOrNull());
+    map.put(newKeyword("install-deps"), self.getInstallDeps().getOrNull());
+    map.put(newKeyword("checked-arrays"), self.getCheckedArrays().map(Keyword::newKeyword));
 
     Edn.removeEmptyAndNulls(map);
     printer.printValue(map);
@@ -113,11 +122,11 @@ public class Edn {
     Map<Object, Object> map = new LinkedHashMap<>();
     map.put(newKeyword("file"), self.getFile());
     map.put(newKeyword("file-min"), self.getFileMin());
-    map.put(newKeyword("provides"), self.getProvides());
-    map.put(newKeyword("requires"), self.getRequires());
-    map.put(newKeyword("module-type"), self.getModuleType());
-    map.put(newKeyword("preprocess"), parsePreprocess(self.getPreprocess()));
-    map.put(newKeyword("global-exports"), parseGlobalExports(self.getGlobalExports()));
+    map.put(newKeyword("provides"), self.getProvides().getOrNull());
+    map.put(newKeyword("requires"), self.getRequires().getOrNull());
+    map.put(newKeyword("module-type"), self.getModuleType().map(Keyword::newKeyword));
+    map.put(newKeyword("preprocess"), parsePreprocess(self.getPreprocess().getOrNull()));
+    map.put(newKeyword("global-exports"), parseGlobalExports(self.getGlobalExports().getOrNull()));
 
     Edn.removeEmptyAndNulls(map);
     printer.printValue(map);
@@ -142,9 +151,9 @@ public class Edn {
 
   private static final Printer.Fn<Module> MODULE_PRINTER = (module, printer) -> {
     Map<Object, Object> map = new LinkedHashMap<>();
-    map.put(newKeyword("output-to"), module.getOutputTo().getAsFile().getOrNull());
-    map.put(newKeyword("entries"), module.getEntries());
-    map.put(newKeyword("dependsOn"), module.getDependsOn());
+    map.put(newKeyword("output-to"), module.getBaseOutputDirectory().file(module.getOutputTo()).map(RegularFile::getAsFile).getOrNull());
+    map.put(newKeyword("entries"), module.getEntries().getOrNull());
+    map.put(newKeyword("dependsOn"), module.getDependsOn().getOrNull());
     Edn.removeEmptyAndNulls(map);
     printer.printValue(map);
   };

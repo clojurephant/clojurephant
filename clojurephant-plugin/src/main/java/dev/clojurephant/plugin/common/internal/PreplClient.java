@@ -16,12 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import us.bpsm.edn.Keyword;
 import us.bpsm.edn.parser.Parser;
 import us.bpsm.edn.parser.Parsers;
-import us.bpsm.edn.printer.Printer;
-import us.bpsm.edn.printer.Printers;
 
 public class PreplClient implements AutoCloseable {
   private static final Keyword TAG = Keyword.newKeyword("tag");
@@ -39,9 +38,9 @@ public class PreplClient implements AutoCloseable {
 
   private final BufferedReader reader;
   private final PrintWriter writer;
+  private final AtomicBoolean serverStopped;
 
   private final Parser parser;
-  private final Printer printer;
 
   private boolean closed = false;
 
@@ -50,33 +49,42 @@ public class PreplClient implements AutoCloseable {
   private final BlockingQueue<Map<Object, Object>> taps = new LinkedBlockingQueue<>();
   private final Thread inputThread;
 
-  private PreplClient(BufferedReader reader, PrintWriter writer) {
+  private PreplClient(BufferedReader reader, PrintWriter writer, AtomicBoolean serverStopped) {
     this.reader = reader;
     this.writer = writer;
+    this.serverStopped = serverStopped;
 
     this.parser = Parsers.newParser(Parsers.defaultConfiguration());
-    this.printer = Printers.newPrinter(writer);
 
     this.inputThread = new Thread(this::inputLoop);
   }
 
   void start() {
+    boolean started = false;
     this.inputThread.start();
     try {
-      // there's a race condition while waiting for this promise to exist, so give it a few trys
-      for (int i = 0; i < 10; i++) {
+      // we're waiting for this promise to exist, so give it a few trys
+      for (int i = 0; i < 30; i++) {
+        if (serverStopped.get()) {
+          break;
+        }
         if (i != 0) {
-          Thread.sleep(100 * (i + 1));
+          Thread.sleep(1000);
         }
         try {
           evalEdn("(do (require 'dev.clojurephant.prepl) (deliver dev.clojurephant.prepl/connected true))");
+          started = true;
           break;
         } catch (ClojureException e) {
           // retry
         }
       }
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
+    }
+
+    if (!started) {
+      throw new IllegalStateException(String.format("Timed out trying to initiate communication with prepl."));
     }
   }
 
@@ -123,7 +131,7 @@ public class PreplClient implements AutoCloseable {
 
   @SuppressWarnings("unchecked")
   public void inputLoop() {
-    try {
+    try (BufferedReader rdr = reader) {
       while (!closed) {
         String line = reader.readLine();
         Object obj = parser.nextValue(Parsers.newParseable(line));
@@ -141,8 +149,6 @@ public class PreplClient implements AutoCloseable {
           } else if (ERR.equals(tag)) {
             this.output.put(data);
           }
-        } else {
-          // unknown
         }
       }
     } catch (ClosedByInterruptException e) {
@@ -150,17 +156,21 @@ public class PreplClient implements AutoCloseable {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
     }
   }
 
-  public static PreplClient socketConnect(InetAddress address, int port) {
+  public static PreplClient socketConnect(InetAddress address, int port, AtomicBoolean serverStopped) {
     SocketChannel socket = null;
-    // there's a race condition while waiting for the server to start, so give it a few trys
+    // we're waiting for the server to start, so give it a few trys
     try {
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 30; i++) {
+        if (serverStopped.get()) {
+          break;
+        }
+
         if (i != 0) {
-          Thread.sleep(100 * (i + 1));
+          Thread.sleep(1000);
         }
         try {
           InetSocketAddress addr = new InetSocketAddress(address, port);
@@ -173,7 +183,7 @@ public class PreplClient implements AutoCloseable {
         }
       }
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
     }
 
     if (socket == null) {
@@ -183,7 +193,7 @@ public class PreplClient implements AutoCloseable {
     BufferedReader reader = new BufferedReader(Channels.newReader(socket, StandardCharsets.UTF_8.name()));
     PrintWriter writer = new PrintWriter(Channels.newWriter(socket, StandardCharsets.UTF_8.name()), true);
 
-    PreplClient client = new PreplClient(reader, writer);
+    PreplClient client = new PreplClient(reader, writer, serverStopped);
     client.start();
     return client;
   }

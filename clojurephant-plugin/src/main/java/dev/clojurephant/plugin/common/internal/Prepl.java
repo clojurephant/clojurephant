@@ -4,15 +4,16 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.gradle.api.Action;
-import org.gradle.api.Project;
+import org.gradle.process.ExecOperations;
 
 public class Prepl {
-  private final Project project;
+  private final ExecOperations execOperations;
 
-  public Prepl(Project project) {
-    this.project = project;
+  public Prepl(ExecOperations execOperations) {
+    this.execOperations = execOperations;
   }
 
   public PreplClient start(Action<PreplSpec> action) {
@@ -33,16 +34,22 @@ public class Prepl {
       port = preplSpec.getPort();
     }
 
+    AtomicBoolean stopper = new AtomicBoolean(false);
+
     new Thread(() -> {
-      project.javaexec(spec -> {
-        spec.setMain("clojure.main");
-        spec.systemProperty("clojure.server.clojurephant", String.format("{:port %d :accept clojure.core.server/io-prepl :client-daemon false}", port));
-        spec.args("-e", "(do (ns dev.clojurephant.prepl) (def connected (promise)) @connected nil)");
-        spec.setClasspath(preplSpec.getClasspath());
-        preplSpec.getConfigureFork().forEach(forkAction -> forkAction.execute(spec));
-      });
+      try {
+        execOperations.javaexec(spec -> {
+          spec.getMainClass().set("clojure.main");
+          spec.systemProperty("clojure.server.clojurephant", String.format("{:port %d :accept clojure.core.server/io-prepl :client-daemon false}", port));
+          spec.args("-e", "(do (ns dev.clojurephant.prepl) (def connected (promise)) @connected nil)");
+          spec.setClasspath(preplSpec.getClasspath());
+          preplSpec.getConfigureFork().forEach(forkAction -> forkAction.execute(spec));
+        }).assertNormalExitValue();
+      } catch (Throwable e) {
+        stopper.set(true);
+      }
     }).start();
 
-    return PreplClient.socketConnect(InetAddress.getLoopbackAddress(), port);
+    return PreplClient.socketConnect(InetAddress.getLoopbackAddress(), port, stopper);
   }
 }

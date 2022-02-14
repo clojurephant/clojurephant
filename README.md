@@ -2,7 +2,7 @@
 
 Formerly known as "gradle-clojure"
 
-![](https://github.com/clojurephant/clojurephant/workflows/.github/workflows/build.yaml/badge.svg)
+[![CI](https://github.com/clojurephant/clojurephant/actions/workflows/ci.yaml/badge.svg)](https://github.com/clojurephant/clojurephant/actions/workflows/ci.yaml)
 [![cljdoc](https://cljdoc.org/badge/dev.clojurephant/clojurephant-plugin)](https://cljdoc.org/d/dev.clojurephant/clojurephant-plugin/CURRENT)
 
 ## What is this?

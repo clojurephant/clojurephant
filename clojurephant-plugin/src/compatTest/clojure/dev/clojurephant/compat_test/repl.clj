@@ -99,11 +99,10 @@
 
 
 (deftest no-compile-output-on-classpath
-  (testing "Compile output from other tasks should not be on classpath of the REPL"
+  (testing "Compile output from other tasks (besides dev cljs) should not be on classpath of the REPL"
     (with-client [client "BasicClojureScriptProjectTest"]
       (let [output-dirs (into #{} (map file/path) ["build/clojurescript/main"
                                                    "build/clojurescript/test"
-                                                   "build/clojurescript/dev"
                                                    "build/clojure/main"
                                                    "build/clojure/test"
                                                    "build/clojure/dev"])

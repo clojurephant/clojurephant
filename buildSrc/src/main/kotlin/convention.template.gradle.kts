@@ -8,8 +8,8 @@ plugins {
 }
 
 dependencies {
-  compileOnly("org.clojure:clojure:1.10.1")
-  compileOnly("seancorfield:clj-new:1.1.234")
+  compileOnly("org.clojure:clojure:1.11.1")
+  compileOnly("com.github.seancorfield:clj-new:1.2.399")
 }
 
 publishing {

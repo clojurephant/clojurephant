@@ -18,7 +18,9 @@ import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Property;
@@ -75,12 +77,17 @@ public abstract class ClojureCompile extends DefaultTask {
   @Input
   public abstract SetProperty<String> getNamespaces();
 
+  @Inject
+  protected abstract FileSystemOperations getFileSystemOperations();
+
+  @Inject
+  protected abstract ProjectLayout getProjectLayout();
+
   @TaskAction
   public void compile() {
     File outputDir = getDestinationDir().get().getAsFile();
-    if (!getProject().delete(outputDir)) {
-      throw new GradleException("Cannot clean destination directory: " + outputDir.getAbsolutePath());
-    }
+    getFileSystemOperations().delete(spec -> spec.delete(outputDir));
+
     if (!outputDir.mkdirs()) {
       throw new GradleException("Cannot create destination directory: " + outputDir.getAbsolutePath());
     }
@@ -95,7 +102,7 @@ public abstract class ClojureCompile extends DefaultTask {
 
     FileCollection classpath = getClasspath()
         .plus(getSourceRoots())
-        .plus(getProject().files(outputDir));
+        .plus(getProjectLayout().files(outputDir));
 
     PreplClient preplClient = prepl.start(spec -> {
       spec.setClasspath(classpath);

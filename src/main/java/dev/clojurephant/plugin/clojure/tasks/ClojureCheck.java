@@ -24,6 +24,8 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -86,18 +88,22 @@ public abstract class ClojureCheck extends DefaultTask {
   @Input
   public abstract SetProperty<String> getNamespaces();
 
+  @Inject
+  public abstract FileSystemOperations getFileSystemOperations();
+
+  @Inject
+  protected abstract ProjectLayout getProjectLayout();
+
   @TaskAction
   public void check() {
-    if (!getProject().delete(getTemporaryDir())) {
-      throw new GradleException("Cannot clean temporary directory: " + getTemporaryDir().getAbsolutePath());
-    }
+    getFileSystemOperations().delete(spec -> spec.delete(getTemporaryDir()));
 
     Set<String> namespaces = getNamespaces().getOrElse(Collections.emptySet());
     logger.info("Checking {}", String.join(", ", namespaces));
 
     FileCollection classpath = getClasspath()
         .plus(getSourceRoots())
-        .plus(getProject().files(getTemporaryDir()));
+        .plus(getProjectLayout().files(getTemporaryDir()));
 
     PreplClient preplClient = prepl.start(spec -> {
       spec.setClasspath(classpath);

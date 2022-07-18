@@ -16,6 +16,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.IgnoreEmptyDirectories;
@@ -60,12 +61,14 @@ public abstract class ClojureScriptCompile extends DefaultTask {
   @Nested
   public abstract ForkOptions getForkOptions();
 
+  @Inject
+  protected abstract FileSystemOperations getFileSystemOperations();
+
   @TaskAction
   public void compile() {
     File outputDir = getDestinationDir().get().getAsFile();
-    if (!getProject().delete(outputDir)) {
-      throw new GradleException("Cannot clean destination directory: " + outputDir.getAbsolutePath());
-    }
+    getFileSystemOperations().delete(spec -> spec.delete(outputDir));
+
     if (!outputDir.mkdirs()) {
       throw new GradleException("Cannot create destination directory: " + outputDir.getAbsolutePath());
     }

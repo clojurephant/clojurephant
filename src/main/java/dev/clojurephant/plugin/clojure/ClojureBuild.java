@@ -8,29 +8,33 @@ import dev.clojurephant.plugin.common.internal.Namespaces;
 import org.apache.commons.text.WordUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.internal.classpath.Instrumented;
 
 public abstract class ClojureBuild implements Named {
   public abstract DirectoryProperty getOutputDir();
 
-  public abstract Property<SourceSet> getSourceSet();
+  public abstract ConfigurableFileCollection getClasspath();
 
-  Provider<FileCollection> getSourceRoots() {
-    return getSourceSet().map(sourceSet -> {
-      ClojureSourceSet clojure = (ClojureSourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("clojure");
-      return clojure.getClojure().getSourceDirectories();
-    });
+  public abstract ConfigurableFileCollection getSourceRoots();
+
+  public FileTree getSourceTree() {
+    return getSourceRoots().getAsFileTree();
   }
 
   Provider<Set<String>> getAllNamespaces() {
-    return getSourceRoots().map(roots -> Namespaces.findNamespaces(roots, Namespaces.CLOJURE_EXTENSIONS));
+    // Using internal API due to https://github.com/gradle/gradle/issues/20265
+    Instrumented.fileCollectionObserved(getSourceTree(), "Clojurephant");
+    return Namespaces.findNamespaces(getSourceTree());
   }
 
   public abstract SetProperty<String> getCheckNamespaces();

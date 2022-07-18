@@ -16,6 +16,7 @@ import dev.clojurephant.plugin.common.internal.PreplClient;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
@@ -57,13 +58,9 @@ public abstract class ClojureCompile extends DefaultTask {
   @InputFiles
   @SkipWhenEmpty
   @IgnoreEmptyDirectories
-  public FileTree getSource() {
-    // TODO can this be done another way?
-    return Namespaces.getSources(getSourceRoots(), Namespaces.CLOJURE_EXTENSIONS);
-  }
+  public abstract FileTree getSource();
 
-  @Internal
-  public abstract ConfigurableFileCollection getSourceRoots();
+  public abstract void setSource(FileTree fileTree);
 
   @Classpath
   public abstract ConfigurableFileCollection getClasspath();
@@ -101,7 +98,6 @@ public abstract class ClojureCompile extends DefaultTask {
     logger.info("Compiling {}", String.join(", ", namespaces));
 
     FileCollection classpath = getClasspath()
-        .plus(getSourceRoots())
         .plus(getProjectLayout().files(outputDir));
 
     PreplClient preplClient = prepl.start(spec -> {

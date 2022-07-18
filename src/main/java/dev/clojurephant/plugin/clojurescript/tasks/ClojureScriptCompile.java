@@ -14,9 +14,11 @@ import dev.clojurephant.plugin.common.internal.PreplClient;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.IgnoreEmptyDirectories;
@@ -41,13 +43,9 @@ public abstract class ClojureScriptCompile extends DefaultTask {
   @InputFiles
   @SkipWhenEmpty
   @IgnoreEmptyDirectories
-  public FileCollection getSource() {
-    // TODO can this be done another way?
-    return Namespaces.getSources(getSourceRoots(), Namespaces.CLOJURESCRIPT_EXTENSIONS);
-  }
+  public abstract FileTree getSource();
 
-  @Internal
-  public abstract ConfigurableFileCollection getSourceRoots();
+  public abstract void setSource(FileTree fileTree);
 
   @OutputDirectory
   public abstract DirectoryProperty getDestinationDir();
@@ -73,10 +71,8 @@ public abstract class ClojureScriptCompile extends DefaultTask {
       throw new GradleException("Cannot create destination directory: " + outputDir.getAbsolutePath());
     }
 
-    FileCollection classpath = getClasspath().plus(getSourceRoots());
-
     PreplClient preplClient = prepl.start(spec -> {
-      spec.setClasspath(classpath);
+      spec.setClasspath(getClasspath());
       spec.setPort(0);
       spec.forkOptions(fork -> {
         fork.setJvmArgs(getForkOptions().getJvmArgs());
@@ -91,7 +87,7 @@ public abstract class ClojureScriptCompile extends DefaultTask {
       preplClient.evalEdn("(require '[cljs.build.api :as api])");
       List<?> form = Edn.list(
           Symbol.newSymbol("api", "build"),
-          Edn.list(Symbol.newSymbol("apply"), Symbol.newSymbol("api", "inputs"), getSourceRoots()),
+          Edn.list(Symbol.newSymbol("apply"), Symbol.newSymbol("api", "inputs"), getSource()),
           getOptions());
       preplClient.evalData(form);
       preplClient.evalEdn("(.flush *err*)");

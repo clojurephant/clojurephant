@@ -10,6 +10,7 @@ import dev.clojurephant.plugin.clojure.tasks.ClojureCheck;
 import dev.clojurephant.plugin.clojure.tasks.ClojureCompile;
 import dev.clojurephant.plugin.clojure.tasks.ClojureSourceSet;
 import dev.clojurephant.plugin.common.internal.ClojureCommonBasePlugin;
+import dev.clojurephant.plugin.common.internal.Namespaces;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
@@ -44,12 +45,21 @@ public class ClojureBasePlugin implements Plugin<Project> {
       new DslObject(sourceSet).getConvention().getPlugins().put("clojure", clojureSourceSet);
 
       clojureSourceSet.getClojure().srcDir(String.format("src/%s/clojure", sourceSet.getName()));
+      clojureSourceSet.getClojure().getFilter().include(Namespaces.CLOJURE_PATTERNS);
       // in case the clojure source overlaps with the resources source
       sourceSet.getResources().getFilter().exclude(element -> clojureSourceSet.getClojure().contains(element.getFile()));
       sourceSet.getAllSource().source(clojureSourceSet.getClojure());
 
       ClojureBuild build = extension.getBuilds().create(sourceSet.getName());
-      build.getSourceSet().set(sourceSet);
+
+      ClojureSourceSet clojure = (ClojureSourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("clojure");
+      build.getSourceRoots().from(clojure.getClojure().getSourceDirectories());
+
+      build.getClasspath()
+          .from(build.getSourceRoots())
+          .from(project.provider(() -> sourceSet.getCompileClasspath()))
+          .from(project.getTasks().named(sourceSet.getCompileJavaTaskName()))
+          .from(project.getTasks().named(sourceSet.getProcessResourcesTaskName()));
 
       project.getTasks().named(sourceSet.getClassesTaskName(), task -> {
         task.dependsOn(build.getTaskName("compile"));
@@ -80,31 +90,23 @@ public class ClojureBasePlugin implements Plugin<Project> {
       build.getCompiler().getDisableLocalsClearing().convention(false);
       build.getCompiler().getElideMeta().convention(Collections.emptyList());
 
-      Provider<FileCollection> classpath = build.getSourceSet().map(sourceSet -> sourceSet.getCompileClasspath()
-          .plus(project.files(sourceSet.getJava().getClassesDirectory()))
-          .plus(project.files(sourceSet.getOutput().getResourcesDir())));
-
       String checkTaskName = build.getTaskName("check");
       project.getTasks().register(checkTaskName, ClojureCheck.class, task -> {
         task.setDescription(String.format("Checks the Clojure source for the %s build.", build.getName()));
-        task.getSourceRoots().from(build.getSourceRoots());
-        task.getClasspath().from(classpath);
+        task.setSource(build.getSourceTree());
+        task.getClasspath().from(build.getClasspath());
         task.getReflection().set(build.getReflection());
         task.getNamespaces().set(build.getCheckNamespaces());
-        task.dependsOn(build.getSourceSet().map(SourceSet::getCompileJavaTaskName));
-        task.dependsOn(build.getSourceSet().map(SourceSet::getProcessResourcesTaskName));
       });
 
       String compileTaskName = build.getTaskName("compile");
       project.getTasks().register(compileTaskName, ClojureCompile.class, task -> {
         task.setDescription(String.format("Compiles the Clojure source for the %s build.", build.getName()));
         task.getDestinationDir().set(build.getOutputDir());
-        task.getSourceRoots().from(build.getSourceRoots());
-        task.getClasspath().from(classpath);
+        task.setSource(build.getSourceTree());
+        task.getClasspath().from(build.getClasspath());
         task.getOptions().set(build.getCompiler());
         task.getNamespaces().set(build.getAotNamespaces());
-        task.dependsOn(build.getSourceSet().map(SourceSet::getCompileJavaTaskName));
-        task.dependsOn(build.getSourceSet().map(SourceSet::getProcessResourcesTaskName));
       });
     });
   }

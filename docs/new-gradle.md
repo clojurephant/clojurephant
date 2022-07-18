@@ -28,7 +28,7 @@ To include plugins from [Gradle's Plugin Portal](https://plugins.gradle.org/) yo
 
 ```groovy
 plugins {
-  id 'dev.clojurephant.clojure' version '0.6.0-alpha.9'
+  id 'dev.clojurephant.clojure' version '0.7.0-alpha.1'
   // any additional plugins declared here
 }
 ```
@@ -75,13 +75,13 @@ Dependencies are put in different configurations (somewhat similar to Maven scop
 
 ```groovy
 dependencies {
-  implementation 'org.clojure:clojure:1.10.1'
+  implementation 'org.clojure:clojure:1.11.1'
 
   // due to how clojure.test is executed, a JUnit test engine (Jovial) is needed
   testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 
   // due to the way Gradle's REPL is started, if you need tools.namespace, you must be on 0.3+
-  devImplementation 'org.clojure:tools.namespace:1.1.0'
+  devImplementation 'org.clojure:tools.namespace:1.3.0'
 }
 
 // due to how clojure.test is executed, the JUnit platform is needed
@@ -99,7 +99,7 @@ Full `build.gradle` example:
 
 ```groovy
 plugins {
-  id 'dev.clojurephant.clojure' version '0.6.0-alpha.9'
+  id 'dev.clojurephant.clojure' version '0.7.0-alpha.1'
 }
 
 group = 'my.example'
@@ -110,11 +110,11 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.1'
+  implementation 'org.clojure:clojure:1.11.1'
 
   testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
 
-  devImplementation 'org.clojure:tools.namespace:1.1.0'
+  devImplementation 'org.clojure:tools.namespace:1.3.0'
 }
 
 tasks.withType(Test) {

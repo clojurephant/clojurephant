@@ -2,9 +2,12 @@
 
 ## Asking a question or getting help
 
-Any of the following will work:
+The following is the preferred communication channel:
 
 - Start a discussion in [Clojurephant Discussions](https://github.com/clojurephant/clojurephant/discussions)
+
+The following are not actively monitored:
+
 - Start a topic in [ClojureVerse Projects/gradle-clojure](https://clojureverse.org/c/projects/gradle-clojure)
 - Ask in [Clojurians Slack #gradle](http://clojurians.net/)
 
@@ -40,7 +43,6 @@ Pull requests are very welcome. Thanks in advance for helping the project (that 
     - `docs/cljdoc.edn` (for the https://cljdoc.org docs)
 - Modules:
   - Plugin itself is in `clojurephant-plugin/`
-  - Tools library used by Gradle tasks is in `clojurephant-tools/`
 - Test suite:
   - Functional Gradle tests (run against a range of Gradle versions) are in `clojurephant-plugin/src/compatTest`
 - Templates:
@@ -125,8 +127,8 @@ To generate a release:
 - (For `rc` or `final`) Make sure all issues in [GitHub milestone](https://github.com/clojurephant/clojurephant/milestones).
 - (For `final`) make sure we've released an `rc` already for this commit.
 - Have the `master` branch checked out
-- Run `./gradlew reckonTagPush -Preckon.stage=<stage>` (e.g. `./gradlew reckonTagPush -Preckon.scope=patch -Preckon.stage=beta`)
+- Run `./gradlew reckonTagPush -Preckon.stage=<stage>` (e.g. `./gradlew reckonTagPush -Preckon.stage=beta`)
   - This will run `check` on the project, create a version tag, and push that tag
-  - The tag push will trigger Circle CI to run the `main` workflow, including the publish step if tests pass on all supported Java versions.
-  - The publish will push the plugin to JCenter, Clojars, and the Gradle Plugin Portal.
+  - The tag push will trigger GitHub Actions to run the `release` workflow, including the publish step if tests pass on all supported Java versions.
+  - The publish will push the plugin to Clojars, and the Gradle Plugin Portal.
 - Go to the GitHub [releases](https://github.com/clojurephant/clojurephant/releases) and draft a new release. Use [the template](https://raw.githubusercontent.com/clojurephant/clojurephant/master/.github/RELEASE_TEMPLATE.md) for consistency. Ensure you check the _is a pre-release_ if this is a `beta` or `rc`.

@@ -25,7 +25,6 @@ A Gradle plugin providing support for the Clojure and ClojureScript languages.
 
 - Packaging Clojure code (or compiled JS) into a JAR or ZIP
 - ClojureScript compilation (multiple builds supported)
-- Figwheel (via [figwheel.main](https://github.com/bhauman/figwheel-main))
 
 ## Why should you care?
 
@@ -88,7 +87,7 @@ repositories {
 
 dependencies {
   // requires a version of Clojure with prepl (1.10+)
-  implementation 'org.clojure:clojure:1.10.1'
+  implementation 'org.clojure:clojure:1.11.1'
   // and any other dependencies you want on the compile classpath
   // implementation 'group:artifact:version'
 
@@ -98,7 +97,7 @@ dependencies {
   // testImplementation 'group:artifact:version'
 
   // dependencies for REPL use only
-  devImplementation 'org.clojure:tools.namespace:1.1.0'
+  devImplementation 'org.clojure:tools.namespace:1.3.0'
 }
 
 // needed for test integration
@@ -111,7 +110,6 @@ tasks.withType(Test) {
 See all available options in the [docs](https://clojurephant.dev).
 
 ## Getting help
-
 
 Read the online Clojurephant documentation [https://clojurephant.dev](https://clojurephant.dev).
 

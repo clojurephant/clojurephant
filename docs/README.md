@@ -25,7 +25,7 @@ Create a new ClojureScript appliation:
 clj -X:new :template clojurephant-cljs-app :name myname/myapp
 ```
 
-If the documentation doesn't answer your questions, please visit the [Clojurephant Discussions](https://github.com/clojurephant/clojurephant/discussions) [ClojureVerse gradle-clojure category](https://clojureverse.org/c/projects/gradle-clojure) or the [Clojurian's Slack #gradle channel](http://clojurians.net/).
+If the documentation doesn't answer your questions, please visit the [Clojurephant Discussions](https://github.com/clojurephant/clojurephant/discussions).
 
 ## Plugins
 

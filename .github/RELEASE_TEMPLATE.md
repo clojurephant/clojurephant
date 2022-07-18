@@ -57,3 +57,4 @@ Tested on the following version:
 | ------------ | ------------------- |
 | 8            | _min_ through _max_ |
 | 11           | _min_ through _max_ |
+| 17           | _min_ through _max_ |

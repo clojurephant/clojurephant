@@ -2,7 +2,3 @@ blank_issues_enabled: false
 contact_links:
   - name: GitHub Discussions
     url: https://github.com/clojurephant/clojurephant/discussions
-  - name: ClojureVerse
-    url: https://clojureverse.org/c/projects/gradle-clojure
-  - name: "Clojurians Slack #gradle"
-    url: http://clojurians.net/

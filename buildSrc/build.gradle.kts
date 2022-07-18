@@ -14,5 +14,5 @@ repositories {
 }
 
 dependencies {
-  implementation("dev.clojurephant:clojurephant-plugin:0.6.0-beta.1")
+  implementation("dev.clojurephant:clojurephant-plugin:0.7.0-alpha.1")
 }

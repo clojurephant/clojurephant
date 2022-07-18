@@ -21,10 +21,4 @@ dependencyResolutionManagement {
   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 }
 
-rootProject.name = "clojurephant"
-include("clojurephant-plugin")
-
-// templates
-include("templates:clojurephant-clj-lib")
-include("templates:clojurephant-clj-app")
-include("templates:clojurephant-cljs-app")
+rootProject.name = "clojurephant-plugin"

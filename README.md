@@ -44,26 +44,11 @@ calculate the namespaces involved, it does not parse the files looking for `ns` 
 
 ### Quick Start
 
-- Install the [Clojure command line tool](https://clojure.org/guides/getting_started) (i.e. clj).
-- Add an alias for [clj-new](https://github.com/seancorfield/clj-new/) to your `~/.clojure/deps.edn`
+Look at our sample projects:
 
-Create a new Clojure library:
-
-```
-clj -X:new :template clojurephant-clj-lib :name myname/mylib
-```
-
-Create a new Clojure application:
-
-```
-clj -X:new :template clojurephant-clj-app :name myname/myapp
-```
-
-Create a new ClojureScript appliation:
-
-```
-clj -X:new :template clojurephant-cljs-app :name myname/myapp
-```
+- [Clojure Library](https://github.com/clojurephant/sample-clojurephant-clj-lib)
+- [Clojure Application](https://github.com/clojurephant/sample-clojurephant-clj-app)
+- [ClojureScript Application](https://github.com/clojurephant/sample-clojurephant-cljs-app)
 
 #### Common Commands
 

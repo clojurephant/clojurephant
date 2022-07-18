@@ -32,9 +32,3 @@ bin/
 .lsp/
 .nrepl-port
 *.edn
-
-# Source Deps
-/templates/clj-new
-
-# Test Stuff
-/templates-test

@@ -45,8 +45,8 @@ Pull requests are very welcome. Thanks in advance for helping the project (that 
   - Plugin itself is in `clojurephant-plugin/`
 - Test suite:
   - Functional Gradle tests (run against a range of Gradle versions) are in `clojurephant-plugin/src/compatTest`
-- Templates:
-  - clj-new templates are under `templates/*`
+- Sample Projects:
+  - These are separate repositories under the Clojurephant organization
 
 ### Gradle Resources
 
@@ -57,20 +57,10 @@ A few helpful resources if you're new to writing Gradle plugins:
   - [Lazy task configuration](https://docs.gradle.org/current/userguide/lazy_configuration.html)
 - [Gradle DSL Reference](https://docs.gradle.org/current/dsl/)
 
-### Testing Templates
+### Testing Sample Projects
 
-#### Test Existing Template
-
-1. Run `./gradlew :templates:<template project name>:newProject` (e.g. `./gradlew :templates:gradle-clj-lib:newProject`)
-1. Navigate into the created project (Projects will be added under `templates-test/sample-*`).
-1. Use the project like normal to test its functionality.
-
-#### Create New Template
-
-1. Create a new directory under `templates/` with a name matching what the template should be called. All templates should start with `gradle-`.
-1. Update the `settings.gradle` to list the new template project.
-1. Create the `templates/<my-template>/src/main/clojure` and `templates/<my-template>/src/main/resources`
-1. Add template namespaces and resources (see other templates as examples and clj-new's documentation/source).
+1. Clone the sample repo
+1. Use the project like normal to test its functionality
 
 ### Code Style
 

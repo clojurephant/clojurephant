@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -55,10 +56,10 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName()).extendsFrom(nrepl);
     project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()).extendsFrom(nrepl);
 
-    Function<SourceSet, FileCollection> nonClojureOutput = sourceSet -> {
+    BiFunction<SourceSet, Boolean, FileCollection> nonClojureOutput = (sourceSet, includeCljs) -> {
       FileCollection allOutput = sourceSet.getOutput();
       return allOutput.filter((File file) -> project.getTasks().stream()
-          .filter(task -> task instanceof ClojureCompile || task instanceof ClojureScriptCompile || task instanceof ProcessResources)
+          .filter(task -> task instanceof ClojureCompile || (task instanceof ClojureScriptCompile && !includeCljs) || task instanceof ProcessResources)
           .noneMatch(task -> task.getOutputs().getFiles().contains(file)));
     };
 
@@ -68,9 +69,9 @@ public class ClojureCommonPlugin implements Plugin<Project> {
         project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName())));
     dev.setRuntimeClasspath(project.files(
         dev.getAllSource().getSourceDirectories(),
-        nonClojureOutput.apply(dev),
-        nonClojureOutput.apply(test),
-        nonClojureOutput.apply(main),
+        nonClojureOutput.apply(dev, true),
+        nonClojureOutput.apply(test, false),
+        nonClojureOutput.apply(main, false),
         project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
 
     Consumer<Function<SourceSet, String>> devExtendsTest = getConfName -> {

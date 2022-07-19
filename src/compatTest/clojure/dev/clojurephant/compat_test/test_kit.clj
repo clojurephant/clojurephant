@@ -66,7 +66,7 @@
   (println "***** Args:" args "*****")
   (-> (GradleRunner/create)
       (.withProjectDir (-> *project-dir* .toFile))
-      (.withArguments (into-array String (conj args "--stacktrace")))
+      (.withArguments (into-array String (conj args "--stacktrace" "--configuration-cache")))
       (.withPluginClasspath)
       (.forwardOutput)))
 

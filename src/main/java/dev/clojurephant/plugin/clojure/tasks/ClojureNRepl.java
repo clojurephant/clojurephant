@@ -12,15 +12,19 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.api.tasks.options.Option;
+import org.gradle.process.ExecOperations;
 
 public abstract class ClojureNRepl extends DefaultTask {
   private final ForkOptions forkOptions = new ForkOptions();
@@ -31,18 +35,25 @@ public abstract class ClojureNRepl extends DefaultTask {
     this.getOutputs().upToDateWhen(t -> false);
   }
 
+  @Inject
+  protected abstract ExecOperations getExecOperations();
+
+  @Inject
+  protected abstract FileSystemOperations getFileSystemOperations();
+
+  @Inject
+  protected abstract ProjectLayout getProjectLayout();
+
   @TaskAction
   public void run() {
-    if (!getProject().delete(getTemporaryDir())) {
-      throw new GradleException("Cannot clean temporary directory: " + getTemporaryDir().getAbsolutePath());
-    }
+    getFileSystemOperations().delete(spec -> spec.delete(getTemporaryDir()));
 
-    FileCollection cp = getProject().files(getTemporaryDir(), getClasspath());
+    FileCollection cp = getProjectLayout().files(getTemporaryDir(), getClasspath());
     List<String> middleware = Stream.of(getDefaultMiddleware().getOrElse(Collections.emptyList()), getMiddleware().getOrElse(Collections.emptyList()))
         .flatMap(List::stream)
         .collect(Collectors.toList());
 
-    getProject().javaexec(spec -> {
+    getExecOperations().javaexec(spec -> {
       spec.setClasspath(cp);
       spec.getMainClass().set("clojure.main");
 

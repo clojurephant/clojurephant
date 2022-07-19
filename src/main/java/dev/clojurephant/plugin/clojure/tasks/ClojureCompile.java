@@ -16,9 +16,12 @@ import dev.clojurephant.plugin.common.internal.PreplClient;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Property;
@@ -55,13 +58,9 @@ public abstract class ClojureCompile extends DefaultTask {
   @InputFiles
   @SkipWhenEmpty
   @IgnoreEmptyDirectories
-  public FileTree getSource() {
-    // TODO can this be done another way?
-    return Namespaces.getSources(getSourceRoots(), Namespaces.CLOJURE_EXTENSIONS);
-  }
+  public abstract FileTree getSource();
 
-  @Internal
-  public abstract ConfigurableFileCollection getSourceRoots();
+  public abstract void setSource(FileTree fileTree);
 
   @Classpath
   public abstract ConfigurableFileCollection getClasspath();
@@ -75,12 +74,17 @@ public abstract class ClojureCompile extends DefaultTask {
   @Input
   public abstract SetProperty<String> getNamespaces();
 
+  @Inject
+  protected abstract FileSystemOperations getFileSystemOperations();
+
+  @Inject
+  protected abstract ProjectLayout getProjectLayout();
+
   @TaskAction
   public void compile() {
     File outputDir = getDestinationDir().get().getAsFile();
-    if (!getProject().delete(outputDir)) {
-      throw new GradleException("Cannot clean destination directory: " + outputDir.getAbsolutePath());
-    }
+    getFileSystemOperations().delete(spec -> spec.delete(outputDir));
+
     if (!outputDir.mkdirs()) {
       throw new GradleException("Cannot create destination directory: " + outputDir.getAbsolutePath());
     }
@@ -94,8 +98,7 @@ public abstract class ClojureCompile extends DefaultTask {
     logger.info("Compiling {}", String.join(", ", namespaces));
 
     FileCollection classpath = getClasspath()
-        .plus(getSourceRoots())
-        .plus(getProject().files(outputDir));
+        .plus(getProjectLayout().files(outputDir));
 
     PreplClient preplClient = prepl.start(spec -> {
       spec.setClasspath(classpath);

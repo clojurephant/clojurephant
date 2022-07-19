@@ -5,8 +5,11 @@ import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptSourceSet;
 import org.apache.commons.text.WordUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -16,13 +19,12 @@ import org.gradle.api.tasks.SourceSet;
 public abstract class ClojureScriptBuild implements Named {
   public abstract DirectoryProperty getOutputDir();
 
-  public abstract Property<SourceSet> getSourceSet();
+  public abstract ConfigurableFileCollection getClasspath();
 
-  Provider<FileCollection> getSourceRoots() {
-    return getSourceSet().map(sourceSet -> {
-      ClojureScriptSourceSet clojure = (ClojureScriptSourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("clojurescript");
-      return clojure.getClojureScript().getSourceDirectories();
-    });
+  public abstract ConfigurableFileCollection getSourceRoots();
+
+  public FileTree getSourceTree() {
+    return getSourceRoots().getAsFileTree();
   }
 
   boolean isCompilerConfigured() {

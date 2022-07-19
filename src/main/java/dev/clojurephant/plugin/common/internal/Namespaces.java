@@ -2,9 +2,11 @@ package dev.clojurephant.plugin.common.internal;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -15,51 +17,44 @@ import java.util.stream.StreamSupport;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.RelativePath;
+import org.gradle.api.provider.Provider;
 
 public final class Namespaces {
-  public static final Set<String> CLOJURE_EXTENSIONS = Collections.unmodifiableSet(Stream.of("clj", "cljc").collect(Collectors.toSet()));
-  public static final Set<String> CLOJURESCRIPT_EXTENSIONS = Collections.unmodifiableSet(Stream.of("cljs", "cljc", "clj").collect(Collectors.toSet()));
+  public static final Set<String> CLOJURE_PATTERNS = Collections.unmodifiableSet(Stream.of("**/*.clj", "**/*.cljc").collect(Collectors.toSet()));
+  public static final Set<String> CLOJURESCRIPT_PATTERNS = Collections.unmodifiableSet(Stream.of("**/*.cljs", "**/*.cljc", "**/*.clj").collect(Collectors.toSet()));
 
   private Namespaces() {
     // do not instantiate
   }
 
-  public static FileTree getSources(FileCollection sourceRoots, Set<String> extensions) {
-    return sourceRoots.getAsFileTree().matching(filters -> {
-      extensions.forEach(ext -> {
-        filters.include("**/*." + ext);
-        filters.exclude("**/data_readers.clj");
-        filters.exclude("**/data_readers.cljc");
+  public static Provider<Set<String>> findNamespaces(FileTree source) {
+    return source.getElements().map(files -> {
+      Set<String> namespaces = new HashSet<>();
+
+      source.visit(details -> {
+        if (details.isDirectory()) {
+          // not a namespace
+          return;
+        }
+
+        RelativePath relPath = details.getRelativePath();
+        String fileBaseName = relPath.getLastName().substring(0, relPath.getLastName().lastIndexOf('.'));
+
+        if (fileBaseName.equals("data_readers")) {
+          // these aren't namespaces
+          return;
+        }
+
+        RelativePath relPathNoExt = relPath.replaceLastName(fileBaseName);
+        String namespace = Arrays.stream(relPathNoExt.getSegments())
+            .map(Namespaces::demunge)
+            .collect(Collectors.joining("."));
+        namespaces.add(namespace);
       });
+
+      return namespaces;
     });
-  }
-
-  public static Set<String> findNamespaces(FileCollection sourceRoots, Set<String> extensions) {
-    FileTree source = getSources(sourceRoots, extensions);
-    Set<Path> roots = sourceRoots.getFiles().stream()
-        .map(File::toPath)
-        .map(Path::toAbsolutePath)
-        .collect(Collectors.toSet());
-    return source.getFiles().stream()
-        .map(File::toPath)
-        .map(Path::toAbsolutePath)
-        .map(path -> findNamespace(path, roots))
-        .collect(Collectors.toSet());
-  }
-
-  private static String findNamespace(Path file, Set<Path> roots) {
-    Path root = roots.stream()
-        .filter(file::startsWith)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("No source root found for " + file.toString()));
-
-    String fileName = file.getFileName().toString();
-    Path relPath = root.relativize(file).resolveSibling(fileName.substring(0, fileName.lastIndexOf('.')));
-
-    return StreamSupport.stream(relPath.spliterator(), false)
-        .map(Path::toString)
-        .map(Namespaces::demunge)
-        .collect(Collectors.joining("."));
   }
 
   private static final Map<Character, String> CHAR_MAP = new HashMap<>();

@@ -6,6 +6,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +24,11 @@ import dev.clojurephant.plugin.common.internal.PreplClient;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.file.FileTree;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -63,13 +68,9 @@ public abstract class ClojureCheck extends DefaultTask {
   @InputFiles
   @IgnoreEmptyDirectories
   @SkipWhenEmpty
-  public FileCollection getSource() {
-    // TODO can this be done another way?
-    return Namespaces.getSources(getSourceRoots(), Namespaces.CLOJURE_EXTENSIONS);
-  }
+  public abstract FileTree getSource();
 
-  @Internal
-  public abstract ConfigurableFileCollection getSourceRoots();
+  public abstract void setSource(FileTree fileTree);
 
   @Classpath
   public abstract ConfigurableFileCollection getClasspath();
@@ -86,18 +87,21 @@ public abstract class ClojureCheck extends DefaultTask {
   @Input
   public abstract SetProperty<String> getNamespaces();
 
+  @Inject
+  public abstract FileSystemOperations getFileSystemOperations();
+
+  @Inject
+  protected abstract ProjectLayout getProjectLayout();
+
   @TaskAction
   public void check() {
-    if (!getProject().delete(getTemporaryDir())) {
-      throw new GradleException("Cannot clean temporary directory: " + getTemporaryDir().getAbsolutePath());
-    }
+    getFileSystemOperations().delete(spec -> spec.delete(getTemporaryDir()));
 
     Set<String> namespaces = getNamespaces().getOrElse(Collections.emptySet());
     logger.info("Checking {}", String.join(", ", namespaces));
 
     FileCollection classpath = getClasspath()
-        .plus(getSourceRoots())
-        .plus(getProject().files(getTemporaryDir()));
+        .plus(getProjectLayout().files(getTemporaryDir()));
 
     PreplClient preplClient = prepl.start(spec -> {
       spec.setClasspath(classpath);
@@ -137,10 +141,9 @@ public abstract class ClojureCheck extends DefaultTask {
       System.out.println(out);
       Matcher m = REFLECTION_WARNING.matcher(out);
       if (m.find()) {
-        String sourceFile = m.group(1);
-        boolean isProjectFile = getSourceRoots().getFiles().stream()
-            .map(sourceRoot -> new File(sourceRoot, sourceFile))
-            .anyMatch(File::exists);
+        Path sourceFile = Paths.get(m.group(1));
+        boolean isProjectFile = getSource().getFiles().stream()
+            .anyMatch(source -> source.toPath().endsWith(sourceFile));
         projectReflectionWarnings = projectReflectionWarnings || isProjectFile;
       }
     }

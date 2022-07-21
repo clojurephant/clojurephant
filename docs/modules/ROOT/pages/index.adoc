@@ -14,10 +14,17 @@ If the documentation doesn't answer your questions, please visit the link:https:
 
 clojurephant uses the common Gradle pattern of providing _capability_ plugins and _convention_ plugins. Capability plugins provide the basic machinery for using the language, but leaves it to you to configure. Convention plugins provide configuration on top of the capabilities to support common use cases.
 
-| Convention                       | Capability                            |
-| -------------------------------- | ------------------------------------- |
-| `dev.clojurephant.clojure`       | `dev.clojurephant.clojure-base`       |
-| `dev.clojurephant.clojurescript` | `dev.clojurephant.clojurescript-base` |
+[options="header", cols="2"]
+|===
+| Convention
+| Capability
+
+| `dev.clojurephant.clojure`
+| `dev.clojurephant.clojure-base`
+
+| `dev.clojurephant.clojurescript`
+| `dev.clojurephant.clojurescript-base`
+|===
 
 === dev.clojurephant.clojure-base
 

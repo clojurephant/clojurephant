@@ -64,30 +64,30 @@ clojurescript {
         preloads = ['sample.dev', 'devtools.preload']
       }
     }
-    cards {
-      sourceSet.set(sourceSets.dev)
-      compiler {
-        preloads = ['sample.dev', 'devtools.preload']
-        outputTo = 'public/js/cards.js'
-        main = 'sample.cards'
-      }
-    }
-    mods {
-      sourceSet.set(sourceSets.dev)
-      compiler {
-        preloads = ['sample.dev', 'devtools.preload']
-        modules.create('main') {
-          outputTo = 'public/js/main.js'
-          entries = ['sample.main']
-          dependsOn = ['cljs-base']
-        }
-        modules.create('cards') {
-          outputTo = 'public/js/cards.js'
-          entries = ['sample.cards']
-          dependsOn = ['cljs-base']
-        }
-      }
-    }
+    // cards {
+    //   sourceSet.set(sourceSets.dev)
+    //   compiler {
+    //     preloads = ['sample.dev', 'devtools.preload']
+    //     outputTo = 'public/js/cards.js'
+    //     main = 'sample.cards'
+    //   }
+    // }
+    // mods {
+    //   sourceSet.set(sourceSets.dev)
+    //   compiler {
+    //     preloads = ['sample.dev', 'devtools.preload']
+    //     modules.create('main') {
+    //       outputTo = 'public/js/main.js'
+    //       entries = ['sample.main']
+    //       dependsOn = ['cljs-base']
+    //     }
+    //     modules.create('cards') {
+    //       outputTo = 'public/js/cards.js'
+    //       entries = ['sample.cards']
+    //       dependsOn = ['cljs-base']
+    //     }
+    //   }
+    // }
   }
 }
 

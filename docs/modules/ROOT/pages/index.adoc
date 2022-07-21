@@ -38,7 +38,7 @@ clojurephant uses the common Gradle pattern of providing _capability_ plugins an
 ** Each build gets a `compile<Build>Clojure` task that can be used for AOT compilation. (by default no namespaces are AOTd)
 ** If any namespaces are configured to be AOTed for the source sets build, the source sets output will be the AOTd classes. Otherwise, the Clojure source will be the output (i.e. what would get included in a JAR)
 
-Tip: `gradlew tasks --all` shows all these created tasks. Beware: The `main` build is somewhat special and its name is not included in the task names so it has e.g. `compileClojure`.
+TIP: `gradlew tasks --all` shows all these created tasks. Beware: The `main` build is somewhat special and its name is not included in the task names so it has e.g. `compileClojure`.
 
 ==== Clojure Builds
 

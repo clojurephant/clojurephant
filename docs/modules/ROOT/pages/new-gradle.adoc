@@ -16,7 +16,9 @@ $ cd my-project
 $ gradle init
 ----
 
-> From here on out you'll use `./gradlew` instead of `gradle` in your commands. `gradlew` is the link:https://docs.gradle.org/current/userguide/gradle_wrapper.html[Gradle Wrapper] which allows you to set a per-project Gradle version. This ensures all developers use the same Gradle version for the project, instead of whatever happens to be on their `PATH`.
+****
+From here on out you'll use `./gradlew` instead of `gradle` in your commands. `gradlew` is the link:https://docs.gradle.org/current/userguide/gradle_wrapper.html[Gradle Wrapper] which allows you to set a per-project Gradle version. This ensures all developers use the same Gradle version for the project, instead of whatever happens to be on their `PATH`.
+****
 
 Also see link:https://docs.gradle.org/current/userguide/tutorial_using_tasks.html[Gradle's Learning the Basics].
 
@@ -50,7 +52,7 @@ See link:https://docs.gradle.org/current/userguide/core_dependency_management.ht
 
 No repositories are specified by default, so you must list any repositories you want to search for your dependencies.
 
-**IMPORTANT:** clojurephant currently requires Clojars be included in your repository list.
+IMPORTANT: clojurephant currently requires Clojars be included in your repository list.
 
 [source, groovy]
 ----

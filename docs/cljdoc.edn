@@ -1,9 +1,9 @@
 {:cljdoc.doc/tree [["README" {:file "README.md"}]
-                   ["User Guide" {:file "docs/README.md"}
-                    ["New to Gradle" {:file "docs/new-gradle.md"}]
-                    ["New to Clojure" {:file "docs/new-clojure.md"}]
-                    ["Migrating from Leiningen" {:file "docs/migrate-lein.md"}]
-                    ["Migrating from Boot" {:file "docs/migrate-boot.md"}]
-                    ["Migrating from Deps.edn" {:file "docs/migrate-deps.md"}]
-                    ["Frequently Asked Questions" {:file "docs/faq.md"}]]
-                   ["Contributors" {:file ".github/CONTRIBUTING.md"}]]}
+                   ["User Guide" {:file "docs/modules/ROOT/pages/index.adoc"}
+                    ["New to Gradle" {:file "docs/modules/ROOT/pages/new-gradle.adoc"}]
+                    ["New to Clojure" {:file "docs/modules/ROOT/pages/new-clojure.adoc"}]
+                    ["Migrating from Leiningen" {:file "docs/modules/ROOT/pages/migrate-lein.adoc"}]
+                    ["Migrating from Boot" {:file "docs/modules/ROOT/pages/migrate-boot.adoc"}]
+                    ["Migrating from Deps.edn" {:file "docs/modules/ROOT/pages/migrate-deps.adoc"}]
+                    ["Frequently Asked Questions" {:file "docs/modules/ROOT/pages/faq.adoc"}]]
+                   ["Contributors" {:file ".github/CONTRIBUTING.adoc"}]]}

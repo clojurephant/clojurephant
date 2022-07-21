@@ -1,12 +1,11 @@
-# Frequently Asked Questions
+= Frequently Asked Questions
 
-{% include nav.md %}
-
-## How do I get dependencies from Clojars?
+== How do I get dependencies from Clojars?
 
 To get dependencies from anywhere you need to list it in your project's repositories block.
 
-```groovy
+[source, groovy]
+----
 // plugins, etc.
 
 repositories {
@@ -17,13 +16,14 @@ repositories {
 }
 
 // dependencies, etc.
-```
+----
 
-## How do I publish to Clojars?
+== How do I publish to Clojars?
 
 You'll want to set your Clojars credentials in environment variables (in this example, `CLOJARS_USER` and `CLOJARS_PASSWORD`).
 
-```groovy
+[source, groovy]
+----
 plugins {
   id 'maven-publish'
 }
@@ -47,19 +47,20 @@ publishing {
     }
   }
 }
-```
+----
 
 Then run the `publish` task.
 
-## How do I create an uberjar?
+== How do I create an uberjar?
 
-Use the Gradle [Shadow plugin](http://imperceptiblethoughts.com/shadow/).
+Use the Gradle link:http://imperceptiblethoughts.com/shadow/[Shadow plugin].
 
-### Configuration
+=== Configuration
 
 To create an executable uberjar:
 
-```groovy
+[source, groovy]
+----
 plugins {
   id 'dev.clojurephant.clojure' version '<version>'
   // this tells Gradle you're generating an application with a main class
@@ -71,11 +72,12 @@ plugins {
 mainClassName = 'whatever_your.main.ns.class.is'
 
 // normal repositories and deps blocks
-```
+----
 
 Ensure your main namespace has `(:gen-class)` in the `ns` declaration:
 
-```clojure
+[source, clojure]
+----
 (ns sample.core
   (:require [clojure.string :as string]
             [java-time :as time])
@@ -84,29 +86,29 @@ Ensure your main namespace has `(:gen-class)` in the `ns` declaration:
 (defn -main [& args]
   (println (str (time/local-date))))
 
-```
+----
 
-### Usage
+=== Usage
 
-- `./gradlew shadowJar` will produce the uberjar (look in `build/libs`)
-- `./gradlew runShadow` will run the main class of your uberjar
-- `./gradlew distShadowZip` or `./gradlew distShadowTar` will produce a distribution with OS-specific start scripts to run your uberjar. (look in `build/distributions`)
+* `./gradlew shadowJar` will produce the uberjar (look in `build/libs`)
+* `./gradlew runShadow` will run the main class of your uberjar
+* `./gradlew distShadowZip` or `./gradlew distShadowTar` will produce a distribution with OS-specific start scripts to run your uberjar. (look in `build/distributions`)
 
-### More information
+=== More information
 
-Read the [Shadow Plugin User Guide](http://imperceptiblethoughts.com/shadow/). for full details on their other features.
+Read the link:http://imperceptiblethoughts.com/shadow/[Shadow Plugin User Guide]. for full details on their other features.
 
-## How do I use CIDER?
+== How do I use CIDER?
 
-[CIDER](https://cider.readthedocs.io/en/latest/) is a Clojure development environment for Emacs.
+link:https://cider.readthedocs.io/en/latest/[CIDER] is a Clojure development environment for Emacs.
 
 Right now you need to manually add the dependency and specify the handler/middleware.
 
 Either apply to all of your projects via an init script:
 
-**~/.gradle/init.d/cider.gradle**
-
-```groovy
+.~/.gradle/init.d/cider.gradle
+[source, groovy]
+----
 allprojects {
   plugins.withId('dev.clojurephant.clojure') {
     dependencies {
@@ -118,36 +120,36 @@ allprojects {
     }
   }
 }
-```
+----
 
 Or add it manually to your project:
 
-**build.gradle**
-
-```groovy
+.build.gradle
+[source, groovy]
+----
 dependencies {
-  devImplementation 'cider:cider-nrepl:0.25.16
+  devImplementation 'cider:cider-nrepl:0.25.16'
 }
 
 clojureRepl {
   handler = 'cider.nrepl/cider-nrepl-handler'
 }
-```
+----
 
 Optionally, omit the handler config and provide it on the CLI:
 
-```
+----
 ./gradlew clojureRepl --handler=cider.nrepl/cider-nrepl-handler
-```
+----
 
 Once your REPL starts, use `cider-connect` within Emacs to connect to the port listed in your Gradle output.
 
-## How do I build Clojure code that depends on Java code?
+== How do I build Clojure code that depends on Java code?
 
 You can compile Clojure code that depends on Java out of the box. Just put your
 Java code in the same source set as the Clojure code:
 
-```
+----
 <project>/
   src/
     main/
@@ -157,13 +159,13 @@ Java code in the same source set as the Clojure code:
       clojure/
         sample_clojure/
           core.clj
-```
+----
 
-## How do I build Java code that depends on Clojure code?
+== How do I build Java code that depends on Clojure code?
 
 This requires introducing another source set for the Clojure code.
 
-```
+----
 <project>/
   src/
     main/
@@ -174,11 +176,11 @@ This requires introducing another source set for the Clojure code.
       clojure/
         sample_clojure/
           core.clj
-```
+----
 
-**build.gradle**
-
-```groovy
+.build.gradle
+[source, groovy]
+----
 // plugins, etc...
 
 sourceSets {
@@ -191,7 +193,7 @@ configurations {
 }
 
 // dependencies, etc...
-```
+----
 
-**NOTE:** you could be more thorough in your configuration to get all of the
+NOTE: you could be more thorough in your configuration to get all of the
 configurations to line up consistently, but this covers the main use case.

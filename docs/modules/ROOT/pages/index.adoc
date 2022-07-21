@@ -1,18 +1,16 @@
-# clojurephant
+= User Guide
 
-{% include nav.md %}
-
-## Quick Start
+== Quick Start
 
 Look at our sample projects:
 
-- [Clojure Library](https://github.com/clojurephant/sample-clojurephant-clj-lib)
-- [Clojure Application](https://github.com/clojurephant/sample-clojurephant-clj-app)
-- [ClojureScript Application](https://github.com/clojurephant/sample-clojurephant-cljs-app)
+* link:https://github.com/clojurephant/sample-clojurephant-clj-lib[]
+* link:https://github.com/clojurephant/sample-clojurephant-clj-app[]
+* link:https://github.com/clojurephant/sample-clojurephant-cljs-app[]
 
-If the documentation doesn't answer your questions, please visit the [Clojurephant Discussions](https://github.com/clojurephant/clojurephant/discussions).
+If the documentation doesn't answer your questions, please visit the link:https://github.com/clojurephant/clojurephant/discussions[Clojurephant Discussions].
 
-## Plugins
+== Plugins
 
 clojurephant uses the common Gradle pattern of providing _capability_ plugins and _convention_ plugins. Capability plugins provide the basic machinery for using the language, but leaves it to you to configure. Convention plugins provide configuration on top of the capabilities to support common use cases.
 
@@ -21,25 +19,26 @@ clojurephant uses the common Gradle pattern of providing _capability_ plugins an
 | `dev.clojurephant.clojure`       | `dev.clojurephant.clojure-base`       |
 | `dev.clojurephant.clojurescript` | `dev.clojurephant.clojurescript-base` |
 
-### dev.clojurephant.clojure-base
+=== dev.clojurephant.clojure-base
 
-- Applies `java-base`, which lets you configure source sets. Each source set will get:
-  - A Java compilation task
-  - Configurations for compile (`implementation`, `compileOnly`) and runtime (`runtimeOnly`) dependencies
-- Adds a `clojure` extension which allows you to configure builds of your Clojure code.
-  - A build is added for each source set (with the same name as that source set)
-  - Additional builds can be configured by the user
-  - Each build gets a `check<Build>Clojure` task that can be used to ensure namespaces compile, and optionally warn or fail on reflection. (by default no namespaces are compiled)
-  - Each build gets a `compile<Build>Clojure` task that can be used for AOT compilation. (by default no namespaces are AOTd)
-  - If any namespaces are configured to be AOTed for the source sets build, the source sets output will be the AOTd classes. Otherwise, the Clojure source will be the output (i.e. what would get included in a JAR)
+* Applies `java-base`, which lets you configure source sets. Each source set will get:
+** A Java compilation task
+** Configurations for compile (`implementation`, `compileOnly`) and runtime (`runtimeOnly`) dependencies
+* Adds a `clojure` extension which allows you to configure builds of your Clojure code.
+** A build is added for each source set (with the same name as that source set)
+** Additional builds can be configured by the user
+** Each build gets a `check<Build>Clojure` task that can be used to ensure namespaces compile, and optionally warn or fail on reflection. (by default no namespaces are compiled)
+** Each build gets a `compile<Build>Clojure` task that can be used for AOT compilation. (by default no namespaces are AOTd)
+** If any namespaces are configured to be AOTed for the source sets build, the source sets output will be the AOTd classes. Otherwise, the Clojure source will be the output (i.e. what would get included in a JAR)
 
 Tip: `gradlew tasks --all` shows all these created tasks. Beware: The `main` build is somewhat special and its name is not included in the task names so it has e.g. `compileClojure`.
 
-#### Clojure Builds
+==== Clojure Builds
 
 You can define a custom build:
 
-```groovy
+[source, groovy]
+----
 clojure {
  builds {
    // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
@@ -62,11 +61,11 @@ clojure {
    }
  }
 }
-```
+----
 
 You can also _modify_ the configuration of the auto-added builds, f.ex. the "main" one:
 
-```
+----
 clojure {
     builds {
       main {
@@ -74,43 +73,44 @@ clojure {
       }
     }
 }
-```
+----
 
-### dev.clojurephant.clojure
+=== dev.clojurephant.clojure
 
-- Applies the `dev.clojurephant.clojure-base` plugin (see above)
-- Applies the `java` plugin:
-  - Creates a main source set, whose output is packaged into a JAR via the `jar` task.
-  - Creates a test source set, which extends the main source set.
-  - Creates a `test` task that runs tests within the test source set.
-- Applies the internal `ClojureCommonPlugin` which:
-  - Creates a dev source set, to be used for REPL development, which extends the test source set.
-  - Adds 'nrepl:nrepl' as a dependency of that source set.
-  - Adds a `clojureRepl` task which will start an nREPL server.
-  - Configures dependency rules to indicate that:
-    - `org.clojure:tools.nrepl` is replaced by `nrepl:nrepl`
-    - If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 1.0.0 to support the new classloader hierarchy.
-- Configures the `main` Clojure build to `checkAll()` namespaces.
-- Configures any build whose name includes `test` to:
-  - `aotAll()` namespaces (required for the current JUnit4 integration)
-- Configures the `dev` Clojure build to `checkNamespaces = ['user']` (if you have a user namespace). This ensures that your REPL will start successfully.
+* Applies the `dev.clojurephant.clojure-base` plugin (see above)
+* Applies the `java` plugin:
+** Creates a main source set, whose output is packaged into a JAR via the `jar` task.
+** Creates a test source set, which extends the main source set.
+** Creates a `test` task that runs tests within the test source set.
+* Applies the internal `ClojureCommonPlugin` which:
+** Creates a dev source set, to be used for REPL development, which extends the test source set.
+** Adds 'nrepl:nrepl' as a dependency of that source set.
+** Adds a `clojureRepl` task which will start an nREPL server.
+** Configures dependency rules to indicate that:
+*** `org.clojure:tools.nrepl` is replaced by `nrepl:nrepl`
+*** If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 1.0.0 to support the new classloader hierarchy.
+* Configures the `main` Clojure build to `checkAll()` namespaces.
+* Configures any build whose name includes `test` to:
+** `aotAll()` namespaces (required for the current JUnit4 integration)
+* Configures the `dev` Clojure build to `checkNamespaces = ['user']` (if you have a user namespace). This ensures that your REPL will start successfully.
 
 ### dev.clojurephant.clojurescript-base
 
-- Applies `java-base`, which lets you configure source sets. Each source set will get:
-  - A Java compilation task
-  - Configurations for compile (`implementation`, `compileOnly`) and runtime (`runtimeOnly`) dependencies
-- Adds a `clojurescript` extension which allows you to configure builds of your ClojureScript code.
-  - A build is added for each source set (with the same name as that source set)
-  - Additional builds can be configured by the user
-  - Each build gets a `compile<Build>ClojureScript` task that can be used for compilation. (by default no compiler options are set)
-  - If `outputTo` is configured (either the top level one or for a module) for the source sets build, the source sets output will be the compiled JS. Otherwise, the ClojureScript source will be the output (i.e. what would get included in a JAR).
+* Applies `java-base`, which lets you configure source sets. Each source set will get:
+** A Java compilation task
+** Configurations for compile (`implementation`, `compileOnly`) and runtime (`runtimeOnly`) dependencies
+* Adds a `clojurescript` extension which allows you to configure builds of your ClojureScript code.
+** A build is added for each source set (with the same name as that source set)
+** Additional builds can be configured by the user
+** Each build gets a `compile<Build>ClojureScript` task that can be used for compilation. (by default no compiler options are set)
+** If `outputTo` is configured (either the top level one or for a module) for the source sets build, the source sets output will be the compiled JS. Otherwise, the ClojureScript source will be the output (i.e. what would get included in a JAR).
 
-#### ClojureScript Builds
+==== ClojureScript Builds
 
-See [ClojureScript compiler options](https://clojurescript.org/reference/compiler-options) for details on what each option does and defaults to.
+See link:https://clojurescript.org/reference/compiler-options[ClojureScript compiler options] for details on what each option does and defaults to.
 
-```groovy
+[source, groovy]
+----
 clojurescript {
  builds {
    // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
@@ -139,30 +139,30 @@ clojurescript {
    }
  }
 }
-```
+----
 
-### dev.clojurephant.clojurescript
+=== dev.clojurephant.clojurescript
 
-- Applies the `dev.clojurephant.clojurescript-base` plugin (see above)
-- Applies the `java` plugin:
-  - Creates a main source set, whose output is packaged into a JAR via the `jar` task.
-  - Creates a test source set, which extends the main source set.
-  - Creates a `test` task that runs tests within the test source set.
-- Applies the internal `ClojureCommonPlugin` which:
-  - Creates a dev source set, to be used for REPL development, which extends the test source set.
-  - Adds 'nrepl:nrepl' as a dependency of that source set.
-  - Adds a `clojureRepl` task which will start an nREPL server.
-  - Configures dependency rules to indicate that:
-    - `org.clojure:tools.nrepl` is replaced by `nrepl:nrepl`
-    - If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 1.0.0 to support the new classloader hierarchy.
-- Wires your ClojureScript build configuration into the nREPL for use by Figwheel.
-- Configures the REPL for Piggieback:
-  - Adds a dev dependency `cider:piggieback`
-  - Adds the Piggieback middleware: `cider.piggieback/wrap-cljs-repl`
+* Applies the `dev.clojurephant.clojurescript-base` plugin (see above)
+* Applies the `java` plugin:
+** Creates a main source set, whose output is packaged into a JAR via the `jar` task.
+** Creates a test source set, which extends the main source set.
+** Creates a `test` task that runs tests within the test source set.
+* Applies the internal `ClojureCommonPlugin` which:
+** Creates a dev source set, to be used for REPL development, which extends the test source set.
+** Adds 'nrepl:nrepl' as a dependency of that source set.
+** Adds a `clojureRepl` task which will start an nREPL server.
+** Configures dependency rules to indicate that:
+*** `org.clojure:tools.nrepl` is replaced by `nrepl:nrepl`
+*** If you are using a Java 9+ JVM, any `org.clojure:java.classpath` dependency must be bumped to at least 1.0.0 to support the new classloader hierarchy.
+* Wires your ClojureScript build configuration into the nREPL for use by Figwheel.
+* Configures the REPL for Piggieback:
+** Adds a dev dependency `cider:piggieback`
+** Adds the Piggieback middleware: `cider.piggieback/wrap-cljs-repl`
 
-## Project Layout
+== Project Layout
 
-```
+----
 <project>/
   src/
     main/
@@ -191,13 +191,14 @@ clojurescript {
   build.gradle
   gradlew
   gradlew.bat
-```
+----
 
-## Task Configuration
+== Task Configuration
 
-### ClojureNRepl
+=== ClojureNRepl
 
-```groovy
+[source, groovy]
+----
 clojureRepl {
   port = 55555 // defaults to a random open port (which will be written to a .nrepl-port file)
 
@@ -212,22 +213,23 @@ clojureRepl {
     jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
   }
 }
-```
+----
 
 The `ClojureNRepl` task also supports command-line options for some of it's parameters. Multiple `middleware` must be specified as separate options.
 
-```
+----
 ./gradlew clojureRepl --port=1234 --handler=cider.nrepl/cider-nrepl-handler
 ./gradlew clojureRepl --port=4321 --middleware=dev/my-middleware --middleware=dev/my-other-middleware
-```
+----
 
-### check or compile tasks
+=== check or compile tasks
 
 Always configure compiler options and reflection settings via the `clojure` or `clojurescript` extensions. These options may be immutable on the tasks at some point in the future.
 
 The only settings you should configure directly on the tasks are the forkOptions, if you need to customize the JVM that is used.
 
-```groovy
+[source, groovy]
+----
 checkClojure {
   // to customize the Java process for compilation
   forkOptions {
@@ -235,4 +237,4 @@ checkClojure {
     jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005', '-Djava.awt.headless=true']
   }
 }
-```
+----

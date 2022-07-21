@@ -1,0 +1,4 @@
+name: clojurephant
+version: true
+nav:
+  - modules/ROOT/nav.adoc

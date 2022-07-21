@@ -1,0 +1,126 @@
+= New Gradle Users
+
+NOTE: This example assumes Gradle 6 or higher.
+
+link:https://docs.gradle.org/current/userguide/userguide.html[Gradle] is a build automation tool in the same space as link:https://maven.apache.org[Maven], link:https://leiningen.org[Leiningen], and link:https://boot-clj.com[Boot]. Gradle is primarily targeted at projects using the JVM, but has plugins for many other languages. (Now including Clojure!)
+
+== Installing Gradle
+
+See link:https://docs.gradle.org/current/userguide/installation.html[Gradle's installation documentation].
+
+== Initializing a project
+
+----
+$ mkdir my-project
+$ cd my-project
+$ gradle init
+----
+
+> From here on out you'll use `./gradlew` instead of `gradle` in your commands. `gradlew` is the link:https://docs.gradle.org/current/userguide/gradle_wrapper.html[Gradle Wrapper] which allows you to set a per-project Gradle version. This ensures all developers use the same Gradle version for the project, instead of whatever happens to be on their `PATH`.
+
+Also see link:https://docs.gradle.org/current/userguide/tutorial_using_tasks.html[Gradle's Learning the Basics].
+
+== Adding the plugin
+
+To include plugins from link:https://plugins.gradle.org/[Gradle's Plugin Portal] you'll use a `plugins {}` block. This should be at the top of your `build.gradle`.
+
+[source, groovy]
+----
+plugins {
+  id 'dev.clojurephant.clojure' version '0.7.0-alpha.1'
+  // any additional plugins declared here
+}
+----
+
+Also see link:https://docs.gradle.org/current/userguide/plugins.html[Gradle's Using Plugins].
+
+== Configuring project information
+
+[source, groovy]
+----
+group = 'my.example' // the group ID your artifacts should be published under
+version = '0.1.0-SNAPSHOT' // the version your artifacts should be published under
+----
+
+== Define dependencies
+
+See link:https://docs.gradle.org/current/userguide/core_dependency_management.html[Gradle's Dependency Management docs].
+
+=== Repositories
+
+No repositories are specified by default, so you must list any repositories you want to search for your dependencies.
+
+**IMPORTANT:** clojurephant currently requires Clojars be included in your repository list.
+
+[source, groovy]
+----
+repositories {
+  maven {
+    name = 'Clojars' // name can be ommitted, but is helpful in troubleshooting
+    url = 'https://repo.clojars.org/'
+  }
+}
+----
+
+Also see link:https://docs.gradle.org/current/userguide/declaring_repositories.html[Gradle's Declaring Repositories].
+
+== Dependencies
+
+Unless you have a reason to do otherwise, use Gradle's shorthand syntax `<configuration> '<group>:<artifact>:<version>'` (e.g. `compile 'org.clojure:clojure:1.9.0'`) to specify dependencies.
+
+Dependencies are put in different configurations (somewhat similar to Maven scopes). For Clojure's purposes, the three main ones to be aware of are:
+
+* `implementation` - dependencies of your main application code
+* `testImplementation` - dependencies of your test code
+* `devImplementation` - dependencies used only in the REPL
+
+[source, groovy]
+----
+dependencies {
+  implementation 'org.clojure:clojure:1.11.1'
+
+  // due to how clojure.test is executed, a JUnit test engine (Jovial) is needed
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
+
+  // due to the way Gradle's REPL is started, if you need tools.namespace, you must be on 0.3+
+  devImplementation 'org.clojure:tools.namespace:1.3.0'
+}
+
+// due to how clojure.test is executed, the JUnit platform is needed
+tasks.withType(Test) {
+  useJUnitPlatform()
+}
+
+----
+
+Also see link:https://docs.gradle.org/current/userguide/declaring_dependencies.html[Gradle's Declaring Dependencies]
+
+== Putting it all together
+
+Full `build.gradle` example:
+
+[source, groovy]
+----
+plugins {
+  id 'dev.clojurephant.clojure' version '0.7.0-alpha.1'
+}
+
+group = 'my.example'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  implementation 'org.clojure:clojure:1.11.1'
+
+  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
+
+  devImplementation 'org.clojure:tools.namespace:1.3.0'
+}
+
+tasks.withType(Test) {
+  useJUnitPlatform()
+}
+----

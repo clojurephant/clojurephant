@@ -1,0 +1,7 @@
+* xref:index.adoc[]
+* xref:new-gradle.adoc[]
+* xref:new-clojure.adoc[]
+* xref:migrate-lein.adoc[]
+* xref:migrate-boot.adoc[]
+* xref:migrate-deps.adoc[]
+* xref:faq.adoc[]

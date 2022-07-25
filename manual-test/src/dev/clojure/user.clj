@@ -1,4 +1,3 @@
-(ns user)
+(ns user
+  (:require [com.stuartsierra.component.user-helpers :refer [dev go reset]]))
 
-(defn reset []
-  (println "Don't know how to reset!"))

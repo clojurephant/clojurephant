@@ -1,5 +1,6 @@
-(ns sample.dev)
+(ns sample.dev
+  (:require [figwheel.repl :as repl]))
 
-(enable-console-print!)
+(repl/connect "ws://localhost:5050/figwheel-connect")
 
-(prn "Hello World!")
+(js/console.log "I preloaded so fast!")

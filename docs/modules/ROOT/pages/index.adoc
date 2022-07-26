@@ -1,5 +1,40 @@
 = User Guide
 
+Clojurephant (link:https://github.com/clojurephant/clojurephant[GitHub Repo]) is a Gradle plugin providing support for Clojure and ClojureScript projects.
+
+WARNING: clojurephant should not be considered stable before v1.0. Until then, minor versions will often contain breaking changes.
+
+== Rationale
+
+Gradle is a popular build tool in the JVM ecosysytem with a rich plugin ecosystem and support for polyglot projects.
+
+In particular, if you have a need to interop with Java code (maybe even other JVM languages), Gradle provides a good base of support.
+
+== Features
+
+=== Gradle
+
+Features provided by Gradle (or its ecosystem) that are useful for Clojure programmers.
+
+* Packaging into ZIPs, JARs, or Uberjars (via the third-party link:http://imperceptiblethoughts.com/shadow/[Shadow plugin])
+* Multi-project builds
+* Publishing to Maven repositories (such as Clojars or Maven Central)
+
+=== Clojure/ClojureScript
+
+Unique features provided by Clojurephant.
+
+* Running clojure.test tests with Gradle's out-of-box `Test` task (via the link:https://github.com/ajoberstar/jovial[jovial] Junit Platform Engine)
+* Clojure AOT compilation
+* ClojureScript compilation (supporting multiple builds)
+* Running an nREPL server (supporting custom middleware or handlers)
+
+CAUTION: ClojureScript features, in particular, are not fully settled and may change before 1.0.
+
+== Release Notes
+
+See the link:https://github.com/clojurephant/clojurephant/releases[GitHub releases] for the changelog of each version.
+
 == Quick Start
 
 Look at our sample projects:
@@ -8,7 +43,7 @@ Look at our sample projects:
 * link:https://github.com/clojurephant/sample-clojurephant-clj-app[]
 * link:https://github.com/clojurephant/sample-clojurephant-cljs-app[]
 
-If the documentation doesn't answer your questions, please visit the link:https://github.com/clojurephant/clojurephant/discussions[Clojurephant Discussions].
+If the samples or our documentation doesn't answer your questions, please ask in link:https://github.com/clojurephant/clojurephant/discussions[Clojurephant Discussions].
 
 == Plugins
 

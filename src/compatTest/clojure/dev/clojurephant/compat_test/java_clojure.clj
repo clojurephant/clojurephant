@@ -10,9 +10,9 @@
   (testing "with Java code that depends on Clojure code in different source sets, compilation succeeds"
     (gradle/with-project "MixedClojureJavaTest"
       (let [result (gradle/build "clean" "compileJava")]
-        (gradle/verify-task-outcome result ":compilePreClojure" :success)
+        (gradle/verify-task-outcome result ":compileClojure" :success)
         (gradle/verify-task-outcome result ":compileJava" :success)
-        (gradle/verify-compilation-with-aot "src/pre/clojure" "build/clojure/pre")
+        (gradle/verify-compilation-with-aot "src/main/clojure" "build/clojure/main")
         (is (every? #(-> % .getFileName str (str/ends-with? ".class")) (gradle/file-tree "build/classes/java/main")))))))
 
 (deftest clojure-depends-on-java

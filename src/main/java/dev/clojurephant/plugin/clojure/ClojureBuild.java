@@ -3,7 +3,6 @@ package dev.clojurephant.plugin.clojure;
 import java.util.Set;
 
 import dev.clojurephant.plugin.clojure.tasks.ClojureCompileOptions;
-import dev.clojurephant.plugin.clojure.tasks.ClojureSourceSet;
 import dev.clojurephant.plugin.common.internal.Namespaces;
 import org.apache.commons.text.WordUtils;
 import org.gradle.api.Action;

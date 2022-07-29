@@ -2,11 +2,10 @@ package dev.clojurephant.plugin.clojure;
 
 import java.util.stream.Collectors;
 
-import dev.clojurephant.plugin.clojure.tasks.ClojureSourceSet;
 import dev.clojurephant.plugin.common.internal.ClojureCommonPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 
@@ -21,8 +20,7 @@ public class ClojurePlugin implements Plugin<Project> {
 
     SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
     ClojureCommonPlugin.configureDevSource(sourceSets, sourceSet -> {
-      ClojureSourceSet src = (ClojureSourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("clojure");
-      return src.getClojure();
+      return (SourceDirectorySet) sourceSet.getExtensions().getByName("clojure");
     });
   }
 

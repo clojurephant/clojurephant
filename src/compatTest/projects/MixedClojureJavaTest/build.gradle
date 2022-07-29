@@ -11,28 +11,17 @@ repositories {
   mavenLocal()
 }
 
-sourceSets {
-  pre
-  main.compileClasspath += files(compilePreClojure)
-}
-
-configurations {
-  preImplementation.extendsFrom implementation
-}
-
 dependencies {
   implementation 'org.clojure:clojure:1.10.3'
 }
 
-jar {
-  from sourceSets.pre.output
+clojure.builds {
+  main {
+    classpath.from = sourceSets.main.compileClasspath + tasks.named(sourceSets.main.processResourcesTaskName)
+    aotAll()
+  }
 }
 
-clojure.builds {
-  pre {
-    aotAll()
-  }
-  main {
-    aotAll()
-  }
+tasks.named('compileJava') {
+  classpath += files(sourceSets.main.clojure.classesDirectory)
 }

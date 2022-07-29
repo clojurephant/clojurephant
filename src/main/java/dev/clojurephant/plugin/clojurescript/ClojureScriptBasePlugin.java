@@ -13,6 +13,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.TaskProvider;
 
 public class ClojureScriptBasePlugin implements Plugin<Project> {
   private final ObjectFactory objects;
@@ -26,12 +27,13 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPluginManager().apply(ClojureCommonBasePlugin.class);
     ClojureScriptExtension extension = project.getExtensions().create("clojurescript", ClojureScriptExtension.class);
-    configureSourceSetDefaults(project, extension);
-    configureBuildDefaults(project, extension);
+    SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
+    configureSourceSetDefaults(project, sourceSets, extension);
+    configureBuildDefaults(project, sourceSets, extension);
   }
 
-  private void configureSourceSetDefaults(Project project, ClojureScriptExtension extension) {
-    project.getExtensions().getByType(SourceSetContainer.class).all((SourceSet sourceSet) -> {
+  private void configureSourceSetDefaults(Project project, SourceSetContainer sourceSets, ClojureScriptExtension extension) {
+    sourceSets.all((SourceSet sourceSet) -> {
       // every source set gets clojurescript source, following same convention as Java/Groovy
       SourceDirectorySet clojureScriptSource = objects.sourceDirectorySet(sourceSet.getName(), sourceSet.getName());
       clojureScriptSource.srcDir(String.format("src/%s/clojurescript", sourceSet.getName()));
@@ -46,10 +48,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       // every source set gets a default clojurescript build
       ClojureScriptBuild build = extension.getBuilds().create(sourceSet.getName());
       build.getSourceRoots().from(clojureScriptSource.getSourceDirectories());
-
-      // wire SourceDirectorySet properties per https://github.com/gradle/gradle/issues/11333
       clojureScriptSource.getDestinationDirectory().set(build.getOutputDir());
-      clojureScriptSource.compiledBy(project.getTasks().named(build.getTaskName("compile"), ClojureScriptCompile.class), ClojureScriptCompile::getDestinationDir);
 
       build.getClasspath()
           .from(project.provider(() -> sourceSet.getCompileClasspath()))
@@ -72,7 +71,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
     });
   }
 
-  private void configureBuildDefaults(Project project, ClojureScriptExtension extension) {
+  private void configureBuildDefaults(Project project, SourceSetContainer sourceSets, ClojureScriptExtension extension) {
     extension.getRootOutputDir().set(project.getLayout().getBuildDirectory().dir("clojurescript"));
 
     extension.getBuilds().configureEach(build -> {
@@ -84,7 +83,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       });
 
       String compileTaskName = build.getTaskName("compile");
-      project.getTasks().register(compileTaskName, ClojureScriptCompile.class, task -> {
+      TaskProvider<ClojureScriptCompile> compileTask = project.getTasks().register(compileTaskName, ClojureScriptCompile.class, task -> {
         task.setDescription(String.format("Compiles the ClojureScript source for the %s build.", build.getName()));
         task.getDestinationDir().set(build.getOutputDir());
         task.setSource(build.getSourceTree());
@@ -92,6 +91,13 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
         task.getClasspath().from(build.getClasspath());
         task.getOptions().set(build.getCompiler());
       });
+
+      // wire SourceDirectorySet properties per https://github.com/gradle/gradle/issues/11333
+      SourceSet sourceSet = sourceSets.findByName(build.getName());
+      if (sourceSet != null) {
+        SourceDirectorySet source = (SourceDirectorySet) sourceSet.getExtensions().getByName("clojurescript");
+        source.compiledBy(compileTask, ClojureScriptCompile::getDestinationDir);
+      }
     });
   }
 }

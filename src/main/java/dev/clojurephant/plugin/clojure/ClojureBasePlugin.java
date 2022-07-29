@@ -19,6 +19,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskProvider;
 
 public class ClojureBasePlugin implements Plugin<Project> {
   private final ObjectFactory objects;
@@ -32,13 +33,14 @@ public class ClojureBasePlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPluginManager().apply(ClojureCommonBasePlugin.class);
     ClojureExtension extension = project.getExtensions().create("clojure", ClojureExtension.class);
-    configureSourceSetDefaults(project, extension);
-    configureBuildDefaults(project, extension);
+    SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
+    configureSourceSetDefaults(project, sourceSets, extension);
+    configureBuildDefaults(project, sourceSets, extension);
     configureCheckDefaults(project.getTasks());
   }
 
-  private void configureSourceSetDefaults(Project project, ClojureExtension extension) {
-    project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
+  private void configureSourceSetDefaults(Project project, SourceSetContainer sourceSets, ClojureExtension extension) {
+    sourceSets.all(sourceSet -> {
       // every source set gets clojure source, following same convention as Java/Groovy
       SourceDirectorySet clojureSource = objects.sourceDirectorySet(sourceSet.getName(), sourceSet.getName());
       clojureSource.srcDir(String.format("src/%s/clojure", sourceSet.getName()));
@@ -56,10 +58,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
       // every source set gets a default clojure build
       ClojureBuild build = extension.getBuilds().create(sourceSet.getName());
       build.getSourceRoots().from(clojureSource.getSourceDirectories());
-
-      // wire SourceDirectorySet properties per https://github.com/gradle/gradle/issues/11333
       clojureSource.getDestinationDirectory().set(build.getOutputDir());
-      clojureSource.compiledBy(project.getTasks().named(build.getTaskName("compile"), ClojureCompile.class), ClojureCompile::getDestinationDir);
 
       build.getClasspath()
           .from(project.provider(() -> sourceSet.getCompileClasspath()))
@@ -85,7 +84,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
     });
   }
 
-  private void configureBuildDefaults(Project project, ClojureExtension extension) {
+  private void configureBuildDefaults(Project project, SourceSetContainer sourceSets, ClojureExtension extension) {
     extension.getRootOutputDir().set(project.getLayout().getBuildDirectory().dir("clojure"));
 
     extension.getBuilds().configureEach(build -> {
@@ -107,7 +106,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
       });
 
       String compileTaskName = build.getTaskName("compile");
-      project.getTasks().register(compileTaskName, ClojureCompile.class, task -> {
+      TaskProvider<ClojureCompile> compileTask = project.getTasks().register(compileTaskName, ClojureCompile.class, task -> {
         task.setDescription(String.format("Compiles the Clojure source for the %s build.", build.getName()));
         task.getDestinationDir().set(build.getOutputDir());
         task.setSource(build.getSourceTree());
@@ -116,6 +115,13 @@ public class ClojureBasePlugin implements Plugin<Project> {
         task.getOptions().set(build.getCompiler());
         task.getNamespaces().set(build.getAotNamespaces());
       });
+
+      // wire SourceDirectorySet properties per https://github.com/gradle/gradle/issues/11333
+      SourceSet sourceSet = sourceSets.findByName(build.getName());
+      if (sourceSet != null) {
+        SourceDirectorySet source = (SourceDirectorySet) sourceSet.getExtensions().getByName("clojure");
+        source.compiledBy(compileTask, ClojureCompile::getDestinationDir);
+      }
     });
   }
 

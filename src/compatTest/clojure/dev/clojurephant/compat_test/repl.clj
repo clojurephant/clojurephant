@@ -75,14 +75,14 @@
       (let [result (gradle/build-and-fail "clojureRepl")]
         (gradle/verify-task-outcome result ":clojureRepl" :failed)
         (gradle/verify-task-outcome result ":compileJava" :success :no-source)
-        (gradle/verify-task-outcome result ":compileTestJava" :success :no-source)
-        (gradle/verify-task-outcome result ":compileDevJava" :success :no-source)
-        (gradle/verify-task-outcome result ":checkDevClojure" :success)
-        (gradle/verify-task-outcome result ":checkClojure" :skipped)
-        (gradle/verify-task-outcome result ":checkTestClojure" :skipped)
-        (gradle/verify-task-outcome result ":compileClojure" :skipped)
-        (gradle/verify-task-outcome result ":compileTestClojure" :skipped)
-        (gradle/verify-task-outcome result ":compileDevClojure" :skipped)))))
+        (gradle/verify-task-outcome result ":compileTestJava" nil)
+        (gradle/verify-task-outcome result ":compileDevJava" nil)
+        (gradle/verify-task-outcome result ":checkDevClojure" nil)
+        (gradle/verify-task-outcome result ":checkClojure" nil)
+        (gradle/verify-task-outcome result ":checkTestClojure" nil)
+        (gradle/verify-task-outcome result ":compileClojure" nil)
+        (gradle/verify-task-outcome result ":compileTestClojure" nil)
+        (gradle/verify-task-outcome result ":compileDevClojure" nil)))))
 
 (deftest task-dependencies-cljs
   (testing "No ClojureScript compiles happen when REPL is requested, but other languages are compiled"
@@ -91,11 +91,11 @@
       (let [result (gradle/build-and-fail "clojureRepl")]
         (gradle/verify-task-outcome result ":clojureRepl" :failed)
         (gradle/verify-task-outcome result ":compileJava" :success :no-source)
-        (gradle/verify-task-outcome result ":compileTestJava" :success :no-source)
-        (gradle/verify-task-outcome result ":compileDevJava" :success :no-source)
-        (gradle/verify-task-outcome result ":compileClojureScript" :skipped)
-        (gradle/verify-task-outcome result ":compileTestClojureScript" :skipped)
-        (gradle/verify-task-outcome result ":compileDevClojureScript" :skipped)))))
+        (gradle/verify-task-outcome result ":compileTestJava" nil)
+        (gradle/verify-task-outcome result ":compileDevJava" nil)
+        (gradle/verify-task-outcome result ":compileClojureScript" nil)
+        (gradle/verify-task-outcome result ":compileTestClojureScript" nil)
+        (gradle/verify-task-outcome result ":compileDevClojureScript" nil)))))
 
 
 (deftest no-compile-output-on-classpath

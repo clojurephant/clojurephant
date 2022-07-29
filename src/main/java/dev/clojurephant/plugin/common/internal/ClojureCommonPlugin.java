@@ -9,14 +9,10 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import dev.clojurephant.plugin.clojure.tasks.ClojureCheck;
-import dev.clojurephant.plugin.clojure.tasks.ClojureCompile;
 import dev.clojurephant.plugin.clojure.tasks.ClojureNRepl;
-import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompile;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.ComponentModuleMetadataDetails;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -56,22 +52,12 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName()).extendsFrom(nrepl);
     project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()).extendsFrom(nrepl);
 
-    BiFunction<SourceSet, Boolean, FileCollection> nonClojureOutput = (sourceSet, includeCljs) -> {
-      FileCollection allOutput = sourceSet.getOutput();
-      return allOutput.filter((File file) -> project.getTasks().stream()
-          .filter(task -> task instanceof ClojureCompile || (task instanceof ClojureScriptCompile && !includeCljs) || task instanceof ProcessResources)
-          .noneMatch(task -> task.getOutputs().getFiles().contains(file)));
-    };
-
     dev.setCompileClasspath(project.files(
-        test.getOutput(),
-        main.getOutput(),
+        main.getJava().getClassesDirectory(),
         project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName())));
     dev.setRuntimeClasspath(project.files(
         dev.getAllSource().getSourceDirectories(),
-        nonClojureOutput.apply(dev, true),
-        nonClojureOutput.apply(test, false),
-        nonClojureOutput.apply(main, false),
+        main.getJava().getClassesDirectory(),
         project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
 
     Consumer<Function<SourceSet, String>> devExtendsTest = getConfName -> {
@@ -87,39 +73,6 @@ public class ClojureCommonPlugin implements Plugin<Project> {
       task.setGroup("run");
       task.setDescription("Starts an nREPL server.");
       task.getClasspath().from(dev.getRuntimeClasspath());
-    });
-
-    // if you only ask for the REPL task, don't pre-compile/check the Clojure code (besides the dev one
-    // for the user namespace)
-    project.getGradle().getTaskGraph().whenReady(graph -> {
-      // using this string concat approach to avoid realizing the task provider, if it's not needed
-      if (!graph.hasTask(project.getPath() + NREPL_TASK_NAME)) {
-        return;
-      }
-      Set<Task> selectedTasks = new HashSet<>(graph.getAllTasks());
-
-      Queue<Task> toProcess = new LinkedList<>();
-      toProcess.add(repl.get());
-
-      Set<Task> toDisable = new HashSet<>();
-
-      while (!toProcess.isEmpty()) {
-        Task next = toProcess.remove();
-        selectedTasks.remove(next);
-
-        if (next instanceof ClojureCompile || next instanceof ClojureScriptCompile) {
-          toDisable.add(next);
-        } else if (next instanceof ClojureCheck && !"checkDevClojure".equals(next.getName())) {
-          toDisable.add(next);
-        }
-
-        toProcess.addAll(graph.getDependencies(next));
-      }
-
-      // if empty, only the REPL was requested to run, so we can optimize for that use case
-      if (selectedTasks.isEmpty()) {
-        toDisable.forEach(task -> task.setEnabled(false));
-      }
     });
   }
 

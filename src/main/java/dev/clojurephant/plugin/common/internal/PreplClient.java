@@ -7,8 +7,8 @@ import java.io.UncheckedIOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.Channels;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -151,7 +151,7 @@ public class PreplClient implements AutoCloseable {
           }
         }
       }
-    } catch (ClosedByInterruptException e) {
+    } catch (AsynchronousCloseException e) {
       // ignore
     } catch (IOException e) {
       throw new UncheckedIOException(e);

@@ -68,6 +68,12 @@
       (is (= "0.28.2" (-> (send-repl client {:op "cider-version"}) :cider-version :version-string)))
       (is (pr-str 7) (eval-repl client '(do (require 'basic-project.core) (basic-project/use-ns 4)))))))
 
+(deftest cider-jack-in
+  (testing "nREPL dependencies can be jacked-in via command line"
+    (with-client [client "BasicClojureProjectTest" "--handler=cider.nrepl/cider-nrepl-handler" "-Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:0.9,cider:cider-nrepl:0.28.3"]
+      (is (= "0.28.3" (-> (send-repl client {:op "cider-version"}) :cider-version :version-string)))
+      (is (pr-str 7) (eval-repl client '(do (require 'basic-project.core) (basic-project/use-ns 4)))))))
+
 (deftest task-dependencies-clj
   (testing "No Clojure compiles happen when REPL is requested, but other languages are compiled"
     (gradle/with-project "MixedJavaClojureTest"

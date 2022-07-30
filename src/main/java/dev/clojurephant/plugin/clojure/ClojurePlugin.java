@@ -17,11 +17,6 @@ public class ClojurePlugin implements Plugin<Project> {
 
     ClojureExtension extension = project.getExtensions().getByType(ClojureExtension.class);
     configureBuilds(project, extension);
-
-    SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
-    ClojureCommonPlugin.configureDevSource(sourceSets, sourceSet -> {
-      return (SourceDirectorySet) sourceSet.getExtensions().getByName("clojure");
-    });
   }
 
   private void configureBuilds(Project project, ClojureExtension extension) {

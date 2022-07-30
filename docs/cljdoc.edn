@@ -6,4 +6,4 @@
                     ["Migrating from Boot" {:file "docs/modules/ROOT/pages/migrate-boot.adoc"}]
                     ["Migrating from Deps.edn" {:file "docs/modules/ROOT/pages/migrate-deps.adoc"}]
                     ["Frequently Asked Questions" {:file "docs/modules/ROOT/pages/faq.adoc"}]]
-                   ["Contributors" {:file ".github/CONTRIBUTING.adoc"}]]}
+                   ["Contributors" {:file ".github/CONTRIBUTING.md"}]]}

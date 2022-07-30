@@ -32,10 +32,6 @@ dependencies {
   implementation 'com.stuartsierra:component:1.1.0'
   devImplementation 'com.stuartsierra:component.repl:0.2.0'
 
-  // cider
-  devImplementation 'cider:cider-nrepl:0.28.5'
-  devImplementation 'cider:piggieback:0.5.3'
-
   // figwheel
   devImplementation 'com.bhauman:figwheel-repl:0.2.18'
   devImplementation 'ring:ring-jetty-adapter:1.9.5'
@@ -43,10 +39,6 @@ dependencies {
 
 tasks.withType(Test) {
   useJUnitPlatform()
-}
-
-tasks.named('clojureRepl') {
-  middleware = ['cider.nrepl/cider-middleware', 'cider.piggieback/wrap-cljs-repl']
 }
 
 clojure {

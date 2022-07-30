@@ -163,37 +163,32 @@ Java code in the same source set as the Clojure code:
 
 == How do I build Java code that depends on Clojure code?
 
-This requires introducing another source set for the Clojure code.
-
-----
-<project>/
-  src/
-    main/
-      java/
-        sample_java/
-          Sample.java
-    pre/
-      clojure/
-        sample_clojure/
-          core.clj
-----
+This requires changing the classpaths for the Clojure build and the Java compile.
 
 .build.gradle
 [source, groovy]
 ----
 // plugins, etc...
 
-sourceSets {
-  pre
-  main.compileClasspath += pre.output
+clojure.builds {
+  main {
+    // reset Clojure classpath to only include dependencies
+    classpath.from = sourceSets.main.compileClasspath
+
+    // or if you also need the sources on the classpath
+    // classpath.from = sourceSets.main.compileClasspath + tasks.named(sourceSets.main.processResourcesTaskName)
+
+    // makes sure you AOT at least the namespace that produces the class(es) Java uses
+    aotAll()
+  }
 }
 
-configurations {
-  preImplementation.extendsFrom implementation
+tasks.named('compileJava') {
+  // add clojure's compiled output onto the Java compiler output
+  classpath += files(sourceSets.main.clojure.classesDirectory)
 }
 
 // dependencies, etc...
 ----
 
-NOTE: you could be more thorough in your configuration to get all of the
-configurations to line up consistently, but this covers the main use case.
+NOTE: Similar approaches should apply for other JVM languages (e.g. Groovy or Kotlin).

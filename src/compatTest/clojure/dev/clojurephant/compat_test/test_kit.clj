@@ -85,6 +85,10 @@
    :up-to-date TaskOutcome/UP_TO_DATE})
 
 (defn verify-task-outcome [result name & outcomes]
-  (let [allowed-outcomes (into #{} (map task-outcomes) outcomes)
+  (let [allowed-outcomes (into #{} (comp (map task-outcomes)
+                                         (filter identity))
+                               outcomes)
         actual-outcome (some-> result (.task name) .getOutcome)]
-    (is (get allowed-outcomes actual-outcome) (str "Task " name " did not result in one of " outcomes))))
+    (if (seq allowed-outcomes)
+      (is (get allowed-outcomes actual-outcome) (str "Task " name " did not result in one of " outcomes))
+      (is (nil? actual-outcome) (str "Task " name " did not result in one of " outcomes)))))

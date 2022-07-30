@@ -10,14 +10,5 @@ public class ClojureCommonBasePlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaBasePlugin.class);
-
-    SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
-    configureSourceSets(sourceSets);
-  }
-
-  private void configureSourceSets(SourceSetContainer sourceSets) {
-    sourceSets.all(sourceSet -> {
-      sourceSet.getResources().exclude("**/.keep");
-    });
   }
 }

@@ -1,7 +1,6 @@
 package dev.clojurephant.plugin.clojurescript;
 
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
-import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptSourceSet;
 import org.apache.commons.text.WordUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;

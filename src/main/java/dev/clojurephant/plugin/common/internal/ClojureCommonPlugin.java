@@ -9,13 +9,16 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import dev.clojurephant.plugin.clojure.ClojureBasePlugin;
 import dev.clojurephant.plugin.clojure.tasks.ClojureNRepl;
+import dev.clojurephant.plugin.clojurescript.ClojureScriptBasePlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ComponentModuleMetadataDetails;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
@@ -37,8 +40,6 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
     configureDev(project, sourceSets);
     configureDependencyConstraints(project.getDependencies());
-
-    configureDevSource(sourceSets, SourceSet::getResources);
   }
 
   private void configureDev(Project project, SourceSetContainer sourceSets) {
@@ -52,11 +53,27 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName()).extendsFrom(nrepl);
     project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()).extendsFrom(nrepl);
 
+    Function<SourceSet, FileCollection> clojureSources = sourceSet -> {
+      ConfigurableFileCollection result = project.files();
+      SourceDirectorySet clojure = (SourceDirectorySet) sourceSet.getExtensions().findByName(ClojureBasePlugin.SOURCE_DIRECTORY_SET_NAME);
+      if (clojure != null) {
+        result.from(clojure.getSourceDirectories());
+      }
+      SourceDirectorySet clojureScript = (SourceDirectorySet) sourceSet.getExtensions().findByName(ClojureScriptBasePlugin.SOURCE_DIRECTORY_SET_NAME);
+      if (clojureScript != null) {
+        result.from(clojureScript.getSourceDirectories());
+      }
+      result.from(sourceSet.getResources().getSourceDirectories());
+      return result;
+    };
+
     dev.setCompileClasspath(project.files(
         main.getJava().getClassesDirectory(),
         project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName())));
     dev.setRuntimeClasspath(project.files(
-        dev.getAllSource().getSourceDirectories(),
+        clojureSources.apply(dev),
+        clojureSources.apply(test),
+        clojureSources.apply(main),
         main.getJava().getClassesDirectory(),
         project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
 
@@ -92,13 +109,5 @@ public class ClojureCommonPlugin implements Plugin<Project> {
         });
       });
     }
-  }
-
-  public static void configureDevSource(SourceSetContainer sourceSets, Function<SourceSet, SourceDirectorySet> languageMapper) {
-    SourceSet main = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    SourceSet test = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
-    SourceSet dev = sourceSets.getByName(DEV_SOURCE_SET_NAME);
-    languageMapper.apply(dev).source(languageMapper.apply(test));
-    languageMapper.apply(dev).source(languageMapper.apply(main));
   }
 }

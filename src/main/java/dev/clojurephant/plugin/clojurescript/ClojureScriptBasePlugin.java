@@ -9,6 +9,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.tasks.DefaultSourceSetOutput;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
@@ -16,6 +17,8 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 public class ClojureScriptBasePlugin implements Plugin<Project> {
+  public static final String SOURCE_DIRECTORY_SET_NAME = "clojurescript";
+
   private final ObjectFactory objects;
 
   @Inject
@@ -40,10 +43,13 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       clojureScriptSource.getFilter().include(Namespaces.CLOJURESCRIPT_PATTERNS);
 
       // make the sources available on the source set
-      sourceSet.getExtensions().add("clojurescript", clojureScriptSource);
+      sourceSet.getExtensions().add(SOURCE_DIRECTORY_SET_NAME, clojureScriptSource);
 
       // in case the clojurescript source overlaps with the resources source
       sourceSet.getResources().getFilter().exclude(element -> clojureScriptSource.contains(element.getFile()));
+
+      // ensure that clojurescript is considered part of full source of source set
+      sourceSet.getAllSource().source(clojureScriptSource);
 
       // every source set gets a default clojurescript build
       ClojureScriptBuild build = extension.getBuilds().create(sourceSet.getName());
@@ -63,7 +69,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
         }
       });
 
-      sourceSet.getOutput().dir(output);
+      ((DefaultSourceSetOutput) sourceSet.getOutput()).getClassesDirs().from(output);
 
       project.getTasks().named(sourceSet.getClassesTaskName(), task -> {
         task.dependsOn(build.getTaskName("compile"));
@@ -95,7 +101,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       // wire SourceDirectorySet properties per https://github.com/gradle/gradle/issues/11333
       SourceSet sourceSet = sourceSets.findByName(build.getName());
       if (sourceSet != null) {
-        SourceDirectorySet source = (SourceDirectorySet) sourceSet.getExtensions().getByName("clojurescript");
+        SourceDirectorySet source = (SourceDirectorySet) sourceSet.getExtensions().getByName(SOURCE_DIRECTORY_SET_NAME);
         source.compiledBy(compileTask, ClojureScriptCompile::getDestinationDir);
       }
     });

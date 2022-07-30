@@ -22,6 +22,8 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 public class ClojureBasePlugin implements Plugin<Project> {
+  public static final String SOURCE_DIRECTORY_SET_NAME = "clojure";
+
   private final ObjectFactory objects;
 
   @Inject
@@ -47,7 +49,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
       clojureSource.getFilter().include(Namespaces.CLOJURE_PATTERNS);
 
       // make the sources available on the source set
-      sourceSet.getExtensions().add("clojure", clojureSource);
+      sourceSet.getExtensions().add(SOURCE_DIRECTORY_SET_NAME, clojureSource);
 
       // in case the clojure source overlaps with the resources source
       sourceSet.getResources().getFilter().exclude(element -> clojureSource.contains(element.getFile()));
@@ -119,7 +121,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
       // wire SourceDirectorySet properties per https://github.com/gradle/gradle/issues/11333
       SourceSet sourceSet = sourceSets.findByName(build.getName());
       if (sourceSet != null) {
-        SourceDirectorySet source = (SourceDirectorySet) sourceSet.getExtensions().getByName("clojure");
+        SourceDirectorySet source = (SourceDirectorySet) sourceSet.getExtensions().getByName(SOURCE_DIRECTORY_SET_NAME);
         source.compiledBy(compileTask, ClojureCompile::getDestinationDir);
       }
     });

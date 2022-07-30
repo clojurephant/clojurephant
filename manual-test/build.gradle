@@ -1,6 +1,7 @@
 plugins {
   id 'dev.clojurephant.clojure'
   id 'dev.clojurephant.clojurescript'
+  id 'eclipse'
 }
 
 repositories {
@@ -29,7 +30,7 @@ dependencies {
   // component
   implementation 'com.stuartsierra:component:1.1.0'
   devImplementation 'com.stuartsierra:component.repl:0.2.0'
-  
+
   // cider
   devImplementation 'cider:cider-nrepl:0.28.5'
   devImplementation 'cider:piggieback:0.5.3'
@@ -63,7 +64,7 @@ clojurescript {
         outputTo = 'public/js/main.js'
         outputDir = "public/js/out"
         assetPath = "/js/out"
-        main = 'sample.main'        
+        main = 'sample.main'
       }
     }
     main {

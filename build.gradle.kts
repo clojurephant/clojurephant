@@ -40,6 +40,7 @@ dependencies {
   compatTestImplementation("org.clojure:tools.namespace:1.3.0")
   compatTestImplementation("nrepl:nrepl:0.9.0")
   compatTestImplementation("org.ajoberstar:ike.cljj:0.4.1")
+  compatTestImplementation("org.clojure:data.xml:0.0.8")
   compatTestRuntimeOnly("org.ajoberstar:jovial:0.3.0")
 }
 

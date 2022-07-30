@@ -2,6 +2,7 @@ plugins {
   id 'dev.clojurephant.clojure'
   id 'dev.clojurephant.clojurescript'
   id 'eclipse'
+  id 'idea'
 }
 
 repositories {

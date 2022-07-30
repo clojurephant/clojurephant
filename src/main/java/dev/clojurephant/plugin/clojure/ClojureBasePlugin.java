@@ -55,6 +55,7 @@ public class ClojureBasePlugin implements Plugin<Project> {
       sourceSet.getResources().getFilter().exclude(element -> clojureSource.contains(element.getFile()));
 
       // ensure that clojure is considered part of full source of source set
+      sourceSet.getAllJava().source(clojureSource);
       sourceSet.getAllSource().source(clojureSource);
 
       // every source set gets a default clojure build

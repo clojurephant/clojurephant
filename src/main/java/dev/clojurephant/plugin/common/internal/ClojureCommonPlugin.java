@@ -68,6 +68,8 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     };
 
     dev.setCompileClasspath(project.files(
+        clojureSources.apply(test),
+        clojureSources.apply(main),
         main.getJava().getClassesDirectory(),
         project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName())));
     dev.setRuntimeClasspath(project.files(

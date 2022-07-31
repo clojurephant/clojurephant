@@ -12,5 +12,5 @@ $ ./gradlew -Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:{nrepl-version},cider:c
 
 .Usage by Editors
 ****
-CIDER:: As of v1.5.0, supported by link:https://github.com/clojure-emacs/cider[CIDER's] `M-x cider-jack-in`.
+CIDER:: Supported by link:https://github.com/clojure-emacs/cider[CIDER's] `M-x cider-jack-in` as of v20220731.522 on MELPA (also anticipated in next release after v1.4.1).
 ****

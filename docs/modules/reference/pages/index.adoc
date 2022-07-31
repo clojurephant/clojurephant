@@ -1,0 +1,22 @@
+= Reference
+
+clojurephant uses the common Gradle pattern of providing both _capability_ plugins and _convention_ plugins.
+
+Capability plugins:: provide the basic machinery for using the language, but leaves it to you to configure
+Convention plugins:: extend the capability plugin to provide configuration on top of the capabilities to support common use cases
+
+TIP: Most people should apply the _convention_ plugins. The capability plugins are for lower level configuration, more suited to an experienced user that doesn't want the default behavior.
+
+== Convention Plugins
+
+* xref:plugins/clojure.adoc[]
+* xref:plugins/clojurescript.adoc[]
+
+== Capability Plugins
+
+* xref:plugins/clojure-base.adoc[]
+* xref:plugins/clojurescript-base.adoc[]
+
+== Common Features
+
+include::partial$jackin.adoc[leveloffset=+2]

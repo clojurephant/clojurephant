@@ -1,0 +1,95 @@
+= ClojureExtension
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojure/ClojureExtension.java[`dev.clojurephant.plugin.clojure.ClojureExtension`]
+
+Entry point to the DSL for configuring Clojure builds.
+
+== Properties
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|rootOutputDir
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/DirectoryProperty.html[DirectoryProperty]
+|Root directory builds output dirs will conventionally be children of
+
+|builds
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/NamedDomainObjectContainer.html[NamedDomainObjectContainer<ClojureBuild>]
+|Container of all xref:dsl/clojurebuild.adoc[`ClojureBuild`]s for this project
+|===
+
+== Methods
+
+[cols="1*m,1a", options="header"]
+|===
+|Method
+|Description
+
+|void builds(Action<? super NamedDomainObjectContainer<ClojureBuild>> action)
+|Allows configuring the builds in a block
+|===
+
+== Example
+
+TIP: If JVM options must be set, configure the respective task's `forkOptions`.
+
+.build.gradle
+[source, groovy]
+----
+clojure {
+  builds {
+    // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
+    mybuild {
+     sourceRoots.from("src/somewhere") // no default
+
+     // Configuration of the check<Build>Clojure task
+     checkNamespaces = ['my.core', 'my.base'] // defaults to no namespaces checked
+     checkNamespaces.add('my-core') // just add a single namespace
+     checkAll() // checks any namespaces found in the source set
+     reflection = 'fail' // defaults to 'silent', can also be 'warn'
+
+     // Configuration of the compile<Build>Clojure task
+     aotNamespaces = ['my.core', 'my.base'] // defaults to no namespaces aoted
+     aotNamespaces.add('my-core') // just add a single namespace
+     aotAll() // aots any namespaces found in the source set
+     compiler {
+       disableLocalsClearing = true // defaults to false
+       elideMeta = ['doc', 'file'] // defaults to empty list
+       directLinking = true // defaults to false
+     }
+    }
+  }
+}
+----
+
+.build.gradle.kts
+[source, kotlin]
+----
+clojure {
+  builds {
+    // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
+    val mybuild by creating {
+     sourceRoots.from("src/somewhere") // no default
+
+     // Configuration of the check<Build>Clojure task
+     checkNamespaces = listOf("my.core", "my.base") // defaults to no namespaces checked
+     checkNamespaces.add("my-core") // just add a single namespace
+     checkAll() // checks any namespaces found in the source set
+     reflection = "fail" // defaults to 'silent', can also be 'warn'
+
+     // Configuration of the compile<Build>Clojure task
+     aotNamespaces = listOf("my.core", "my.base") // defaults to no namespaces aoted
+     aotNamespaces.add("my-core") // just add a single namespace
+     aotAll() // aots any namespaces found in the source set
+     compiler {
+       disableLocalsClearing = true // defaults to false
+       elideMeta = listOf("doc", "file") // defaults to empty list
+       directLinking = true // defaults to false
+     }
+    }
+  }
+}
+----

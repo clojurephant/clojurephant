@@ -1,0 +1,16 @@
+= nREPL Jack-In Dependencies
+
+NOTE: Introduced in Clojurephant v0.7.0-alpha.6.
+
+By default, Clojurephant will only provide an nREPL dependency. If you'd like to inject additional dependencies from the commandline, set the Gradle property `dev.clojurephant.jack-in.nrepl`. The value should be comma-separated `group:artifact:version` dependencies. These dependencies will be included in the `nrepl` `Configuration` conventionally used by the xref:tasks/clojurenrepl.adoc[] task.
+
+.Example
+[source, shell, subs="attributes"]
+----
+$ ./gradlew -Pdev.clojurephant.jack-in.nrepl=nrepl:nrepl:{nrepl-version},cider:cider-nrepl:{cider-nrepl-version} clojureRepl --middleware=cider.nrepl/cider-middleware
+----
+
+.Usage by Editors
+****
+CIDER:: As of v1.5.0, supported by link:https://github.com/clojure-emacs/cider[CIDER's] `M-x cider-jack-in`.
+****

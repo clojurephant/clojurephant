@@ -1,0 +1,27 @@
+= Java Support
+
+Applies the Gradle built-in `java` plugin to get convention-based support for the JVM ecosystem.
+
+The high-level features of the `java` plugin are:
+
+* Creating a `main` source set for your production code
+* Creating a `jar` task that packages the `main` source set's output
+* Creating a `test` source set for use with JUnit testing
+** The `test` source set depends on the `main` source set's output (i.e. Java classes)
+** Creates a `test` task to execute the tests
+
+== Project Layout
+
+This is the default project layout.
+
+----
+settings.gradle
+build.gradle
+src/
+  main/
+    java/
+    resources/
+  test/
+    java/
+    resources/
+----

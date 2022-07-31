@@ -1,0 +1,72 @@
+= ClojureScriptCompile
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojurescript/tasks/ClojureScriptCompile.java[`dev.clojurephant.plugin.clojure.tasks.ClojureScriptCompile`]
+
+Compiles ClojureScript source to JavaScript.
+
+== Command-Line Arguments
+
+_None_
+
+== Properties
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|destinationDir
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/DirectoryProperty.html[DirectoryProperty]
+|Directory the class files will be written to
+
+|classpath
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileCollection.html[ConfigurableFileCollection]
+|Classpath of the JVM
+
+|source
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/FileTree.html[FileTree]
+|Tree of source files (roots must be included in `classpath`)
+
+|options
+|xref:dsl/clojurescriptcompileoptions.adoc[]
+|Options provided to the ClojureScript compiler
+
+|forkOptions
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html[ForkOptions]
+|Configure JVM settings
+|===
+
+== Example
+
+TIP: Besides JVM options, all other settings are better controlled in the xref:dsl/clojurescriptbuild.adoc[].
+
+To configure a check task:
+
+.build.gradle
+[source, groovy]
+----
+tasks.named('clojureScriptCompile')
+  destinationDir = project.layout.buildDirectory.dir('mytarget')
+  classpath.from(configurations.other)
+  source = project.filetree('src/other')
+  forkOptions {
+    jvmArgs = ['-Xmx4g']
+  }
+  // options should be configured on the ClojureScriptBuild
+}
+----
+
+.build.gradle.kts
+[source, kotlin]
+----
+val clojureScriptCompile by tasks.existing {
+  destinationDir = project.layout.buildDirectory.dir("mytarget")
+  classpath.from(configurations.other)
+  source = project.filetree("src/other")
+  forkOptions {
+    jvmArgs = listOf("-Xmx4g")
+  }
+  // options should be configured on the ClojureScriptBuild
+}
+----

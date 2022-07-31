@@ -1,0 +1,82 @@
+= dev.clojurephant.clojure-base
+
+include::partial$java-base.adoc[leveloffset=+1]
+
+== Clojure Extension
+
+Adds the xref:dsl/clojureextension.adoc[] to the project allowing the user to configure builds.
+
+== Clojure Builds
+
+For each xref:dsl/clojurebuild.adoc[] it sets default values and creates the following tasks.
+
+=== Check Task
+
+Creates a xref:tasks/clojurecheck.adoc[] task named `checkClojure` (for `main` build) or `check<Name>Clojure` (e.g. `checkTestClojure`), with the following defaults:
+
+* `task.source` is `build.sourceRoots`
+* `task.classpath` is `build.sourceRoots` plus `build.classpath`
+* `task.reflection` is `build.reflection`
+* `task.namespaces` is `build.checkNamespaces`
+
+=== Compile Task
+
+Creates a xref:tasks/clojurecompile.adoc[] task named `compileClojure` (for `main` build) or `compile<Name>Clojure` (e.g. `compileTestClojure`), with the following defaults:
+
+* `task.destinationDir` is `build.outputDir`
+* `task.source` is `build.sourceRoots`
+* `task.classpath` is `build.sourceRoots` plus `build.classpath`
+* `task.options` is `build.compiler`
+* `task.namespaces` is `build.aotNamespaces`
+
+== Build per Source Set
+
+For each link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/SourceSet.html[SourceSet], the `clojure-base` plugin will create a xref:dsl/clojurebuild.adoc[]. In addition to the defaults above, the following will be configured:
+
+=== Source Roots
+
+----
+settings.gradle
+build.gradle
+src/
+  <source set name>/
+    clojure/ # Adds this to what java-base provides
+    java/
+    resources/
+----
+
+The build will use this `src/<name>/clojure` directory as its source root.
+
+The Clojure source directories will also be registed with the source set's `allSource` and `allJava`, making them discoverable to other Gradle plugins.
+
+[TIP]
+====
+For maximum compatibility, if you want to modify your source layout, configure on the source set, rather than the build.
+
+.build.gradle
+[source, groovy]
+----
+sourceSets {
+  main {
+    clojure.srcDirs = ['src']
+    resources.srcDirs = ['resources']
+  }
+}
+----
+====
+
+=== Classpath
+
+The Clojure classpath will include:
+
+* the source set's `compileClasspath` configuration dependencies
+* the source set's compiled Java classes
+* the source set's processed resources
+
+=== SourceSet Output
+
+Each source set has a concept of its output directories and the tasks needed to populate them. Depending on your use case, you may want the Clojure source to be considered the output, or you may want AOT classes to be considered the output.
+
+The `clojure-base` plugin will include _only_ the AOT classes in the source set output, if you enable any `build.aotNamespaces`. Otherwise, it will _only_ include the Clojure sources.
+
+include::partial$nrepl-base.adoc[leveloffset=+1]

@@ -1,0 +1,71 @@
+= dev.clojurephant.clojurescript-base
+
+include::partial$java-base.adoc[leveloffset=+1]
+
+== ClojureScript Extension
+
+Adds the xref:dsl/clojurescriptextension.adoc[] to the project allowing the user to configure builds.
+
+== ClojureScript Builds
+
+For each xref:dsl/clojurescriptbuild.adoc[] it sets default values and creates the following tasks.
+
+=== Compile Task
+
+Creates a xref:tasks/clojurecompile.adoc[] task named `compileClojureScript` (for `main` build) or `compile<Name>Clojure` (e.g. `compileTestClojureScript`), with the following defaults:
+
+* `task.destinationDir` is `build.outputDir`
+* `task.source` is `build.sourceRoots`
+* `task.classpath` is `build.sourceRoots` plus `build.classpath`
+* `task.options` is `build.compiler`
+
+== Build per Source Set
+
+For each link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/SourceSet.html[SourceSet], the `clojurescript-base` plugin will create a xref:dsl/clojurescriptbuild.adoc[]. In addition to the defaults above, the following will be configured:
+
+=== Source Roots
+
+----
+settings.gradle
+build.gradle
+src/
+  <source set name>/
+    clojurescript/ # Adds this to what java-base provides
+    java/
+    resources/
+----
+
+The build will use this `src/<name>/clojurescript` directory as its source root.
+
+The ClojureScript source directories will also be registed with the source set's `allSource` and `allJava`, making them discoverable to other Gradle plugins.
+
+[TIP]
+====
+For maximum compatibility, if you want to modify your source layout, configure on the source set, rather than the build.
+
+.build.gradle
+[source, groovy]
+----
+sourceSets {
+  main {
+    clojurescript.srcDirs = ['src']
+    resources.srcDirs = ['resources']
+  }
+}
+----
+====
+
+=== Classpath
+
+The ClojureScript classpath will include:
+
+* the source set's `compileClasspath` configuration dependencies
+* the source set's processed resources
+
+=== SourceSet Output
+
+Each source set has a concept of its output directories and the tasks needed to populate them. Depending on your use case, you may want the ClojureScript source to be considered the output, or you may want compiled JavaScript to be considered the output.
+
+The `clojurescript-base` plugin will include _only_ the compiled JavaScript in the source set output, if you enable any `build.aotNamespaces`. Otherwise, it will _only_ include the ClojureScript sources.
+
+include::partial$nrepl-base.adoc[leveloffset=+1]

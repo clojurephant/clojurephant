@@ -1,0 +1,72 @@
+= ClojureCheck
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojure/tasks/ClojureCheck.java[`dev.clojurephant.plugin.clojure.tasks.ClojureCheck`]
+
+Loads Clojure source to ensure valid code and (optionally) check for use of reflection.
+
+== Command-Line Arguments
+
+_None_
+
+== Properties
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|classpath
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileCollection.html[ConfigurableFileCollection]
+|Classpath of the JVM
+
+|source
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/FileTree.html[FileTree]
+|Tree of source files (roots must be included in `classpath`)
+
+|namespaces
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/SetProperty.html[SetProperty<String>]
+|Namespaces within `source` that should be checked
+
+|reflection
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|One of `silent`, `warn`, `fail`. Controls whether reflection causes warnings or failures
+
+|forkOptions
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html[ForkOptions]
+|Configure JVM settings
+|===
+
+== Example
+
+TIP: Besides JVM options, all other settings are better controlled in the xref:dsl/clojurebuild.adoc[].
+
+To configure a check task:
+
+.build.gradle
+[source, groovy]
+----
+tasks.named('clojureCheck')
+  classpath.from(configurations.other)
+  source = project.filetree('src/other')
+  namespaces.add('mygroup.myns')
+  reflection = 'fail'
+  forkOptions {
+    jvmArgs = ['-Xmx4g']
+  }
+}
+----
+
+.build.gradle.kts
+[source, kotlin]
+----
+val clojureCheck by tasks.existing {
+  classpath.from(configurations.other)
+  source = project.filetree("src/other")
+  namespaces.add("mygroup.myns")
+  reflection = "fail"
+  forkOptions {
+    jvmArgs = listOf("-Xmx4g")
+  }
+}
+----

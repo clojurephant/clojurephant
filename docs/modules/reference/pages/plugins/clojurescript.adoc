@@ -1,0 +1,29 @@
+= dev.clojurephant.clojurescript
+
+== Base ClojureScript Support
+
+Applies the xref:plugins/clojurescript-base.adoc[] plugin.
+
+include::partial$java.adoc[leveloffset=+1]
+
+== Full Project Layout
+
+----
+settings.gradle
+build.gradle
+src/
+  main/
+    clojurescript/
+    java/
+    resources/
+  test/
+    clojurescript/
+    java/
+    resources/
+  dev/
+    clojurescript/
+    java/
+    resources/
+----
+
+include::partial$dev.adoc[]

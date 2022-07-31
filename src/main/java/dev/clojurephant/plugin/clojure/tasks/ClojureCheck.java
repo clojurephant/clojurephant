@@ -88,7 +88,7 @@ public abstract class ClojureCheck extends DefaultTask {
   public abstract SetProperty<String> getNamespaces();
 
   @Inject
-  public abstract FileSystemOperations getFileSystemOperations();
+  protected abstract FileSystemOperations getFileSystemOperations();
 
   @Inject
   protected abstract ProjectLayout getProjectLayout();

@@ -1,0 +1,94 @@
+= ClojureNRepl
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojure/tasks/ClojureNRepl.java[`dev.clojurephant.plugin.clojure.tasks.ClojureNRepl`]
+
+Starts an link:https://nrepl.org[nREPL] server. Requires an external nREPL client for interaction.
+
+== Command-Line Arguments
+
+All are optional. See <<_properties>> below for details.
+
+* `--bind=<address>`
+* `--port=<port>`
+* `--ackPort=<port>`
+* `--handler=<symbol>`
+* `--middleware=<symbol> [--middleware=<symbol2> ...]`
+
+.Example
+[source, shell]
+----
+$ ./gradlew clojureRepl --port=7555
+----
+
+== Properties
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|classpath
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileCollection.html[ConfigurableFileCollection]
+|Classpath of the nREPL server JVM
+
+|bind
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|Address the server will listen on. (Defaults to `127.0.0.1`)
+
+|port
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Integer>]
+|Port the server will listen on. (Defaults to random open port.)
+
+|ackPort
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Integer>]
+|Acknowledge the port of this server to another nREPL server running on `ackPort`.
+
+|handler
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|The nREPL message handler to use for each incoming connection; defaults to the result of `(nrepl.server/default-handler)`.
+
+|middleware
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/ListProperty.html[ListProperty<String>]
+|A sequence of vars, representing middleware you wish to mix in to the nREPL handler.
+
+|forkOptions
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html[ForkOptions]
+|Configure JVM settings
+|===
+
+== Example
+
+To configure a REPL task:
+
+.build.gradle
+[source, groovy]
+----
+tasks.named('clojureRepl')
+  classpath.from(configurations.other)
+  bind = '127.0.0.1'
+  port = 7555
+  ackPort = 8666
+  handler = 'cider/cider-nrepl-handler'
+  middleware = ['cider.nrepl/cider-middleware', 'cider.piggieback/wrap-cljs-repl']
+  forkOptions {
+    jvmArgs = ['-Xmx4g']
+  }
+}
+----
+
+.build.gradle.kts
+[source, kotlin]
+----
+val clojureRepl by tasks.existing {
+  classpath.from(configurations.other)
+  bind = "127.0.0.1"
+  port = 7555
+  ackPort = 8666
+  handler = "cider/cider-nrepl-handler"
+  middleware = listOf("cider.nrepl/cider-middleware", "cider.piggieback/wrap-cljs-repl")
+  forkOptions {
+    jvmArgs = listOf("-Xmx4g")
+  }
+}
+----

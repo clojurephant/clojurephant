@@ -1,0 +1,7 @@
+= nREPL Configuration
+
+Creates a link:https://docs.gradle.org/current/javadoc/org/gradle/api/artifacts/Configuration.html[Configuration] named `nrepl` with a default `nrepl:nrepl:{nrepl-version}` dependency.
+
+WARNING: The `*-base` plugins _do not_ create any xref:tasks/clojurenrepl.adoc[] tasks. You'll either need to apply a convention plugin, or create and configure the REPL task yourself.
+
+include::partial$jackin.adoc[leveloffset=+1]

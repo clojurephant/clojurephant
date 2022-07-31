@@ -1,0 +1,48 @@
+= Java Support
+
+Applies the Gradle built-in `java-base` plugin to get basic support for the JVM ecosystem.
+
+The high-level features provided by `java-base` for each link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/SourceSet.html[SourceSet].
+
+Each source set will have a Java compilation task `compile<Name>Java` task (`compileJava` for the `main` source set).
+
+== Dependencies
+
+Multiple dependency "buckets" are created for each source set, to allow scoping them to the places their needed.
+
+Names below are for a source set named `main`. Other source sets' configurations will be prefixed by the source set name (e.g. `testRuntimeOnly`).
+
+** `compileOnly` for dependencies only needed at compile time, but shouldn't be pulled in transitively by consumers
+** `implementation` for dependencies your code needs to compile and needed by your consumers
+** `runtimeOnly` for dependencies your code needs to run, but aren't necessary at compile time
+
+== Project Layout
+
+This is the default project layout for a source set.
+
+----
+settings.gradle
+build.gradle
+src/
+  <source set name>/
+    java/
+    resources/
+----
+
+== Creating a SourceSet
+
+.build.gradle
+[source, groovy]
+----
+sourceSets {
+  myStuff {
+    java.srcDirs = ['src/myjava']
+    resources.srcDirs = ['src/myresources']
+  }
+}
+
+dependencies {
+  implementation 'org.slf4j:slf4j-api:1.7.0'
+  runtimeOnly 'ch.qos.logback:logback-classic:1.2.11'
+}
+----

@@ -1,4 +1,4 @@
-= New Clojure Users
+= New Clojure Users (🚧)
 :noindex:
 
 _Placeholder_

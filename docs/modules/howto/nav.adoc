@@ -1,5 +1,5 @@
 * xref:index.adoc[]
+** xref:faq.adoc[]
 ** xref:migrate-lein.adoc[]
 ** xref:migrate-boot.adoc[]
 ** xref:migrate-deps.adoc[]
-** xref:faq.adoc[]

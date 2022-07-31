@@ -1,0 +1,111 @@
+= ClojureScriptExtension
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojurescript/ClojureScriptExtension.java[`dev.clojurephant.plugin.clojurescript.ClojureScriptExtension`]
+
+Entry point to the DSL for configuring ClojureScript builds.
+
+== Properties
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|rootOutputDir
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/DirectoryProperty.html[DirectoryProperty]
+|Root directory builds output dirs will conventionally be children of
+
+|builds
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/NamedDomainObjectContainer.html[NamedDomainObjectContainer<ClojureScriptBuild>]
+|Container of all xref:dsl/clojurescriptbuild.adoc[`ClojureScriptBuild`]s for this project
+|===
+
+== Methods
+
+[cols="1*m,1a", options="header"]
+|===
+|Method
+|Description
+
+|void builds(Action<? super NamedDomainObjectContainer<ClojureScriptBuild>> action)
+|Allows configuring the builds in a block
+|===
+
+== Example
+
+TIP: If JVM options must be set, configure the respective task's `forkOptions`.
+
+.build.gradle
+[source, groovy]
+----
+clojurescript {
+  builds {
+    // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
+    mybuild {
+      sourceRoots.from('src/somewhere') // no default
+
+      // Configuration of the compile<Build>ClojureScript task (defaults match what is defaulted in the ClojureScript compile options)
+      compiler {
+        outputTo = 'public/some/file/path.js' // path is relative to the task's destinationDir
+        outputDir = 'public/some/path' // path is relative to the task's destinationDir
+        optimizations = 'advanced'
+        main = 'foo.bar'
+        assetPath = 'public/some/path'
+        sourceMap = 'public/some/file/path.js.map' // path is relative to the task's destinationDir
+        verbose = true
+        prettyPrint = false
+        target = 'nodejs'
+
+        // foreignLibs
+        externs = ['jquery-externs.js']
+
+        // modules
+
+        // stableNames
+        preloads = ['foo.dev']
+        npmDeps = ['lodash': '4.17.4']
+        installDeps = true
+        checkedArrays = 'warn'
+      }
+    }
+  }
+}
+----
+
+.build.gradle.kts
+[source, kotlin]
+----
+clojurescript {
+  builds {
+    // Defaults noted here are for custom builds, the convention plugin configures the builds it adds differently
+    mybuild {
+      sourceRoots.from("src/somewhere") // no default
+
+      // Configuration of the compile<Build>ClojureScript task (defaults match what is defaulted in the ClojureScript compile options)
+      compiler {
+        outputTo = "public/some/file/path.js" // path is relative to the task's destinationDir
+        outputDir = "public/some/path" // path is relative to the task's destinationDir
+        optimizations = "advanced"
+        main = "foo.bar"
+        assetPath = "public/some/path"
+        sourceMap = "public/some/file/path.js.map" // path is relative to the task's destinationDir
+        verbose = true
+        prettyPrint = false
+        target = "nodejs"
+
+        // foreignLibs
+        externs = listOf("jquery-externs.js")
+
+        // modules
+
+        // stableNames
+        preloads = listOf("foo.dev")
+        npmDeps = mapOf("lodash" to "4.17.4")
+        installDeps = true
+        checkedArrays = "warn"
+      }
+    }
+  }
+}
+----

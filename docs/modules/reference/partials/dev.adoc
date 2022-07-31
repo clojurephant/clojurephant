@@ -1,0 +1,26 @@
+== Development Source
+
+Its conventional in Clojure/ClojureScript projects to have a set of development-only source code, typically for use in a REPL environment.
+
+The convention plugins create a new SourceSet named `dev` to house this code. The `dev` source sets's dependency "buckets" extend from the `test` and `main` ones, avoiding the need to repeat declaring dependencies.
+
+=== Compile Classpath
+
+* Clojure/ClojureScript source from the `test` source set
+* Clojure/ClojureScript source from the `main` source set
+* Compiled Java classes from the `main` source set
+* the source set's `compileClasspath` configuration dependencies (which include the deps from `test` and `main`)
+
+=== Runtime (REPL) Classpath
+
+* Clojure/ClojureScript source from the `dev` source set
+* Clojure/ClojureScript source from the `test` source set
+* Clojure/ClojureScript source from the `main` source set
+* Compiled Java classes from the `main` source set
+* the source set's `compileClasspath` configuration dependencies (which include the deps from `test` and `main`)
+* `sources` and `javadoc` JARs of all dependencies (where available) -- this can be used by editor's like CIDER to help with navigate to source or documentation
+* `nrepl` configuration dependencies (the nREPL server and any "jacked-in" dependencies)
+
+== REPL Task
+
+Creates a xref:tasks/clojurenrepl.adoc[] task (named `clojureRepl`) to provide an nREPL server using the `dev` runtime classpath.

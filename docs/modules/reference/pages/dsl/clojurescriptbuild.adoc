@@ -1,0 +1,49 @@
+= ClojureScriptBuild
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojurescript/ClojureScriptBuild.java[`dev.clojurephant.plugin.clojurescript.ClojureScriptBuild`]
+
+Represents ClojureScript source code that should be compiled as a unit.
+
+== Properties
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|outputDir
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/DirectoryProperty.html[DirectoryProperty]
+|Directory compiled JavaScript will be written to (if compiler is configured)
+
+|classpath
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileCollection.html[ConfigurableFileCollection]
+|Classpath to use when checking/compiling
+
+|sourceRoots
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileCollection.html[ConfigurableFileCollection]
+|Directories to use as roots for source code (will be added to the `classpath`)
+
+|sourceTree
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/FileTree.html[FileTree]
+|**READ ONLY** Tree of source files (starting from `sourceRoots`)
+
+|compiler
+|xref:dsl/clojurescriptcompileoptions.adoc[]
+|Configure the ClojureScript compiler for the build's xref:tasks/clojurescriptcompile.adoc[] task
+|===
+
+== Methods
+
+[cols="1*m,1a", options="header"]
+|===
+|Method
+|Description
+
+|void compiler(Action<? super ClojureScriptCompilerOptions> action)
+|Allows configuring the compiler options in a block
+|===
+
+== Example
+
+See xref:dsl/clojurescriptextension.adoc[].

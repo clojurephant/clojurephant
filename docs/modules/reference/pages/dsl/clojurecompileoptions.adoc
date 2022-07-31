@@ -1,0 +1,34 @@
+= ClojureCompileOptions
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojure/tasks/ClojureCompileOptions.java[`dev.clojurephant.plugin.clojure.tasks.ClojureCompileOptions`]
+
+Options passed to the Clojure compiler (see link:https://clojure.org/reference/compilation#_compiler_options[Clojure's documentation for full behavior]).
+
+== Properties
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|disableLocalsClearing
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|Default `false`
+
+|elideMetadata
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/ListProperty.html[ListProperty<String>]
+|Default `[]`
+
+|directLinking
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|Default `false`
+|===
+
+== Methods
+
+_None_
+
+== Example
+
+See xref:dsl/clojureextension.adoc[].

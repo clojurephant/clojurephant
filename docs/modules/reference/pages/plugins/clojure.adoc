@@ -1,0 +1,53 @@
+= dev.clojurephant.clojure
+
+== Base Clojure Support
+
+Applies the xref:plugins/clojure-base.adoc[] plugin.
+
+include::partial$java.adoc[leveloffset=+1]
+
+== Full Project Layout
+
+----
+settings.gradle
+build.gradle
+src/
+  main/
+    clojure/
+    java/
+    resources/
+  test/
+    clojure/
+    java/
+    resources/
+  dev/
+    clojure/
+    java/
+    resources/
+----
+
+== Main Source
+
+By default the `main` build runs with `build.checkAll()`. This will let you know if any of your code is invalid and would fail a compile (without producing AOT classes).
+
+== Test Source
+
+By default the `test` build runs with `build.aotAll()` since the only reliable way to run Clojure tests via Gradle's native `Test` task is to have them pre-compiled into class files.
+
+.Running clojure.test tests
+****
+Clojurephant doesn't provide support out-of-the-box to run `clojure.test` tests, but you can very easily enable it by using link:https://github.com/ajoberstar/jovial[jovial], which is a JUnit Platform engine. This approach means that your Clojure tests can make use of Gradle's reporting and filtering features.
+
+[source, groovy, subs="attributes"]
+----
+dependencies {
+  testRuntimeOnly 'org.ajoberstar:jovial:{jovial-version}'
+}
+
+tasks.withType(Test) {
+  useJUnitPlatform()
+}
+----
+****
+
+include::partial$dev.adoc[]

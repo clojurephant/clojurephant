@@ -59,14 +59,14 @@ Use the Gradle link:http://imperceptiblethoughts.com/shadow/[Shadow plugin].
 
 To create an executable uberjar:
 
-[source, groovy]
+[source, groovy, subs="attributes"]
 ----
 plugins {
-  id 'dev.clojurephant.clojure' version '<version>'
+  id 'dev.clojurephant.clojure' version '{clojurephant-version}'
   // this tells Gradle you're generating an application with a main class
   id 'application'
   // Pulls in the shadow plugin which produces the uberjar
-  id 'com.github.johnrengelman.shadow' version '6.1.0'
+  id 'com.github.johnrengelman.shadow' version '{shadow-plugin-version}'
 }
 
 mainClassName = 'whatever_your.main.ns.class.is'
@@ -107,12 +107,12 @@ Right now you need to manually add the dependency and specify the handler/middle
 Either apply to all of your projects via an init script:
 
 .~/.gradle/init.d/cider.gradle
-[source, groovy]
+[source, groovy, subs="attributes"]
 ----
 allprojects {
   plugins.withId('dev.clojurephant.clojure') {
     dependencies {
-      devImplementation 'cider:cider-nrepl:0.25.6'
+      devImplementation 'cider:cider-nrepl:{cider-nrepl-version}'
     }
 
     clojureRepl {
@@ -125,10 +125,10 @@ allprojects {
 Or add it manually to your project:
 
 .build.gradle
-[source, groovy]
+[source, groovy, subs="attributes"]
 ----
 dependencies {
-  devImplementation 'cider:cider-nrepl:0.25.16'
+  devImplementation 'cider:cider-nrepl:{cider-nrepl-version}'
 }
 
 clojureRepl {

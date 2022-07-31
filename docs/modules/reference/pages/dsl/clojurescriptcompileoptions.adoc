@@ -1,0 +1,166 @@
+= ClojureScriptCompileOptions
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojurescript/tasks/ClojureScriptCompileOptions.java[`dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompileOptions`]
+
+Options passed to the ClojureScript compiler (see link:https://clojurescript.org/reference/compiler-options[ClojureScripts's documentation for full behavior]).
+
+== Properties
+
+NOTE: Not all ClojureScript compiler options are supported yet. Open an issue or submit a PR if there's one you'd like added.
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|baseOutputDirectory
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/DirectoryProperty.html[DirectoryProperty]
+|Base directory that `outputDir`, `outputTo` and `sourceMap` will resolve against
+
+|assetPath
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|checkedArrays
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|externs
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/ListProperty.html[ListProperty<String>]
+|
+
+|foreignLibs
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/NamedDomainObjectContainer.html[NamedDomainObjectContainer<ForeignLib>]
+|
+
+|installDeps
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|main
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|modules
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/NamedDomainObjectContainer.html[NamedDomainObjectContainer<Module>]
+|
+
+|npmDeps
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/MapProperty.html[MapProperty<String, String>]
+|
+
+|optimizations
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|outputTo
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|Resolves relative to `baseOutputDirectory`
+
+|outputDir
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|Resolves relative to `baseOutputDirectory`
+
+|preloads
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/ListProperty.html[ListProperty<String>]
+|
+
+|prettyPrint
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|sourceMap
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Object>]
+|Can be a `boolean` or a `String`. If a `String`, resolves relative to `baseOutputDirectory`
+
+|stablePaths
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|target
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|verbose
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+|===
+
+=== ForeignLib Properties
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojurescript/tasks/ForeignLib.java[`dev.clojurephant.plugin.clojurescript.tasks.ForeignLib`]
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|name
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|file
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|fileMin
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|provides
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/ListProperty.html[ListProperty<String>]
+|
+
+|requires
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/ListProperty.html[ListProperty<String>]
+|
+
+|moduleType
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|preprocess
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|globalExports
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/MapProperty.html[MapProperty<String>]
+|
+|===
+
+=== Module Properties
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojurescript/tasks/Module.java[`dev.clojurephant.plugin.clojurescript.tasks.Module`]
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|baseOutputDirectory
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/DirectoryProperty.html[DirectoryProperty]
+|Base directory that `outputTo` will resolve against (same as the build's by default)
+
+|outputTo
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|Resolves relative to `baseOutputDirectory`
+
+|entries
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/SetProperty.html[SetProperty<String>]
+|
+
+|dependsOn
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/SetProperty.html[SetProperty<String>]
+|
+|===
+
+== Methods
+
+_None_
+
+== Example
+
+See xref:dsl/clojurescriptextension.adoc[].

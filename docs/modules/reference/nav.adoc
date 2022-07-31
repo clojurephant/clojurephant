@@ -1,0 +1,17 @@
+* xref:index.adoc[]
+** Plugins
+*** xref:plugins/clojure.adoc[clojure]
+*** xref:plugins/clojurescript.adoc[clojurescript]
+*** xref:plugins/clojure-base.adoc[clojure-base]
+*** xref:plugins/clojurescript-base.adoc[clojurescript-base]
+** xref:dsl/clojureextension.adoc[Clojure DSL]
+*** xref:dsl/clojurebuild.adoc[Build]
+*** xref:dsl/clojurecompileoptions.adoc[CompileOptions]
+** xref:dsl/clojurescriptextension.adoc[ClojureScript DSL]
+*** xref:dsl/clojurescriptbuild.adoc[Build]
+*** xref:dsl/clojurescriptcompileoptions.adoc[CompileOptions]
+** Tasks
+*** xref:tasks/clojurecheck.adoc[]
+*** xref:tasks/clojurecompile.adoc[]
+*** xref:tasks/clojurenrepl.adoc[]
+*** xref:tasks/clojurescriptcompile.adoc[]

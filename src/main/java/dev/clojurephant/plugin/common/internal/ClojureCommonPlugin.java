@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import dev.clojurephant.plugin.clojure.ClojureBasePlugin;
 import dev.clojurephant.plugin.clojure.tasks.ClojureNRepl;
@@ -17,14 +19,27 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ComponentModuleMetadataDetails;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolvableDependencies;
+import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.artifacts.query.ArtifactResolutionQuery;
+import org.gradle.api.artifacts.result.ArtifactResolutionResult;
+import org.gradle.api.artifacts.result.ComponentArtifactsResult;
+import org.gradle.api.artifacts.result.ComponentResult;
+import org.gradle.api.artifacts.result.ResolvedArtifactResult;
+import org.gradle.api.artifacts.result.ResolvedComponentResult;
+import org.gradle.api.artifacts.result.ResolvedDependencyResult;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.jvm.JvmLibrary;
+import org.gradle.language.base.artifact.SourcesArtifact;
+import org.gradle.language.java.artifact.JavadocArtifact;
 import org.gradle.language.jvm.tasks.ProcessResources;
 
 public class ClojureCommonPlugin implements Plugin<Project> {
@@ -75,7 +90,8 @@ public class ClojureCommonPlugin implements Plugin<Project> {
         clojureSources.apply(test),
         clojureSources.apply(main),
         main.getJava().getClassesDirectory(),
-        project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName())));
+        project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()),
+        enrichClasspath(project, project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()))));
 
     Consumer<Function<SourceSet, String>> devExtendsTest = getConfName -> {
       Configuration devConf = project.getConfigurations().getByName(getConfName.apply(dev));
@@ -109,5 +125,35 @@ public class ClojureCommonPlugin implements Plugin<Project> {
         });
       });
     }
+  }
+
+  private Provider<FileCollection> enrichClasspath(Project project, Configuration classpath) {
+    return project.provider(() -> {
+      Set<ComponentIdentifier> componentIds = classpath.getIncoming()
+          .getResolutionResult()
+          .getAllDependencies()
+          .stream()
+          .filter(ResolvedDependencyResult.class::isInstance)
+          .map(ResolvedDependencyResult.class::cast)
+          .map(result -> result.getSelected().getId())
+          .collect(Collectors.toSet());
+
+      ArtifactResolutionResult result = project.getDependencies().createArtifactResolutionQuery()
+          .forComponents(componentIds)
+          .withArtifacts(JvmLibrary.class, SourcesArtifact.class, JavadocArtifact.class)
+          .execute();
+
+      ConfigurableFileCollection enrichedResult = project.getObjects().fileCollection();
+      result.getResolvedComponents().stream()
+          .flatMap(component -> Stream.concat(
+              component.getArtifacts(SourcesArtifact.class).stream(),
+              component.getArtifacts(JavadocArtifact.class).stream()))
+          .filter(ResolvedArtifactResult.class::isInstance)
+          .map(ResolvedArtifactResult.class::cast)
+          .map(artifact -> artifact.getFile())
+          .forEach(enrichedResult::from);
+
+      return enrichedResult;
+    });
   }
 }

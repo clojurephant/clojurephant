@@ -91,8 +91,8 @@ A sample, relatively complete build file for a full-stack project looks like thi
 [source, groovy, subs="attributes"]
 ----
 plugins {
-  id 'dev.clojurephant.clojure'
-  id 'dev.clojurephant.clojurescript'
+  id 'dev.clojurephant.clojure' version '{clojurephant-version}'
+  id 'dev.clojurephant.clojurescript' version '{clojurephant-version}'
 }
 
 repositories {

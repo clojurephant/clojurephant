@@ -1,4 +1,5 @@
 * xref:index.adoc[]
+** xref:editors.adoc[]
 ** xref:faq.adoc[]
 ** xref:migrate-lein.adoc[]
 ** xref:migrate-boot.adoc[]

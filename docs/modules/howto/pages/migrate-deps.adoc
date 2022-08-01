@@ -1,4 +1,4 @@
-= Migrating from deps.edn (🚧)
+= Migrate from deps.edn (🚧)
 :noindex:
 
 _Placeholder_

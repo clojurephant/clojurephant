@@ -171,8 +171,8 @@ clojurescript {
 
 Documentation is divided into sections based on your need:
 
-* xref:tutorials:new-gradle.adoc[] - learning-oriented
-* xref:howto:faq.adoc[] - task-oriented
+* xref:tutorials:index.adoc[] - learning-oriented
+* xref:howto:index.adoc[] - task-oriented
 * xref:reference:index.adoc[] - information-oriented
 * xref:explanation:index.adoc[] - understanding-oriented
 

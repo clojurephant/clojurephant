@@ -1,4 +1,4 @@
-= Migrating from Leiningen (🚧)
+= Migrate from Leiningen (🚧)
 :noindex:
 
 _Placeholder_

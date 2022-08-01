@@ -1,0 +1,74 @@
+= Editor Integrations
+
+== CIDER (Emacs)
+
+link:https://github.com/clojure-emacs/cider[CIDER] (The Clojure Interactive Development Environment for Emacs that Rocks) functionality is largely build-tool-agnostic except for the startup (a.k.a "jack-in") process to start and connect to nREPL. In recent versions, this works with Gradle the same as it does for other build tools.
+
+Once you're jacked-in or connected, see https://docs.cider.mx[CIDER's documentation] for usage information.
+
+NOTE: `cider-javadoc` does not require `enrich-classpath` to work with Gradle. Clojurephant will automatically add sources/javadoc JARs of your dependencies to the REPL classpath.
+
+=== (Easiest) Jack-in (w/ dependencies)
+
+[TIP]
+====
+For CIDER's dependency injection to work to work, you need at least:
+
+Clojurephant:: 0.7.0-alpha.6
+CIDER:: v20220731.522 from MELPA (or a release newer than v1.4.1).
+====
+
+As long as your Gradle build is using either or both of the xref:reference:plugins/clojure.adoc[] or xref:reference:plugins/clojurescript.adoc[] plugins, CIDER will handle the rest.
+
+. Open Emacs
+. Visit a Clojure file in your project
+. Run `M-x cider-jack-in-clj`
+
+CIDER will automatically inject the needed nREPL version and middleware, start the nREPL server, and connect to it.
+
+=== (Manual) Add dependencies to your build
+
+If you're someone who `(setq cider-inject-dependencies-at-jack-in nil)`, then here are the needed changes to manually configure your project for use with CIDER.
+
+==== Build Config
+
+[source, groovy, subs="attributes"]
+----
+dependencies {
+  devImplementation 'cider:cider-nrepl:{cider-nrepl-version}'
+}
+
+clojureRepl {
+  middleware = ['cider.nrepl/cider-middleware']
+}
+----
+
+==== Jack-in (w/o dependencies)
+
+. Open Emacs
+. Visit a Clojure file in your project
+. Run `M-x cider-jack-in-clj`
+
+==== (or) Connect to already running REPL
+
+[source, shell]
+----
+$ ./gradlew clojureRepl
+----
+
+Optionally, omit the middleware from the `build.gradle` and include it on the commandline:
+
+[source, shell]
+----
+$ ./gradlew clojureRepl --middleware=cider.nrepl/cider-middleware
+----
+
+Then `M-x cider-connect`. CIDER should pick up the port via the `.nrepl-port` file.
+
+== Calva (VS Code)
+
+_Placeholder_
+
+== Cursive (Intellij)
+
+_Placeholder_

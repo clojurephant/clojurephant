@@ -1,4 +1,4 @@
-= Migrating from Boot (🚧)
+= Migrate from Boot (🚧)
 :noindex:
 
 _Placeholder_

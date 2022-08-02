@@ -2,6 +2,9 @@
 .gradle/
 build/
 
+# Clojure
+.nrepl-port
+
 # IntelliJ
 *.iml
 *.iws
@@ -15,20 +18,18 @@ build/
 bin/
 
 # VS Code
-.vs-code/
+.vscode/
 
-# Sublime
-*.sublime-workspace
-
-# Other
-*~
+# Calva
+.calva/
+.clj-kondo/
+.lsp/
 
 # Java Profiling
 *.jfr
 *.hprof
 
-# Clojure
-.clj-kondo/
-.lsp/
-.nrepl-port
-*.edn
+# Other
+\#*\#
+.\#*
+*~

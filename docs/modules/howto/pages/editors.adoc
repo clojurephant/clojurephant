@@ -73,6 +73,8 @@ Then `M-x cider-connect`. CIDER should pick up the port via the `.nrepl-port` fi
 
 NOTE: We're link:https://github.com/BetterThanTomorrow/calva/pull/1815[working on] adding an out-of-box project type for Gradle to Calva. That will simplify the usage described here.
 
+Once you're jacked-in or connected, see link:https://calva.io/[Calva's documentation] for usage information.
+
 === (Manual) Add dependencies to your build
 
 If you want to control the dependencies yourself, here are the needed changes to manually configure your project for use with Calva.
@@ -150,6 +152,8 @@ Then `Calva: Connect to a Runnig REPL Server in the Project` (`CTRL+ALT+C CTRL+A
 Intellij has its own Gradle support, so that will cover getting things imported and the ability to run ad-hoc Gradle tasks.
 
 NOTE: As of 2022-08-02, Cursive doesn't have direct Gradle support, but it is generally compatible once the project is imported.
+
+Once you're connected to the REPL, see link:https://cursive-ide.com/userguide/[Cursive's documentation] for usage information.
 
 === Start your nREPL Server
 

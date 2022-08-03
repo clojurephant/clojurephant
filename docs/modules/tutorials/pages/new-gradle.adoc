@@ -26,6 +26,7 @@ Also see link:https://docs.gradle.org/current/userguide/tutorial_using_tasks.htm
 
 To include plugins from link:https://plugins.gradle.org/[Gradle's Plugin Portal] you'll use a `plugins {}` block. This should be at the top of your `build.gradle`.
 
+.build.gradle
 [source, groovy, subs="attributes"]
 ----
 plugins {
@@ -38,6 +39,7 @@ Also see link:https://docs.gradle.org/current/userguide/plugins.html[Gradle's Us
 
 == Configuring project information
 
+.build.gradle
 [source, groovy]
 ----
 group = 'my.example' // the group ID your artifacts should be published under
@@ -54,6 +56,7 @@ No repositories are specified by default, so you must list any repositories you 
 
 Clojure projects commonly need both link:https://search.maven.org/[Maven Central] and link:https://clojars.org/[Clojars].
 
+.build.gradle
 [source, groovy]
 ----
 repositories {
@@ -77,6 +80,7 @@ Dependencies are put in different configurations (somewhat similar to Maven scop
 * `testImplementation` - dependencies of your test code
 * `devImplementation` - dependencies used only in the REPL
 
+.build.gradle
 [source, groovy, subs="attributes"]
 ----
 dependencies {

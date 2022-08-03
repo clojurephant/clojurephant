@@ -46,3 +46,21 @@ dependencies {
   runtimeOnly 'ch.qos.logback:logback-classic:1.2.11'
 }
 ----
+
+== JVM Toolchain
+
+Gradle's link:https://docs.gradle.org/current/userguide/toolchains.html[JVM toolchain] feature allows you to declare a specific JVM version to use for its tasks. This means that Gradle can run on one JVM version and your tasks can run on another. Or you can have different tasks run on different JVMs.
+
+By default, Gradle will try to detect installed JVM versions from your device and if the requested version is not found it will download it for you.
+
+In the simplest case, you declare a JVM version to use for all tasks that fork a JVM. This is supported by the tasks created by the Java plugins and all tasks created by the Clojurephant plugins.
+
+.build.gradle
+[source, groovy]
+----
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
+----

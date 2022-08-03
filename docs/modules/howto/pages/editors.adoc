@@ -34,6 +34,7 @@ If you're someone who `(setq cider-inject-dependencies-at-jack-in nil)`, then he
 
 ==== Build Config
 
+.build.gradle
 [source, groovy, subs="attributes"]
 ----
 dependencies {
@@ -81,6 +82,7 @@ If you want to control the dependencies yourself, here are the needed changes to
 
 ==== Build Config
 
+.build.gradle
 [source, groovy, subs="attributes"]
 ----
 dependencies {
@@ -96,6 +98,7 @@ clojureRepl {
 
 Create a custom Calva connect sequence in your user or workspace `settings.json`.
 
+.settings.json
 [source, json]
 ----
 {

@@ -17,8 +17,8 @@ Entry point to the DSL for configuring ClojureScript builds.
 |Root directory builds output dirs will conventionally be children of
 
 |builds
-|link:https://docs.gradle.org/current/javadoc/org/gradle/api/NamedDomainObjectContainer.html[NamedDomainObjectContainer<ClojureScriptBuild>]
-|Container of all xref:dsl/clojurescriptbuild.adoc[`ClojureScriptBuild`]s for this project
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/NamedDomainObjectContainer.html[NamedDomainObjectContainer]<xref:dsl/clojurescriptbuild.adoc[ClojureScriptBuild]>
+|Container of all builds for this project
 |===
 
 == Methods

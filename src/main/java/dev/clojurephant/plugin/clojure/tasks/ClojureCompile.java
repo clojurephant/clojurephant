@@ -39,7 +39,7 @@ import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.process.ExecOperations;
 import us.bpsm.edn.Symbol;
 
-public abstract class ClojureCompile extends DefaultTask {
+public abstract class ClojureCompile extends DefaultTask implements ClojureTask {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
 
   private final Prepl prepl;
@@ -67,9 +67,6 @@ public abstract class ClojureCompile extends DefaultTask {
 
   @Nested
   public abstract Property<ClojureCompileOptions> getOptions();
-
-  @Nested
-  public abstract ForkOptions getForkOptions();
 
   @Input
   public abstract SetProperty<String> getNamespaces();
@@ -101,6 +98,7 @@ public abstract class ClojureCompile extends DefaultTask {
         .plus(getProjectLayout().files(outputDir));
 
     PreplClient preplClient = prepl.start(spec -> {
+      spec.setJavaLauncher(getJavaLauncher().getOrNull());
       spec.setClasspath(classpath);
       spec.setPort(0);
       spec.forkOptions(fork -> {

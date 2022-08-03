@@ -32,6 +32,10 @@ _None_
 |link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
 |One of `silent`, `warn`, `fail`. Controls whether reflection causes warnings or failures
 
+|javaLauncher
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property]<link:https://docs.gradle.org/current/javadoc/org/gradle/jvm/toolchain/JavaLauncher.html[JavaLauncher]>
+|Overrides the Java executable to use for the task's JVM
+
 |forkOptions
 |link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html[ForkOptions]
 |Configure JVM settings

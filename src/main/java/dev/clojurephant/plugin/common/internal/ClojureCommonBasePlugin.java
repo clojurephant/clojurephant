@@ -1,10 +1,16 @@
 package dev.clojurephant.plugin.common.internal;
 
+import dev.clojurephant.plugin.clojure.tasks.ClojureTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaBasePlugin;
+import org.gradle.api.plugins.JavaPluginExtension;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.TaskContainer;
+import org.gradle.jvm.toolchain.JavaLauncher;
+import org.gradle.jvm.toolchain.JavaToolchainService;
 
 public class ClojureCommonBasePlugin implements Plugin<Project> {
   public static final String NREPL_JACK_IN_PROPERTY = "dev.clojurephant.jack-in.nrepl";
@@ -12,7 +18,19 @@ public class ClojureCommonBasePlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaBasePlugin.class);
+    configureJavaToolchain(project);
     configureNreplDependencies(project);
+  }
+
+  public void configureJavaToolchain(Project project) {
+    JavaPluginExtension java = project.getExtensions().getByType(JavaPluginExtension.class);
+    JavaToolchainService javaToolchain = project.getExtensions().getByType(JavaToolchainService.class);
+
+    Provider<JavaLauncher> launcher = javaToolchain.launcherFor(java.getToolchain());
+
+    project.getTasks().withType(ClojureTask.class, task -> {
+      task.getJavaLauncher().set(launcher);
+    });
   }
 
   public void configureNreplDependencies(Project project) {

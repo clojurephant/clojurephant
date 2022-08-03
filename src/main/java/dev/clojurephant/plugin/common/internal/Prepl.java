@@ -39,6 +39,9 @@ public class Prepl {
     new Thread(() -> {
       try {
         execOperations.javaexec(spec -> {
+          if (preplSpec.getJavaLauncher() != null) {
+            spec.setExecutable(preplSpec.getJavaLauncher().getExecutablePath());
+          }
           spec.getMainClass().set("clojure.main");
           spec.systemProperty("clojure.server.clojurephant", String.format("{:port %d :accept clojure.core.server/io-prepl :client-daemon false}", port));
           spec.args("-e", "(do (ns dev.clojurephant.prepl) (def connected (promise)) @connected nil)");

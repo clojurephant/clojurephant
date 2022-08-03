@@ -52,6 +52,10 @@ $ ./gradlew clojureRepl --port=7555
 |link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/ListProperty.html[ListProperty<String>]
 |A sequence of vars, representing middleware you wish to mix in to the nREPL handler.
 
+|javaLauncher
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property]<link:https://docs.gradle.org/current/javadoc/org/gradle/jvm/toolchain/JavaLauncher.html[JavaLauncher]>
+|Overrides the Java executable to use for the task's JVM
+
 |forkOptions
 |link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html[ForkOptions]
 |Configure JVM settings

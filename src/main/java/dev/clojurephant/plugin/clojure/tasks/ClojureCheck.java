@@ -47,7 +47,7 @@ import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.process.ExecOperations;
 import us.bpsm.edn.Symbol;
 
-public abstract class ClojureCheck extends DefaultTask {
+public abstract class ClojureCheck extends DefaultTask implements ClojureTask {
   private static final Logger logger = Logging.getLogger(ClojureCompile.class);
   private static final Pattern REFLECTION_WARNING = Pattern.compile("Reflection warning, (.+?):.*");
 
@@ -81,9 +81,6 @@ public abstract class ClojureCheck extends DefaultTask {
   @Input
   public abstract Property<String> getReflection();
 
-  @Nested
-  public abstract ForkOptions getForkOptions();
-
   @Input
   public abstract SetProperty<String> getNamespaces();
 
@@ -104,6 +101,7 @@ public abstract class ClojureCheck extends DefaultTask {
         .plus(getProjectLayout().files(getTemporaryDir()));
 
     PreplClient preplClient = prepl.start(spec -> {
+      spec.setJavaLauncher(getJavaLauncher().getOrNull());
       spec.setClasspath(classpath);
       spec.setPort(0);
       spec.forkOptions(fork -> {

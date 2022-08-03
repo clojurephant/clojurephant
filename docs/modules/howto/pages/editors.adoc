@@ -1,5 +1,7 @@
 = Editor Integrations
 
+For a Clojure project, the main detail to get working with any editor is the REPL connection, so that's what we'll focus on in this document.
+
 == CIDER (Emacs)
 
 link:https://github.com/clojure-emacs/cider[CIDER] (The Clojure Interactive Development Environment for Emacs that Rocks) functionality is largely build-tool-agnostic except for the startup (a.k.a "jack-in") process to start and connect to nREPL. In recent versions, this works with Gradle the same as it does for other build tools.
@@ -51,6 +53,8 @@ clojureRepl {
 
 ==== (or) Connect to already running REPL
 
+Start your nREPL server.
+
 [source, shell]
 ----
 $ ./gradlew clojureRepl
@@ -67,11 +71,83 @@ Then `M-x cider-connect`. CIDER should pick up the port via the `.nrepl-port` fi
 
 == Calva (VS Code)
 
-_Placeholder_
+NOTE: We're link:https://github.com/BetterThanTomorrow/calva/pull/1815[working on] adding an out-of-box project type for Gradle to Calva. That will simplify the usage described here.
+
+=== (Manual) Add dependencies to your build
+
+If you want to control the dependencies yourself, here are the needed changes to manually configure your project for use with Calva.
+
+==== Build Config
+
+[source, groovy, subs="attributes"]
+----
+dependencies {
+  devImplementation 'cider:cider-nrepl:{cider-nrepl-version}'
+}
+
+clojureRepl {
+  middleware = ['cider.nrepl/cider-middleware']
+}
+----
+
+==== Connect to already running REPL (Custom)
+
+Create a custom Calva connect sequence in your user or workspace `settings.json`.
+
+[source, json]
+----
+{
+  "calva.replConnectSequences": [
+    {
+      "name": "Custom Gradle",
+      "projectType": "generic",
+      "nReplPortFile": [
+        ".nrepl-port"
+      ],
+      "cljsType": "none"
+    }
+  ]
+}
+----
+
+Start your nREPL server.
+
+[source, shell]
+----
+$ ./gradlew clojureRepl
+----
+
+Optionally, omit the middleware from the `build.gradle` and include it on the commandline:
+
+[source, shell]
+----
+$ ./gradlew clojureRepl --middleware=cider.nrepl/cider-middleware
+----
+
+Then `Calva: Connect to a Runnig REPL Server in the Project` (`CTRL+ALT+C CTRL+ALT+C`). Choose the `Custom Gradle` project type. Calva will pick up the port automatically.
+
+
+==== (or) Connect to already running REPL (Generic)
+
+Start your nREPL server.
+
+[source, shell]
+----
+$ ./gradlew clojureRepl
+----
+
+Optionally, omit the middleware from the `build.gradle` and include it on the commandline:
+
+[source, shell]
+----
+$ ./gradlew clojureRepl --middleware=cider.nrepl/cider-middleware
+----
+
+Then `Calva: Connect to a Runnig REPL Server in the Project` (`CTRL+ALT+C CTRL+ALT+C`). Choose the `Generic` project type and input the REPL port from your Gradle output.
 
 == Cursive (Intellij)
 
-Intellij has its own Gradle support, so that will cover getting things imported and if you want to run any ad-hoc tasks.
+Intellij has its own Gradle support, so that will cover getting things imported and the ability to run ad-hoc Gradle tasks.
 
 NOTE: As of 2022-08-02, Cursive doesn't have direct Gradle support, but it is generally compatible once the project is imported.
 

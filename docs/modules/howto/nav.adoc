@@ -1,5 +1,8 @@
 * xref:index.adoc[]
-** xref:editors.adoc[]
+** Editors
+*** xref:editors/cider.adoc[]
+*** xref:editors/calva.adoc[]
+*** xref:editors/cursive.adoc[]
 ** xref:faq.adoc[]
 ** xref:migrate-lein.adoc[]
 ** xref:migrate-boot.adoc[]

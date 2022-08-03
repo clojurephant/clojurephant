@@ -1,0 +1,35 @@
+= Cursive (Intellij)
+
+Intellij has its own Gradle support, so that will cover getting things imported and the ability to run ad-hoc Gradle tasks.
+
+NOTE: As of 2022-08-02, Cursive doesn't have direct Gradle support, but it is generally compatible once the project is imported.
+
+Once you're connected to the REPL, see link:https://cursive-ide.com/userguide/[Cursive's documentation] for usage information.
+
+== Start your nREPL Server
+
+Kick off the REPL task from the shell.
+
+[source, shell]
+----
+$ ./gradlew clojureRepl
+----
+
+This will create the standard `.nrepl-port` file in your project root once the nREPL server is running.
+
+== Connect to Remote REPL
+
+Cursive refers to this as a "remote" REPL, just meaning that it didn't start the REPL for you.
+
+. In _Run_ -> _Edit Configurations_
+. Click the _+_ to make a new configuration, choose _Clojure REPL_ -> _Remote REPL_
+. Fill in the _Name_, as desired (we'll use `Gradle REPL`)
+. Choose _nREPL_ as the connection type
+. Choose _Use port from nREPL file_
+.. Choose your project's `*.dev` module as the _Context Module_
+.. Specify custom port file as `../../.nrepl-port` (presuming you use the standard `src/dev/clojure` project layout)
+. Click _OK_
+
+Now start your `Gradle REPL` run configuration.
+
+Success! Now you can continue using Cursive with your active REPL.

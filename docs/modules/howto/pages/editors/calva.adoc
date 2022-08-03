@@ -1,0 +1,79 @@
+= Calva (VS Code)
+
+NOTE: We're link:https://github.com/BetterThanTomorrow/calva/pull/1815[working on] adding an out-of-box project type for Gradle to Calva. That will simplify the usage described here.
+
+Once you're jacked-in or connected, see link:https://calva.io/[Calva's documentation] for usage information.
+
+== (Manual) Add dependencies to your build
+
+If you want to control the dependencies yourself, here are the needed changes to manually configure your project for use with Calva.
+
+=== Build Config
+
+.build.gradle
+[source, groovy, subs="attributes"]
+----
+dependencies {
+  devImplementation 'cider:cider-nrepl:{cider-nrepl-version}'
+}
+
+clojureRepl {
+  middleware = ['cider.nrepl/cider-middleware']
+}
+----
+
+=== Connect to already running REPL (Custom)
+
+Create a custom Calva connect sequence in your user or workspace `settings.json`.
+
+.settings.json
+[source, json]
+----
+{
+  "calva.replConnectSequences": [
+    {
+      "name": "Custom Gradle",
+      "projectType": "generic",
+      "nReplPortFile": [
+        ".nrepl-port"
+      ],
+      "cljsType": "none"
+    }
+  ]
+}
+----
+
+Start your nREPL server.
+
+[source, shell]
+----
+$ ./gradlew clojureRepl
+----
+
+Optionally, omit the middleware from the `build.gradle` and include it on the commandline:
+
+[source, shell]
+----
+$ ./gradlew clojureRepl --middleware=cider.nrepl/cider-middleware
+----
+
+Then `Calva: Connect to a Runnig REPL Server in the Project` (`CTRL+ALT+C CTRL+ALT+C`). Choose the `Custom Gradle` project type. Calva will pick up the port automatically.
+
+
+=== (or) Connect to already running REPL (Generic)
+
+Start your nREPL server.
+
+[source, shell]
+----
+$ ./gradlew clojureRepl
+----
+
+Optionally, omit the middleware from the `build.gradle` and include it on the commandline:
+
+[source, shell]
+----
+$ ./gradlew clojureRepl --middleware=cider.nrepl/cider-middleware
+----
+
+Then `Calva: Connect to a Runnig REPL Server in the Project` (`CTRL+ALT+C CTRL+ALT+C`). Choose the `Generic` project type and input the REPL port from your Gradle output.

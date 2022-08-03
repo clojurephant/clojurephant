@@ -13,7 +13,7 @@ See link:https://docs.gradle.org/current/userguide/installation.html[Gradle's in
 ----
 $ mkdir my-project
 $ cd my-project
-$ gradle init
+$ gradle init --type basic --dsl groovy
 ----
 
 ****

@@ -1,4 +1,4 @@
-= Cursive (Intellij)
+= Cursive (IntelliJ)
 
 Intellij has its own Gradle support, so that will cover getting things imported and the ability to run ad-hoc Gradle tasks.
 

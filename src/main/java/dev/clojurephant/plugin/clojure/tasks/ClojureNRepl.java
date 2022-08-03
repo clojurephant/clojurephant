@@ -26,7 +26,7 @@ import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.api.tasks.options.Option;
 import org.gradle.process.ExecOperations;
 
-public abstract class ClojureNRepl extends DefaultTask {
+public abstract class ClojureNRepl extends DefaultTask implements ClojureTask {
   private final ForkOptions forkOptions = new ForkOptions();
 
   @Inject
@@ -54,6 +54,9 @@ public abstract class ClojureNRepl extends DefaultTask {
         .collect(Collectors.toList());
 
     getExecOperations().javaexec(spec -> {
+      if (getJavaLauncher().isPresent()) {
+        spec.setExecutable(getJavaLauncher().get().getExecutablePath());
+      }
       spec.setClasspath(cp);
       spec.getMainClass().set("clojure.main");
 
@@ -81,11 +84,6 @@ public abstract class ClojureNRepl extends DefaultTask {
       spec.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
     }).assertNormalExitValue();
     System.out.println("nREPL server stopped");
-  }
-
-  @Nested
-  public ForkOptions getForkOptions() {
-    return forkOptions;
   }
 
   @Classpath

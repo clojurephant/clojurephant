@@ -3,6 +3,12 @@ plugins {
   id 'dev.clojurephant.clojurescript'
 }
 
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
+
 repositories {
   mavenCentral()
   maven {

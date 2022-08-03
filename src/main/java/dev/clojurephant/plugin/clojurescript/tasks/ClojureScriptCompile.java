@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import dev.clojurephant.plugin.clojure.tasks.ClojureTask;
 import dev.clojurephant.plugin.common.internal.ClojureException;
 import dev.clojurephant.plugin.common.internal.Edn;
 import dev.clojurephant.plugin.common.internal.Namespaces;
@@ -32,7 +33,7 @@ import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.process.ExecOperations;
 import us.bpsm.edn.Symbol;
 
-public abstract class ClojureScriptCompile extends DefaultTask {
+public abstract class ClojureScriptCompile extends DefaultTask implements ClojureTask {
   private final Prepl prepl;
 
   @Inject
@@ -56,9 +57,6 @@ public abstract class ClojureScriptCompile extends DefaultTask {
   @Nested
   public abstract Property<ClojureScriptCompileOptions> getOptions();
 
-  @Nested
-  public abstract ForkOptions getForkOptions();
-
   @Inject
   protected abstract FileSystemOperations getFileSystemOperations();
 
@@ -72,6 +70,7 @@ public abstract class ClojureScriptCompile extends DefaultTask {
     }
 
     PreplClient preplClient = prepl.start(spec -> {
+      spec.setJavaLauncher(getJavaLauncher().getOrNull());
       spec.setClasspath(getClasspath());
       spec.setPort(0);
       spec.forkOptions(fork -> {

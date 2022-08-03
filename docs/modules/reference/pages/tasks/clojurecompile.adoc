@@ -36,6 +36,10 @@ _None_
 |link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/SetProperty.html[SetProperty<String>]
 |Namespaces within `source` that should be checked
 
+|javaLauncher
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property]<link:https://docs.gradle.org/current/javadoc/org/gradle/jvm/toolchain/JavaLauncher.html[JavaLauncher]>
+|Overrides the Java executable to use for the task's JVM
+
 |forkOptions
 |link:https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html[ForkOptions]
 |Configure JVM settings

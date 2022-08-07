@@ -121,10 +121,9 @@ public class Edn {
       return null;
     }
 
-    List<Symbol> syms = preloads.stream()
+    return preloads.stream()
         .map(Symbol::newSymbol)
         .collect(Collectors.toList());
-    return list(Symbol.newSymbol("quote"), syms);
   }
 
   private static final Printer.Fn<ForeignLib> FOREIGN_LIB_PRINTER = (self, printer) -> {

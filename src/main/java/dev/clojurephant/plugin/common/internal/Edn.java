@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import dev.clojurephant.plugin.clojure.ClojureBuild;
 import dev.clojurephant.plugin.clojure.tasks.ClojureCompileOptions;
 import dev.clojurephant.plugin.clojurescript.ClojureScriptBuild;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
@@ -49,7 +50,7 @@ public class Edn {
   };
 
   private static final Printer.Fn<NamedDomainObjectCollection<?>> NAMED_DOMAIN_PRINTER = (self, printer) -> {
-    printer.printValue(self.isEmpty() ? null : self.getAsMap());
+    printer.printValue(self.isEmpty() ? null : keywordize(self.getAsMap()));
   };
 
   private static final Printer.Fn<Provider<?>> PROVIDER_PRINTER = (self, printer) -> printer.printValue(self.getOrNull());
@@ -64,8 +65,17 @@ public class Edn {
     printer.printValue(root);
   };
 
+  private static final Printer.Fn<ClojureBuild> CLOJURE_BUILD_PRINTER = (self, printer) -> {
+    Map<Object, Object> root = new LinkedHashMap<>();
+    root.put(newKeyword("name"), self.getName());
+    root.put(newKeyword("compiler"), self.getCompiler());
+    printer.printValue(root);
+  };
+
   private static final Printer.Fn<ClojureScriptBuild> CLOJURESCRIPT_BUILD_PRINTER = (self, printer) -> {
     Map<Object, Object> root = new LinkedHashMap<>();
+    root.put(newKeyword("name"), self.getName());
+    root.put(newKeyword("source-paths"), self.getSourceRoots());
     root.put(newKeyword("output-dir"), self.getOutputDir().map(Directory::getAsFile).getOrNull());
     root.put(newKeyword("compiler"), self.getCompiler());
     printer.printValue(root);
@@ -112,10 +122,9 @@ public class Edn {
       return null;
     }
 
-    List<Symbol> syms = preloads.stream()
+    return preloads.stream()
         .map(Symbol::newSymbol)
         .collect(Collectors.toList());
-    return list(Symbol.newSymbol("quote"), syms);
   }
 
   private static final Printer.Fn<ForeignLib> FOREIGN_LIB_PRINTER = (self, printer) -> {
@@ -168,6 +177,7 @@ public class Edn {
       .put(Provider.class, PROVIDER_PRINTER)
       // Clojure
       .put(ClojureCompileOptions.class, CLOJURE_COMPILE_OPTIONS_PRINTER)
+      .put(ClojureBuild.class, CLOJURE_BUILD_PRINTER)
       // ClojureScript
       .put(ClojureScriptBuild.class, CLOJURESCRIPT_BUILD_PRINTER)
       .put(ClojureScriptCompileOptions.class, CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER)

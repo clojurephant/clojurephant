@@ -1,5 +1,7 @@
 package dev.clojurephant.plugin.common.internal;
 
+import javax.inject.Inject;
+
 import dev.clojurephant.plugin.clojure.tasks.ClojureTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -11,15 +13,24 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.jvm.toolchain.JavaLauncher;
 import org.gradle.jvm.toolchain.JavaToolchainService;
+import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry;
 
 public class ClojureCommonBasePlugin implements Plugin<Project> {
   public static final String NREPL_JACK_IN_PROPERTY = "dev.clojurephant.jack-in.nrepl";
+
+  private final ToolingModelBuilderRegistry registry;
+
+  @Inject
+  public ClojureCommonBasePlugin(ToolingModelBuilderRegistry registry) {
+    this.registry = registry;
+  }
 
   @Override
   public void apply(Project project) {
     project.getPluginManager().apply(JavaBasePlugin.class);
     configureJavaToolchain(project);
     configureNreplDependencies(project);
+    registry.register(new ClojurephantModelBuilder());
   }
 
   public void configureJavaToolchain(Project project) {

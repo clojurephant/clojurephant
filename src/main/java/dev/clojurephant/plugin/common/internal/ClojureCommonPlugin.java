@@ -66,18 +66,20 @@ public class ClojureCommonPlugin implements Plugin<Project> {
     project.getConfigurations().getByName(dev.getCompileClasspathConfigurationName()).extendsFrom(nrepl);
     project.getConfigurations().getByName(dev.getRuntimeClasspathConfigurationName()).extendsFrom(nrepl);
 
-    Function<SourceSet, FileCollection> clojureSources = sourceSet -> {
-      ConfigurableFileCollection result = project.files();
-      SourceDirectorySet clojure = (SourceDirectorySet) sourceSet.getExtensions().findByName(ClojureBasePlugin.SOURCE_DIRECTORY_SET_NAME);
-      if (clojure != null) {
-        result.from(clojure.getSourceDirectories());
-      }
-      SourceDirectorySet clojureScript = (SourceDirectorySet) sourceSet.getExtensions().findByName(ClojureScriptBasePlugin.SOURCE_DIRECTORY_SET_NAME);
-      if (clojureScript != null) {
-        result.from(clojureScript.getSourceDirectories());
-      }
-      result.from(sourceSet.getResources().getSourceDirectories());
-      return result;
+    Function<SourceSet, Provider<FileCollection>> clojureSources = sourceSet -> {
+      return project.provider(() -> {
+        ConfigurableFileCollection result = project.files();
+        SourceDirectorySet clojure = (SourceDirectorySet) sourceSet.getExtensions().findByName(ClojureBasePlugin.SOURCE_DIRECTORY_SET_NAME);
+        if (clojure != null) {
+          result.from(clojure.getSourceDirectories());
+        }
+        SourceDirectorySet clojureScript = (SourceDirectorySet) sourceSet.getExtensions().findByName(ClojureScriptBasePlugin.SOURCE_DIRECTORY_SET_NAME);
+        if (clojureScript != null) {
+          result.from(clojureScript.getSourceDirectories());
+        }
+        result.from(sourceSet.getResources().getSourceDirectories());
+        return result;
+      });
     };
 
     dev.setCompileClasspath(project.files(

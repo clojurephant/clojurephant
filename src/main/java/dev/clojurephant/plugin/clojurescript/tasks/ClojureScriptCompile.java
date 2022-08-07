@@ -87,7 +87,7 @@ public abstract class ClojureScriptCompile extends DefaultTask implements Clojur
       List<?> form = Edn.list(
           Symbol.newSymbol("api", "build"),
           Edn.list(Symbol.newSymbol("apply"), Symbol.newSymbol("api", "inputs"), getSource()),
-          getOptions());
+          Edn.list(Symbol.newSymbol("quote"), getOptions()));
       preplClient.evalData(form);
       preplClient.evalEdn("(.flush *err*)");
     } catch (ClojureException e) {

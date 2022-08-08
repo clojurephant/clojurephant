@@ -1,0 +1,164 @@
+= Dependencies
+
+Gradle has a very rich (and complex) link:https://docs.gradle.org/current/userguide/core_dependency_management.html[dependency management] system. It has enough power to address nearly any situation you come across, but can take an unexpected amount of research to get up to speed on how to do so.
+
+This document will try to distill the key concepts that will affect your project.
+
+== Configurations
+
+Gradle takes the concept of _configurations_ from link:https://ant.apache.org/ivy/[Apache Ivy], which Gradle wrapped early in its development. In the years since, Gradle has significantly evolved their features, making the link:https://docs.gradle.org/current/javadoc/org/gradle/api/artifacts/Configuration.html[Configuration] type a mishmash of various concepts.
+
+In modern Gradle usage, a configuration is used for one of three purposes:
+
+dependency bucket:: A set of dependencies that are used in the same context (e.g. `implementation`, `runtimeOnly`).
+resolvable configuration:: Typically used for a classpath in a specific context. Extends one or more _dependency buckets_ into a larger group. (e.g. `compileClasspath`, `runtimeClasspath`)
+consumable configuration:: Used to expose artifacts and variants produced by a project along with the dependencies, but again meant for a specific context. (e.g. `apiElements`, `runtimeElements`)
+
+Configurations can be declared by the build script author:
+
+.build.gradle
+[source, groovy]
+----
+configurations {
+  myBucket {
+    canBeResolved = false
+    canBeConsumed = false
+  }
+  implementation.extendsFrom myBucket
+}
+----
+
+However, declaring them directly is rarely needed. Instead, rely on plugins that provide configurations for conventional use cases. Since configurations are largely useful _in context_, the configurations provided by a plugin are wired into other parts of Gradle (extensions and tasks) as appropriate for how they are meant to be used.
+
+== Default Configurations
+
+In a typical Clojurephant project, you will be using the configurations provided by Gradle's built-in Java plugins. In those plugins, the base set of dependency buckets are provided per source set.
+
+Each source set gets the configurations described in the following sections. The `main` source set uses these bare names, while others source sets' configurations are prefixed with the source set name (e.g. `testRuntimeOnly` in the `test` source set).
+
+== Resolvable Configurations
+
+Resolvable configurations are used to download dependencies and put them on a classpath during your build.
+
+As you would expect from the names:
+
+`compileClasspath`:: Used by any compilation-like tasks (including Clojurephant's `checkClojure`,  `compileClojure`, `compileClojureScript`)
++
+Extends the following dependency buckets:
++
+** `compileOnlyApi` (`java-library` only)
+** `api` (`java-library` only)
+** `compileOnly`
+** `implementation`
+`runtimeClasspath`:: Used by any task that runs your code (including Clojurephant's `clojureRepl`)
++
+Extends the following dependency buckets:
++
+** `api` (`java-library` only)
+** `implementation`
+** `runtimeOnly`
+
+== Consumable Configurations
+
+Consumable configurations are used to export your built artifacts and the necessary dependencies to use them. They control what dependencies a downstream consumer will pull in transitively by depending on you.
+
+`apiElements`:: Generally maps to `compile` scope in a Maven POM and used by a downstream project's `compileClasspath`.
++
+Exports the following dependency buckets transitively **(`java-library` only)**:
++
+** `compileOnlyApi`
+** `api`
++
+.Manually exporting additional configurations
+****
+In some cases, your project may not apply `java-library` but still has a need to export compile-time dependencies to consumers. When you have this need, you can directly configure the `apiElements` configuration to extend additional configurations.
+
+A typical usage would be to export the `implementation` bucket:
+
+[source, groovy]
+----
+configurations {
+  apiElements.extendsFrom(implementation)
+}
+----
+****
+`runtimeElements`:: Generally maps to `runtime` scope in a Maven POM and used by a downstream project's `runtimeClasspath`.
++
+Exports the following dependency buckets transitively:
++
+** `api` (`java-library` only)
+** `implementation`
+** `runtimeOnly`
+
+== Dependency Buckets
+
+This chart breaks down what contexts each bucket's dependencies are available in.
+
+TIP: Remember that `api` and `compileOnlyApi` only exist if you apply the `java-library` plugin.
+
+[options="header", cols="1m,4*a"]
+|===
+|Configuration
+|Self (Compile)
+|Self (Runtime)
+|Consumer (Compile)
+|Consumer (Runtime)
+
+|compileOnlyApi
+|✅
+|❌
+|✅
+|❌
+
+|api
+|✅
+|✅
+|✅
+|✅
+
+|compileOnly
+|✅
+|❌
+|❌
+|❌
+
+|implementation
+|✅
+|✅
+|❌
+|❌
+
+|runtimeOnly
+|❌
+|✅
+|❌
+|✅
+|===
+
+Self (Compile) -- `compileClasspath`:: Dependencies your project needs to compile _itself_
+Self (Runtime) -- `runtimeClasspath`:: Dependencies your project needs to run _itself_
+Consumer (Compile) -- `apiElements`:: Dependencies _a consumer_ would need to compile against your project
++
+IMPORTANT: Only the `java-library` plugin exports dependencies in this context
+Consumer (Runtime) -- `runtimeElements`:: Dependencies _a consumer_ would need to run with your project
+
+== Rules of thumb
+
+=== Library
+
+Most dependencies will be `api`, since downstream consumers will need them to load your namespaces at check/compile time. `implementation` should be reserved for dependencies only used by Java code where the dependency's types aren't exposed in method or class signatures.
+
+Generally, libraries shouldn't use `runtimeOnly` (on the `main` source set anyway) since consumers likely want the choice of what to include.
+
+`compileOnly` and `compileOnlyApi` are also for fairly narrow use cases in Clojure libraries.
+
+=== Application
+
+Most dependencies will be `implementation` because you'll need them to load your namespaces.
+
+`runtimeOnly` should be used for dependencies that are loaded dynamically or implement some interface that your namespaces (or dependencies) code against.
+
+`compileOnly` would be limited to dependencies that are provided by the runtime you target. Typically, not relevant for Clojure as applications tend to bundle their runtimes.
+
+Common use cases for `runtimeOnly` are logging backends (e.g. `slfj-api` as `implementation` and `logback-classic` as `runtimeOnly`).
+

@@ -68,6 +68,8 @@ The two main places are:
 
 * Via project dependencies (`project(":projPath")`) by other projects within your Gradle build
 * Via regular Maven/Ivy dependencies after your project has been published to a repository
+
+This includes composite builds.
 ****
 
 `apiElements`:: Generally maps to `compile` scope in a Maven POM and used by a downstream project's `compileClasspath`.

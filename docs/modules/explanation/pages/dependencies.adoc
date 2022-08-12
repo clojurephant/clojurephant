@@ -62,6 +62,14 @@ Extends the following dependency buckets:
 
 Consumable configurations are used to export your built artifacts and the necessary dependencies to use them. They control what dependencies a downstream consumer will pull in transitively by depending on you.
 
+.What counts as a "downstream consumer"?
+****
+The two main places are:
+
+* Via project dependencies (`project(":projPath")`) by other projects within your Gradle build
+* Via regular Maven/Ivy dependencies after your project has been published to a repository
+****
+
 `apiElements`:: Generally maps to `compile` scope in a Maven POM and used by a downstream project's `compileClasspath`.
 +
 Exports the following dependency buckets transitively **(`java-library` only)**:

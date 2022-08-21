@@ -1,0 +1,132 @@
+= FigwheelOptions
+
+**Source:** link:https://github.com/clojurephant/clojurephant/blob/{page-origin-refname}/src/main/java/dev/clojurephant/plugin/clojurescript/tasks/FigwheelOptions.java[`dev.clojurephant.plugin.clojurescript.tasks.FigwheelOptions`]
+
+Options for Figwheel (see link:https://figwheel.org/config-options[Figwheel's documentation]).
+
+== Properties
+
+NOTE: Not all Figwheel options are supported yet. Open an issue or submit a PR if there's one you'd like added.
+
+[cols="2*m,1a", options="header"]
+|===
+|Property
+|Type
+|Description
+
+|targetDir
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/DirectoryProperty.html[DirectoryProperty]
+|Defaults to the build's `outputDir`
+
+|watchDirs
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileCollection.html[ConfigurableFileCollection]
+|
+
+|cssDirs
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileCollection.html[ConfigurableFileCollection]
+|
+
+|ringHandler
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|ringServerOptions
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/MapProperty.html[MapProperty<String, Object>]
+|
+
+|rebelReadline
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|Defaults to `false` (overriding Figwheel's default)
+
+|pprintConfig
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|openFileCommand
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|figwheelCore
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|hotReloadCljs
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|connectUrl
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|openUrl
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Object>]
+|
+
+|reloadCljFiles
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|logFile
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/file/RegularFileProperty.html[RegularFileProperty]
+|
+
+|logLevel
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|clientLogLevel
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|logSyntaxErrorStyle
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|loadWarningedCode
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|ansiColorOutput
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|validateConfig
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|validateCli
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|launchNode
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|inspectNode
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|nodeCommand
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|launchJs
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<String>]
+|
+
+|cljsDevtools
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|
+
+|helpfulClasspaths
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/Property.html[Property<Boolean>]
+|Defaults to `false` (overriding Figwheel's default)
+|===
+
+== Methods
+
+_None_
+
+== Example
+
+See xref:dsl/clojurescriptextension.adoc[].

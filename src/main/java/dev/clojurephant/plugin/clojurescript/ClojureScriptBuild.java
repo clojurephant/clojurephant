@@ -1,6 +1,7 @@
 package dev.clojurephant.plugin.clojurescript;
 
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
+import dev.clojurephant.plugin.clojurescript.tasks.FigwheelOptions;
 import org.apache.commons.text.WordUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
@@ -36,6 +37,13 @@ public abstract class ClojureScriptBuild implements Named {
 
   public void compiler(Action<? super ClojureScriptCompileOptions> configureAction) {
     configureAction.execute(getCompiler());
+  }
+
+  @Nested
+  public abstract FigwheelOptions getFigwheel();
+
+  public void figwheel(Action<? super FigwheelOptions> configureAction) {
+    configureAction.execute(getFigwheel());
   }
 
   String getTaskName(String task) {

@@ -89,6 +89,11 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
         module.getBaseOutputDirectory().set(build.getCompiler().getBaseOutputDirectory());
       });
 
+      build.getFigwheel().getTargetDir().set(build.getOutputDir());
+      build.getFigwheel().getWatchDirs().from(build.getSourceRoots());
+      build.getFigwheel().getRebelReadline().set(false);
+      build.getFigwheel().getHelpfulClasspaths().set(false);
+
       String compileTaskName = build.getTaskName("compile");
       TaskProvider<ClojureScriptCompile> compileTask = project.getTasks().register(compileTaskName, ClojureScriptCompile.class, task -> {
         task.setDescription(String.format("Compiles the ClojureScript source for the %s build.", build.getName()));

@@ -1,4 +1,4 @@
-(ns sample.main
+(ns ^:figwheel-hooks sample.main
   (:require [reagent.core :as reagent]
             [reagent.dom :as rdom]
             [re-frame.core :as rf]))
@@ -19,7 +19,7 @@
  :initialize
  (fn [_ _]
    {:time (js/Date.)
-    :time-color "Orange"}))
+    :time-color "Green"}))
 
 (rf/reg-event-db
  :time-color-change
@@ -60,7 +60,7 @@
    [clock]
    [color-input]])
 
-(defn mount-ui []
+(defn ^:after-load mount-ui []
   (rdom/render [ui] (js/document.getElementById "app")))
 
 (defn run []

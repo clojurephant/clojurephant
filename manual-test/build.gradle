@@ -36,9 +36,12 @@ dependencies {
   implementation 'com.stuartsierra:component:1.1.0'
   devImplementation 'com.stuartsierra:component.repl:0.2.0'
 
-  // figwheel
-  devImplementation 'com.bhauman:figwheel-repl:0.2.18'
-  devImplementation 'ring:ring-jetty-adapter:1.9.5'
+  // clojurescript repl
+  devImplementation('dev.clojurephant:clojurephant-tooling:0.1.0-alpha.5') {
+    capabilities {
+      requireCapabilities('dev.clojurephant:clojurephant-tooling-figwheel-main')
+    }
+  }
 }
 
 tasks.withType(Test) {
@@ -74,7 +77,10 @@ clojurescript {
       compiler {
         optimizations = 'none'
         sourceMap = true
-        preloads = ['sample.dev']
+        // preloads = ['sample.dev']
+      }
+      figwheel {
+        openUrl = "http://localhost:8080/index.html"
       }
     }
   }

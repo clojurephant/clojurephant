@@ -10,6 +10,7 @@
 ** xref:dsl/clojurescriptextension.adoc[ClojureScript DSL]
 *** xref:dsl/clojurescriptbuild.adoc[Build]
 *** xref:dsl/clojurescriptcompileoptions.adoc[CompileOptions]
+*** xref:dsl/figwheeloptions.adoc[FigwheelOptions]
 ** Tasks
 *** xref:tasks/clojurecheck.adoc[]
 *** xref:tasks/clojurecompile.adoc[]

@@ -18,6 +18,7 @@ import dev.clojurephant.plugin.clojure.ClojureBuild;
 import dev.clojurephant.plugin.clojure.tasks.ClojureCompileOptions;
 import dev.clojurephant.plugin.clojurescript.ClojureScriptBuild;
 import dev.clojurephant.plugin.clojurescript.tasks.ClojureScriptCompileOptions;
+import dev.clojurephant.plugin.clojurescript.tasks.FigwheelOptions;
 import dev.clojurephant.plugin.clojurescript.tasks.ForeignLib;
 import dev.clojurephant.plugin.clojurescript.tasks.Module;
 import org.gradle.api.NamedDomainObjectCollection;
@@ -39,6 +40,8 @@ public class Edn {
   private static final Printer.Fn<Enum<?>> ENUM_PRINTER = (self, printer) -> printer.printValue(newKeyword(self.name()));
 
   private static final Printer.Fn<File> FILE_PRINTER = (self, printer) -> printer.printValue(self.getAbsolutePath());
+
+  private static final Printer.Fn<RegularFile> REGULAR_FILE_PRINTER = (self, printer) -> printer.printValue(self.getAsFile());
 
   private static final Printer.Fn<Directory> DIRECTORY_PRINTER = (self, printer) -> printer.printValue(self.getAsFile());
 
@@ -78,6 +81,7 @@ public class Edn {
     root.put(newKeyword("source-paths"), self.getSourceRoots());
     root.put(newKeyword("output-dir"), self.getOutputDir().map(Directory::getAsFile).getOrNull());
     root.put(newKeyword("compiler"), self.getCompiler());
+    root.put(newKeyword("figwheel"), self.getFigwheel());
     printer.printValue(root);
   };
 
@@ -167,10 +171,44 @@ public class Edn {
     printer.printValue(map);
   };
 
+  private static final Printer.Fn<FigwheelOptions> FIGWHEEL_PRINTER = (figwheel, printer) -> {
+    Map<Object, Object> map = new LinkedHashMap<>();
+    map.put(newKeyword("target-dir"), figwheel.getTargetDir());
+    map.put(newKeyword("watch-dirs"), figwheel.getWatchDirs());
+    map.put(newKeyword("css-dirs"), figwheel.getCssDirs());
+    map.put(newKeyword("ring-handler"), figwheel.getRingHandler());
+    map.put(newKeyword("ring-server-options"), figwheel.getRingServerOptions());
+    map.put(newKeyword("rebel-readline"), figwheel.getRebelReadline());
+    map.put(newKeyword("pprint-config"), figwheel.getPprintConfig());
+    map.put(newKeyword("open-file-command"), figwheel.getOpenFileCommand());
+    map.put(newKeyword("figwheel-core"), figwheel.getFigwheelCore());
+    map.put(newKeyword("hot-reload-cljs"), figwheel.getHotReloadCljs());
+    map.put(newKeyword("connect-url"), figwheel.getConnectUrl());
+    map.put(newKeyword("open-url"), figwheel.getOpenUrl());
+    map.put(newKeyword("reload-clj-files"), figwheel.getReloadCljFiles());
+    map.put(newKeyword("log-file"), figwheel.getLogFile());
+    map.put(newKeyword("log-level"), figwheel.getLogLevel());
+    map.put(newKeyword("client-log-level"), figwheel.getClientLogLevel());
+    map.put(newKeyword("log-syntax-error-style"), figwheel.getLogSyntaxErrorStyle());
+    map.put(newKeyword("load-warninged-code"), figwheel.getLoadWarningedCode());
+    map.put(newKeyword("ansi-color-output"), figwheel.getAnsiColorOutput());
+    map.put(newKeyword("validate-config"), figwheel.getValidateConfig());
+    map.put(newKeyword("validate-cli"), figwheel.getValidateCli());
+    map.put(newKeyword("launch-node"), figwheel.getLaunchNode());
+    map.put(newKeyword("inspect-node"), figwheel.getInspectNode());
+    map.put(newKeyword("node-command"), figwheel.getNodeCommand());
+    map.put(newKeyword("launch-js"), figwheel.getLaunchJs());
+    map.put(newKeyword("cljs-devtools"), figwheel.getCljsDevtools());
+    map.put(newKeyword("helpful-classpaths"), figwheel.getHelpfulClasspaths());
+    Edn.removeEmptyAndNulls(map);
+    printer.printValue(map);
+  };
+
   private static final Protocol<Printer.Fn<?>> PROTOCOL = Printers.prettyProtocolBuilder()
       // Core Printers
       .put(Enum.class, ENUM_PRINTER)
       .put(File.class, FILE_PRINTER)
+      .put(RegularFile.class, REGULAR_FILE_PRINTER)
       .put(Directory.class, DIRECTORY_PRINTER)
       .put(FileCollection.class, FILE_COLLECTION_PRINTER)
       .put(NamedDomainObjectCollection.class, NAMED_DOMAIN_PRINTER)
@@ -183,6 +221,7 @@ public class Edn {
       .put(ClojureScriptCompileOptions.class, CLOJURESCRIPT_COMPILE_OPTIONS_PRINTER)
       .put(ForeignLib.class, FOREIGN_LIB_PRINTER)
       .put(Module.class, MODULE_PRINTER)
+      .put(FigwheelOptions.class, FIGWHEEL_PRINTER)
       .build();
 
   public static String print(Object value) {
@@ -196,6 +235,7 @@ public class Edn {
 
   private static <K, V> void removeEmptyAndNulls(Map<K, V> map) {
     map.values().removeIf(Objects::isNull);
+    map.values().removeIf(obj -> (obj instanceof Provider) && !((Provider<?>) obj).isPresent());
     map.values().removeIf(obj -> (obj instanceof Collection) && ((Collection<?>) obj).isEmpty());
     map.values().removeIf(obj -> (obj instanceof Map) && ((Map<?, ?>) obj).isEmpty());
     map.values().removeIf(obj -> (obj instanceof FileCollection) && ((FileCollection) obj).isEmpty());

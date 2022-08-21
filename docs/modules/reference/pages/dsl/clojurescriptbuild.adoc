@@ -31,6 +31,10 @@ Represents ClojureScript source code that should be compiled as a unit.
 |compiler
 |xref:dsl/clojurescriptcompileoptions.adoc[]
 |Configure the ClojureScript compiler for the build's xref:tasks/clojurescriptcompile.adoc[] task
+
+|figwheel
+|xref:dsl/figwheeloptions.adoc[]
+|Configure Figwheel options for use by xref:clojurephant-tooling::index.adoc[clojurephant-tooling]
 |===
 
 == Methods
@@ -42,6 +46,9 @@ Represents ClojureScript source code that should be compiled as a unit.
 
 |void compiler(Action<? super ClojureScriptCompilerOptions> action)
 |Allows configuring the compiler options in a block
+
+|void figwheel(Action<? super FigwheelOptions> action)
+|Allows configuring the figwheel options in a block
 |===
 
 == Example

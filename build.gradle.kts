@@ -1,4 +1,3 @@
-import dev.clojurephant.plugin.clojure.tasks.ClojureCompile
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
 
 plugins {

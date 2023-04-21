@@ -82,7 +82,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
     extension.getRootOutputDir().set(project.getLayout().getBuildDirectory().dir("clojurescript"));
 
     extension.getBuilds().configureEach(build -> {
-      build.getOutputDir().set(extension.getRootOutputDir().dir(build.getName()));
+      build.getOutputDir().convention(extension.getRootOutputDir().dir(build.getName()));
 
       build.getCompiler().getBaseOutputDirectory().set(build.getOutputDir());
       build.getCompiler().getModules().configureEach(module -> {
@@ -97,7 +97,7 @@ public class ClojureScriptBasePlugin implements Plugin<Project> {
       String compileTaskName = build.getTaskName("compile");
       TaskProvider<ClojureScriptCompile> compileTask = project.getTasks().register(compileTaskName, ClojureScriptCompile.class, task -> {
         task.setDescription(String.format("Compiles the ClojureScript source for the %s build.", build.getName()));
-        task.getDestinationDir().set(build.getOutputDir());
+        task.getDestinationDir().set(build.getCompiler().getBaseOutputDirectory());
         task.setSource(build.getSourceTree());
         task.getClasspath().from(build.getSourceRoots());
         task.getClasspath().from(build.getClasspath());

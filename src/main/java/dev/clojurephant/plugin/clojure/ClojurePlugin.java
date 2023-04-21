@@ -5,9 +5,7 @@ import java.util.stream.Collectors;
 import dev.clojurephant.plugin.common.internal.ClojureCommonPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetContainer;
 
 public class ClojurePlugin implements Plugin<Project> {
   @Override

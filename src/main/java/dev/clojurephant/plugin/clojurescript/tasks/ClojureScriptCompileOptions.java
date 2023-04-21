@@ -2,20 +2,13 @@ package dev.clojurephant.plugin.clojurescript.tasks;
 
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Console;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.Nested;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.*;
 
 public abstract class ClojureScriptCompileOptions {
-  @OutputDirectory
+  @Internal
   public abstract DirectoryProperty getBaseOutputDirectory();
 
   @Input

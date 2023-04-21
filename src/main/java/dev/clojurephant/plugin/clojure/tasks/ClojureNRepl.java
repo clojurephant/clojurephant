@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import org.gradle.api.DefaultTask;
-import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
@@ -18,17 +17,12 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.api.tasks.options.Option;
 import org.gradle.process.ExecOperations;
 
 public abstract class ClojureNRepl extends DefaultTask implements ClojureTask {
-  private final ForkOptions forkOptions = new ForkOptions();
-
   @Inject
   public ClojureNRepl() {
     // task is never up-to-date, if you ask for REPL, you get REPL

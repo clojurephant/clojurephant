@@ -10,13 +10,11 @@ import javax.inject.Inject;
 
 import dev.clojurephant.plugin.common.internal.ClojureException;
 import dev.clojurephant.plugin.common.internal.Edn;
-import dev.clojurephant.plugin.common.internal.Namespaces;
 import dev.clojurephant.plugin.common.internal.Prepl;
 import dev.clojurephant.plugin.common.internal.PreplClient;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
@@ -30,12 +28,10 @@ import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.IgnoreEmptyDirectories;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.compile.ForkOptions;
 import org.gradle.process.ExecOperations;
 import us.bpsm.edn.Symbol;
 

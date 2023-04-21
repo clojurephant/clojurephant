@@ -9,14 +9,11 @@ import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Nested;
-import org.gradle.api.tasks.SourceSet;
 import org.gradle.internal.classpath.Instrumented;
 
 public abstract class ClojureBuild implements Named {

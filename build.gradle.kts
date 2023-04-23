@@ -3,22 +3,14 @@ import org.gradle.plugins.ide.eclipse.model.EclipseModel
 plugins {
   id("dev.clojurephant.clojure")
 
-  id("org.ajoberstar.reckon")
   id("com.diffplug.spotless")
 
-  `java-gradle-plugin`
+  id("java-gradle-plugin")
   id("com.gradle.plugin-publish")
   id("org.ajoberstar.stutter")
 }
 
 group = "dev.clojurephant"
-
-reckon {
-  setDefaultInferredScope("patch")
-  stages("alpha", "beta", "rc", "final")
-  setScopeCalc(calcScopeFromProp().or(calcScopeFromCommitMessages()))
-  setStageCalc(calcStageFromProp())
-}
 
 java {
   toolchain {

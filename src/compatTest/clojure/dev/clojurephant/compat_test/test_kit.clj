@@ -63,18 +63,16 @@
     (is (= sources jar-entries))))
 
 (defn runner [args]
+  (println "***** Args:" args "*****")
   (let [gradle-version (System/getProperty "compat.gradle.version")
-        gradle-major-version (Integer/parseInt (re-find #"^\d+\." gradle-version))
-        args (cond-> args
-               true
-               (conj "--stacktrace")
-               (< gradle-major-version 8)
-               (conj "--configuration-cache"))]
-    (println "***** Args:" args "*****")
+        gradle-major-version (Integer/parseInt (re-find #"^\d+(?=\.)" gradle-version))
+        extra-flags (cond-> ["--stacktrace"]
+                      (< gradle-major-version 8)
+                      (conj "--configuration-cache"))]
     (-> (GradleRunner/create)
         (.withGradleVersion gradle-version)
         (.withProjectDir (-> *project-dir* .toFile))
-        (.withArguments (into-array String args))
+        (.withArguments (into-array String (concat args extra-flags)))
         (.withPluginClasspath)
         (.forwardOutput))))
 

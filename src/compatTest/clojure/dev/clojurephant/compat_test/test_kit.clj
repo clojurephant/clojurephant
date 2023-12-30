@@ -2,11 +2,10 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]
             [clojure.test :refer :all]
-            [ike.cljj.file :as file]
-            [ike.cljj.stream])
-  (:import [org.gradle.testkit.runner BuildResult BuildTask GradleRunner TaskOutcome]
-           [java.util.jar JarFile]
-           [java.nio.file Path]))
+            [org.ajoberstar.cljj.file :as file]
+            [org.ajoberstar.cljj.stream])
+  (:import [org.gradle.testkit.runner GradleRunner TaskOutcome]
+           [java.util.jar JarFile]))
 
 (defn setup-project [name]
   (println "*** " name " ***")

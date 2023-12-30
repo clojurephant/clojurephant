@@ -41,7 +41,7 @@ Clojurephant doesn't provide support out-of-the-box to run `clojure.test` tests,
 [source, groovy, subs="attributes"]
 ----
 dependencies {
-  testRuntimeOnly 'org.ajoberstar:jovial:{jovial-version}'
+  testRuntimeOnly 'dev.clojurephant:jovial:{jovial-version}'
 }
 
 tasks.withType(Test) {

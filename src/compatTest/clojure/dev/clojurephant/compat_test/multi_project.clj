@@ -1,10 +1,6 @@
 (ns dev.clojurephant.compat-test.multi-project
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
-            [clojure.test :refer :all]
-            [dev.clojurephant.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner TaskOutcome]))
+  (:require [clojure.test :refer :all]
+            [dev.clojurephant.compat-test.test-kit :as gradle]))
 
 (deftest multi-project-classpath
   (testing "with multi-project and AOT off, project B sources and dependencies are on classpath of A"

@@ -1,10 +1,7 @@
 (ns dev.clojurephant.compat-test.java-clojure
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.test :refer :all]
-            [dev.clojurephant.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner TaskOutcome]))
+            [dev.clojurephant.compat-test.test-kit :as gradle]))
 
 (deftest java-depend-on-clojure
   (testing "with Java code that depends on Clojure code in different source sets, compilation succeeds"

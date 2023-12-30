@@ -1,11 +1,8 @@
 (ns dev.clojurephant.compat-test.uberjar
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.test :refer :all]
-            [dev.clojurephant.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner TaskOutcome]
-           [java.time LocalDate]))
+            [dev.clojurephant.compat-test.test-kit :as gradle])
+  (:import [java.time LocalDate]))
 
 (deftest uberjar-application
   (testing "an application uberjar can have its main ns run"

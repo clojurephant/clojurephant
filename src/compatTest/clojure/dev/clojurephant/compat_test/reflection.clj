@@ -1,10 +1,8 @@
 (ns dev.clojurephant.compat-test.reflection
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.test :refer :all]
             [dev.clojurephant.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner TaskOutcome]))
+            [org.ajoberstar.cljj.file :as file]))
 
 (deftest reflection-no-output-no-error
   (gradle/with-project "BasicClojureProjectTest"

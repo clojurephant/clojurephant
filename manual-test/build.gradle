@@ -23,7 +23,7 @@ dependencies {
   implementation 'org.clojure:clojurescript:1.11.60'
 
   // testing
-  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
+  testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
 
   // backend
   implementation 'io.pedestal:pedestal.service:0.5.10'

@@ -77,7 +77,7 @@ dependencies {
   // implementation 'group:artifact:version'
 
   // needed for test integration
-  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
+  testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
   // and any other test-specific dependencies
   // testImplementation 'group:artifact:version'
 

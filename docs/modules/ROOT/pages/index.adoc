@@ -109,7 +109,7 @@ dependencies {
   implementation 'org.clojure:clojurescript:{clojurescript-version}'
 
   // testing
-  testRuntimeOnly 'org.ajoberstar:jovial:{jovial-version}'
+  testRuntimeOnly 'dev.clojurephant:jovial:{jovial-version}'
 
   // backend
   implementation 'io.pedestal:pedestal.service:{pedestal-version}'

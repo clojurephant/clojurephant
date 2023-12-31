@@ -26,10 +26,10 @@ sourceSets {
 }
 
 dependencies {
-  ss1Implementation 'org.clojure:clojure:1.10.3'
-  ss2Implementation 'org.clojure:clojure:1.10.3'
-  testImplementation 'org.clojure:clojure:1.10.3'
-  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
+  ss1Implementation 'org.clojure:clojure:1.11.1'
+  ss2Implementation 'org.clojure:clojure:1.11.1'
+  testImplementation 'org.clojure:clojure:1.11.1'
+  testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
 }
 
 tasks.withType(Test) {

@@ -12,9 +12,9 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.3'
-  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
-  devImplementation 'cider:cider-nrepl:0.28.2'
+  implementation 'org.clojure:clojure:1.11.1'
+  testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
+  devImplementation 'cider:cider-nrepl:0.44.0'
 }
 
 tasks.withType(Test) {

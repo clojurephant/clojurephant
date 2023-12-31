@@ -1,10 +1,8 @@
 (ns dev.clojurephant.compat-test.basic-clojure
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.test :refer :all]
             [dev.clojurephant.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner TaskOutcome]))
+            [org.ajoberstar.cljj.file :as file]))
 
 (deftest basic-build
   (testing "with AOT compile, only class files are copied to the output directory"
@@ -38,7 +36,7 @@
   (testing "without Clojure on classpath, build fails"
     (gradle/with-project "BasicClojureProjectTest"
       (file/write-str (gradle/file "build.gradle") (str/replace (file/read-str (gradle/file "build.gradle"))
-                                                                #"implementation 'org.clojure:clojure:1.10.3'"
+                                                                #"implementation 'org.clojure:clojure:1.11.1'"
                                                                 ""))
       (let [result (gradle/build-and-fail "clean" "check")]
         (gradle/verify-task-outcome result ":checkClojure" :failed)

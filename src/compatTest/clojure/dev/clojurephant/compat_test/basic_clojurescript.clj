@@ -1,8 +1,7 @@
 (ns dev.clojurephant.compat-test.basic-clojurescript
   (:require [clojure.test :refer :all]
             [dev.clojurephant.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner TaskOutcome]))
+            [org.ajoberstar.cljj.file :as file]))
 
 (deftest basic-build
   (testing "simple build"

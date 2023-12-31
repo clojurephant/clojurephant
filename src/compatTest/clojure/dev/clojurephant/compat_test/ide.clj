@@ -1,12 +1,8 @@
 (ns dev.clojurephant.compat-test.ide
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.data.xml :as xml]
             [clojure.test :refer :all]
-            [dev.clojurephant.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner TaskOutcome]))
+            [dev.clojurephant.compat-test.test-kit :as gradle]))
 
 (defn eclipse-file [& paths]
   (-> (apply gradle/file paths)

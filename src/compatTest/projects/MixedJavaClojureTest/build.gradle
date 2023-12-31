@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.3'
+  implementation 'org.clojure:clojure:1.11.1'
 }
 
 clojure.builds.main.aotAll()

@@ -1,10 +1,7 @@
 (ns dev.clojurephant.compat-test.clojure-test
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.test :refer :all]
-            [dev.clojurephant.compat-test.test-kit :as gradle]
-            [ike.cljj.file :as file])
-  (:import [org.gradle.testkit.runner TaskOutcome]))
+            [dev.clojurephant.compat-test.test-kit :as gradle]))
 
 (deftest clojure-test-fails
   (testing "clojure.test failures cause the build to fail"

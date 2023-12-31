@@ -13,8 +13,8 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.3'
-  implementation 'org.clojure:clojurescript:1.11.4'
+  implementation 'org.clojure:clojure:1.11.1'
+  implementation 'org.clojure:clojurescript:1.11.121'
   implementation 'org.clojure:java.classpath:1.0.0'
 }
 

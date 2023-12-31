@@ -14,7 +14,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Nested;
-import org.gradle.internal.classpath.Instrumented;
 
 public abstract class ClojureBuild implements Named {
   public abstract DirectoryProperty getOutputDir();
@@ -28,8 +27,6 @@ public abstract class ClojureBuild implements Named {
   }
 
   Provider<Set<String>> getAllNamespaces() {
-    // Using internal API due to https://github.com/gradle/gradle/issues/20265
-    Instrumented.fileCollectionObserved(getSourceTree(), "Clojurephant");
     return Namespaces.findNamespaces(getSourceTree());
   }
 

@@ -21,8 +21,8 @@ sourceSets {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.3'
-  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
+  implementation 'org.clojure:clojure:1.11.1'
+  testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
 }
 
 tasks.withType(Test) {

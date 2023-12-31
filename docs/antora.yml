@@ -9,7 +9,7 @@ nav:
 asciidoc:
   attributes:
     clojurephant-version: "0.7.0"
-    jovial-version: "0.3.0"
+    jovial-version: "0.4.2"
 
     clojure-version: "1.11.1"
     clojurescript-version: "1.11.60"

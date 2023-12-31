@@ -16,9 +16,9 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.3'
-  implementation 'clojure.java-time:clojure.java-time:0.3.2'
-  testRuntimeOnly 'org.ajoberstar:jovial:0.3.0'
+  implementation 'org.clojure:clojure:1.11.1'
+  implementation 'clojure.java-time:clojure.java-time:1.4.2'
+  testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
 }
 
 tasks.withType(Test) {

@@ -2,11 +2,10 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]
             [clojure.test :refer :all]
-            [ike.cljj.file :as file]
-            [ike.cljj.stream])
-  (:import [org.gradle.testkit.runner BuildResult BuildTask GradleRunner TaskOutcome]
-           [java.util.jar JarFile]
-           [java.nio.file Path]))
+            [org.ajoberstar.cljj.file :as file]
+            [org.ajoberstar.cljj.stream])
+  (:import [org.gradle.testkit.runner GradleRunner TaskOutcome]
+           [java.util.jar JarFile]))
 
 (defn setup-project [name]
   (println "*** " name " ***")
@@ -66,7 +65,7 @@
   (println "***** Args:" args "*****")
   (-> (GradleRunner/create)
       (.withProjectDir (-> *project-dir* .toFile))
-      (.withArguments (into-array String (conj args "--stacktrace" "--configuration-cache")))
+      (.withArguments (into-array String (conj args "--stacktrace")))
       (.withPluginClasspath)
       (.forwardOutput)))
 

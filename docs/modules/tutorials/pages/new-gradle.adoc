@@ -87,7 +87,7 @@ dependencies {
   implementation 'org.clojure:clojure:{clojure-version}'
 
   // due to how clojure.test is executed, a JUnit test engine (Jovial) is needed
-  testRuntimeOnly 'org.ajoberstar:jovial:{jovial-version}'
+  testRuntimeOnly 'dev.clojurephant:jovial:{jovial-version}'
 
   // due to the way Gradle's REPL is started, if you need tools.namespace, you must be on 0.3+
   devImplementation 'org.clojure:tools.namespace:{tools-namespace-version}'
@@ -127,7 +127,7 @@ repositories {
 dependencies {
   implementation 'org.clojure:clojure:{clojure-version}'
 
-  testRuntimeOnly 'org.ajoberstar:jovial:{jovial-version}'
+  testRuntimeOnly 'dev.clojurephant:jovial:{jovial-version}'
 
   devImplementation 'org.clojure:tools.namespace:{tools-namespace-version}'
 }

@@ -144,24 +144,28 @@ gradlePlugin {
     create("clojureBase") {
       id = "dev.clojurephant.clojure-base"
       displayName = "Clojure base language plugin for Gradle"
+      description = "Clojure base language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojure.ClojureBasePlugin"
       tags.set(listOf("clojure", "language"))
     }
     create("clojure") {
       id = "dev.clojurephant.clojure"
       displayName = "Clojure language plugin for Gradle"
+      description = "Clojure language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojure.ClojurePlugin"
       tags.set(listOf("clojure", "language"))
     }
     create("clojurescriptBase") {
       id = "dev.clojurephant.clojurescript-base"
       displayName = "ClojureScript base language plugin for Gradle"
+      description = "ClojureScript base language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojurescript.ClojureScriptBasePlugin"
       tags.set(listOf("clojurescript", "language"))
     }
     create("clojurescript") {
       id = "dev.clojurephant.clojurescript"
       displayName = "ClojureScript language plugin for Gradle"
+      description = "ClojureScript language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojurescript.ClojureScriptPlugin"
       tags.set(listOf("clojurescript", "language"))
     }

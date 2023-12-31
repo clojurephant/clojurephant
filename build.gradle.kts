@@ -138,35 +138,34 @@ tasks.withType<GenerateModuleMetadata>() {
 }
 
 gradlePlugin {
+  website.set("https://clojurephant.dev/")
+  vcsUrl.set("https://github.com/clojurephant/clojurephant.git")
   plugins {
     create("clojureBase") {
       id = "dev.clojurephant.clojure-base"
       displayName = "Clojure base language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojure.ClojureBasePlugin"
+      tags.set(listOf("clojure", "language"))
     }
     create("clojure") {
       id = "dev.clojurephant.clojure"
       displayName = "Clojure language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojure.ClojurePlugin"
+      tags.set(listOf("clojure", "language"))
     }
     create("clojurescriptBase") {
       id = "dev.clojurephant.clojurescript-base"
       displayName = "ClojureScript base language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojurescript.ClojureScriptBasePlugin"
+      tags.set(listOf("clojurescript", "language"))
     }
     create("clojurescript") {
       id = "dev.clojurephant.clojurescript"
       displayName = "ClojureScript language plugin for Gradle"
       implementationClass = "dev.clojurephant.plugin.clojurescript.ClojureScriptPlugin"
+      tags.set(listOf("clojurescript", "language"))
     }
   }
-}
-
-pluginBundle {
-  website = "https://clojurephant.dev/"
-  vcsUrl = "https://github.com/clojurephant/clojurephant.git"
-  description = "Clojure and ClojureScript language support for Gradle"
-  tags = listOf("clojure", "clojurescript", "language")
 }
 
 spotless {

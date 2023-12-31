@@ -75,7 +75,7 @@ public class PreplClient implements AutoCloseable {
           evalEdn("(do (require 'dev.clojurephant.prepl) (deliver dev.clojurephant.prepl/connected true))");
           started = true;
           break;
-        } catch (ClojureException e) {
+        } catch (ClojureException | ClassCastException e) {
           // retry
         }
       }

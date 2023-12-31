@@ -113,6 +113,12 @@ publishing {
     }
 
     pom {
+      licenses {
+        license {
+          name.set("Apache-2.0")
+          url.set("https://github.com/clojurephant/clojurephant/blob/main/LICENSE")
+        }
+      }
       // include repository info in POM (needed for cljdoc)
       scm {
         connection.set("https://github.com/clojurephant/clojurephant.git")

@@ -31,7 +31,7 @@ NOTE: Not all ClojureScript compiler options are supported yet. Open an issue or
 |
 
 |foreignLibs
-|link:https://docs.gradle.org/current/javadoc/org/gradle/api/provider/NamedDomainObjectContainer.html[NamedDomainObjectContainer<ForeignLib>]
+|link:https://docs.gradle.org/current/javadoc/org/gradle/api/NamedDomainObjectContainer.html[NamedDomainObjectContainer<ForeignLib>]
 |
 
 |installDeps

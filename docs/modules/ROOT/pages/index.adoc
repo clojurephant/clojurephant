@@ -16,7 +16,7 @@ In particular, if you have a need to interop with Java code (maybe even other JV
 
 Features provided by Gradle (or its ecosystem) that are useful for Clojure programmers.
 
-* Packaging into ZIPs, JARs, or Uberjars (via the third-party link:http://imperceptiblethoughts.com/shadow/[Shadow plugin])
+* Packaging into ZIPs, JARs, or Uberjars (via the third-party link:https://gradleup.com/shadow/[Shadow plugin])
 * Multi-project builds
 * Publishing to Maven repositories (such as Clojars or Maven Central)
 

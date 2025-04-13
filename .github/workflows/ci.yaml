@@ -31,8 +31,8 @@ jobs:
             17
 
       - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v4
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v4
       - name: Gradle ${{ matrix.task }}
         run: ./gradlew ${{ matrix.task }} --scan

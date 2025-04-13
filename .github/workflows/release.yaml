@@ -21,8 +21,10 @@ jobs:
             21
             17
 
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v4
       - name: Gradle publish
         env:
           CLOJARS_USER: ${{ secrets.CLOJARS_USER }}

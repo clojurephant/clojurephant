@@ -27,9 +27,9 @@ dependencies {
 
   // compat testing
   compatTestImplementation(gradleTestKit())
-  compatTestImplementation("org.clojure:clojure:1.11.1")
-  compatTestImplementation("org.clojure:tools.namespace:1.4.4")
-  compatTestImplementation("nrepl:nrepl:1.1.0")
+  compatTestImplementation("org.clojure:clojure:1.12.0")
+  compatTestImplementation("org.clojure:tools.namespace:1.5.0")
+  compatTestImplementation("nrepl:nrepl:1.3.1")
   compatTestImplementation("org.ajoberstar:cljj:0.5.0")
   compatTestImplementation("org.clojure:data.xml:0.0.8")
   compatTestRuntimeOnly("dev.clojurephant:jovial:0.4.2")

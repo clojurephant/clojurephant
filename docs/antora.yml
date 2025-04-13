@@ -8,20 +8,20 @@ nav:
   - modules/explanation/nav.adoc
 asciidoc:
   attributes:
-    clojurephant-version: "0.7.0"
+    clojurephant-version: "0.8.0"
     jovial-version: "0.4.2"
 
-    clojure-version: "1.11.1"
-    clojurescript-version: "1.11.60"
+    clojure-version: "1.12.0"
+    clojurescript-version: "1.11.132"
     pedestal-version: "0.5.10"
-    reframe-version: "1.2.0"
+    reframe-version: "1.4.3"
     component-version: "1.1.0"
-    component-repl-version: "0.2.0"
-    figwheel-repl-version: "0.2.18"
-    ring-jetty-adapter-version: "1.9.5"
+    component-repl-version: "1.0.0"
+    figwheel-repl-version: "0.2.20"
+    ring-jetty-adapter-version: "1.14.1"
 
-    nrepl-version: "0.9.0"
-    cider-nrepl-version: "0.28.5"
-    piggieback-version: "0.5.3"
-    tools-namespace-version: "1.3.0"
-    shadow-plugin-version: "6.1.0"
+    nrepl-version: "1.3.1"
+    cider-nrepl-version: "0.55.0"
+    piggieback-version: "0.6.0"
+    tools-namespace-version: "1.5.0"
+    shadow-plugin-version: "8.3.5"

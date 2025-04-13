@@ -1,3 +1,2 @@
-* xref:index.adoc[] (🚧)
-** xref:new-gradle.adoc[]
-** xref:new-clojure.adoc[] (🚧)
+.Tutorial
+* xref:new-gradle.adoc[]

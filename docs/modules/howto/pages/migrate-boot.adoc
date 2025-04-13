@@ -1,4 +1,0 @@
-= Migrate from Boot (🚧)
-:noindex:
-
-_Placeholder_

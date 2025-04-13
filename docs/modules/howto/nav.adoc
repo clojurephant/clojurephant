@@ -1,9 +1,6 @@
-* xref:index.adoc[]
-** Editors
-*** xref:editors/cider.adoc[]
-*** xref:editors/calva.adoc[]
-*** xref:editors/cursive.adoc[]
-** xref:faq.adoc[]
-** xref:migrate-lein.adoc[]
-** xref:migrate-boot.adoc[]
-** xref:migrate-deps.adoc[]
+.How-To Guides
+* Editors
+** xref:editors/cider.adoc[]
+** xref:editors/calva.adoc[]
+** xref:editors/cursive.adoc[]
+* xref:faq.adoc[]

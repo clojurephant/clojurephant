@@ -4,6 +4,6 @@ plugins {
 }
 
 dependencies {
-  api 'org.clojure:clojure:1.11.1'
-  api 'org.clojure:data.json:2.5.0'
+  api 'org.clojure:clojure:1.12.0'
+  api 'org.clojure:data.json:2.5.1'
 }

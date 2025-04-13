@@ -13,9 +13,9 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.11.1'
-  implementation 'org.clojure:clojurescript:1.11.121'
-  implementation 'org.clojure:java.classpath:1.0.0'
+  implementation 'org.clojure:clojure:1.12.0'
+  implementation 'org.clojure:clojurescript:1.11.132'
+  implementation 'org.clojure:java.classpath:1.1.0'
 }
 
 clojurescript {

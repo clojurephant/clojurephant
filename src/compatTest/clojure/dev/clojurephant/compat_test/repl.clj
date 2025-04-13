@@ -65,7 +65,7 @@
 (deftest cider
   (testing "CIDER middlewares can be provided"
     (with-client [client "CiderTest" "--handler=cider.nrepl/cider-nrepl-handler"]
-      (is (= "0.44.0" (-> (send-repl client {:op "cider-version"}) :cider-version :version-string)))
+      (is (= "0.55.0" (-> (send-repl client {:op "cider-version"}) :cider-version :version-string)))
       (is (pr-str 7) (eval-repl client '(do (require 'basic-project.core) (basic-project/use-ns 4)))))))
 
 (deftest cider-jack-in

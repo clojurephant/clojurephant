@@ -26,9 +26,9 @@ sourceSets {
 }
 
 dependencies {
-  ss1Implementation 'org.clojure:clojure:1.11.1'
-  ss2Implementation 'org.clojure:clojure:1.11.1'
-  testImplementation 'org.clojure:clojure:1.11.1'
+  ss1Implementation 'org.clojure:clojure:1.12.0'
+  ss2Implementation 'org.clojure:clojure:1.12.0'
+  testImplementation 'org.clojure:clojure:1.12.0'
   testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
 }
 

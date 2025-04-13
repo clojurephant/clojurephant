@@ -19,22 +19,22 @@ repositories {
 
 dependencies {
   // clojure
-  implementation 'org.clojure:clojure:1.11.1'
-  implementation 'org.clojure:clojurescript:1.11.60'
+  implementation 'org.clojure:clojure:1.12.0'
+  implementation 'org.clojure:clojurescript:1.11.132'
 
   // testing
   testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
 
   // backend
-  implementation 'io.pedestal:pedestal.service:0.5.10'
-  implementation 'io.pedestal:pedestal.jetty:0.5.10'
+  implementation 'io.pedestal:pedestal.service:0.7.2'
+  implementation 'io.pedestal:pedestal.jetty:0.7.2'
 
   // frontend
-  implementation 're-frame:re-frame:1.2.0'
+  implementation 're-frame:re-frame:1.4.3'
 
   // component
   implementation 'com.stuartsierra:component:1.1.0'
-  devImplementation 'com.stuartsierra:component.repl:0.2.0'
+  devImplementation 'com.stuartsierra:component.repl:1.0.0'
 
   // clojurescript repl
   devImplementation('dev.clojurephant:clojurephant-tooling:0.1.0-rc.2') {

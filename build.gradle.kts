@@ -49,7 +49,7 @@ stutter {
       languageVersion.set(JavaLanguageVersion.of(21))
     }
     gradleVersions {
-      compatibleRange("8.5")
+      compatibleRange("8.6")
     }
   }
 }

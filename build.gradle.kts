@@ -44,22 +44,6 @@ stutter {
       compatibleRange("6.4")
     }
   }
-  val java11 by matrices.creating {
-    javaToolchain {
-      languageVersion.set(JavaLanguageVersion.of(11))
-    }
-    gradleVersions {
-      compatibleRange("6.4")
-    }
-  }
-  val java17 by matrices.creating {
-    javaToolchain {
-      languageVersion.set(JavaLanguageVersion.of(17))
-    }
-    gradleVersions {
-      compatibleRange("7.3")
-    }
-  }
   val java21 by matrices.creating {
     javaToolchain {
       languageVersion.set(JavaLanguageVersion.of(21))

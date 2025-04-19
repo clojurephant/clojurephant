@@ -101,8 +101,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
   }
 
   private void configureDependencyConstraints(DependencyHandler dependencies) {
-    dependencies.getModules().module("org.clojure:tools.nrepl", module -> {
-      ComponentModuleMetadataDetails details = (ComponentModuleMetadataDetails) module;
+    dependencies.getModules().module("org.clojure:tools.nrepl", details -> {
       details.replacedBy("nrepl:nrepl", "nREPL was moved out of Clojure Contrib to its own project.");
     });
 
@@ -129,6 +128,7 @@ public class ClojureCommonPlugin implements Plugin<Project> {
           .map(result -> result.getSelected().getId())
           .collect(Collectors.toSet());
 
+      @SuppressWarnings("unchecked")
       ArtifactResolutionResult result = project.getDependencies().createArtifactResolutionQuery()
           .forComponents(componentIds)
           .withArtifacts(JvmLibrary.class, SourcesArtifact.class, JavadocArtifact.class)

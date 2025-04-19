@@ -41,7 +41,7 @@ stutter {
       languageVersion.set(JavaLanguageVersion.of(8))
     }
     gradleVersions {
-      compatibleRange("6.4")
+      compatibleRange("8.0")
     }
   }
   val java21 by matrices.creating {

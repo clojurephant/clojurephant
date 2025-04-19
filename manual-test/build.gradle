@@ -39,7 +39,7 @@ dependencies {
   devImplementation 'com.stuartsierra:component.repl:1.0.0'
 
   // clojurescript repl
-  devImplementation('dev.clojurephant:clojurephant-tooling:0.1.0-rc.2') {
+  devImplementation('dev.clojurephant:clojurephant-tooling:0.1.0') {
     capabilities {
       requireCapabilities('dev.clojurephant:clojurephant-tooling-figwheel-main')
     }

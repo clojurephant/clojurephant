@@ -31,6 +31,8 @@ dependencies {
 
   // frontend
   implementation 're-frame:re-frame:1.4.3'
+  implementation 'cljsjs:react:18.3.1-1'
+  implementation 'cljsjs:react-dom:18.3.1-1'
 
   // component
   implementation 'com.stuartsierra:component:1.1.0'

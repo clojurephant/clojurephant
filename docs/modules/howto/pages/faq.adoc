@@ -66,10 +66,12 @@ plugins {
   // this tells Gradle you're generating an application with a main class
   id 'application'
   // Pulls in the shadow plugin which produces the uberjar
-  id 'com.github.johnrengelman.shadow' version '{shadow-plugin-version}'
+  id 'com.gradleup.shadow' version '{shadow-plugin-version}'
 }
 
-mainClassName = 'whatever_your.main.ns.class.is'
+application {
+  mainClass = 'whatever_your.main.ns.class.is'
+}
 
 // normal repositories and deps blocks
 ----

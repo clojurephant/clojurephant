@@ -24,4 +24,4 @@ asciidoc:
     cider-nrepl-version: "0.55.0"
     piggieback-version: "0.6.0"
     tools-namespace-version: "1.5.0"
-    shadow-plugin-version: "8.3.5"
+    shadow-plugin-version: "9.0.2"

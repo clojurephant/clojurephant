@@ -24,15 +24,32 @@ dependencies {
 
   // util
   implementation("org.apache.commons:commons-text:1.11.0")
+}
 
-  // compat testing
-  compatTestImplementation(gradleTestKit())
-  compatTestImplementation("org.clojure:clojure:1.12.0")
-  compatTestImplementation("org.clojure:tools.namespace:1.5.0")
-  compatTestImplementation("nrepl:nrepl:1.3.1")
-  compatTestImplementation("org.ajoberstar:cljj:0.5.0")
-  compatTestImplementation("org.clojure:data.xml:0.0.8")
-  compatTestRuntimeOnly("dev.clojurephant:jovial:0.4.2")
+testing {
+  suites {
+    val compatTest by getting(JvmTestSuite::class) {
+      dependencies {
+        implementation(gradleTestKit())
+        implementation("org.clojure:clojure:1.12.0")
+        implementation("org.clojure:tools.namespace:1.5.0")
+        implementation("nrepl:nrepl:1.3.1")
+        implementation("org.ajoberstar:cljj:0.5.0")
+        implementation("org.clojure:data.xml:0.0.8")
+        runtimeOnly("dev.clojurephant:jovial:0.4.2")
+      }
+
+      targets.all {
+        testTask.configure {
+          useJUnitPlatform()
+
+          inputs.dir("src/compatTest/projects")
+          systemProperty("stutter.projects", "src/compatTest/projects")
+          systemProperty("org.gradle.testkit.dir", file("build/stutter-test-kit").absolutePath)
+        }
+      }
+    }
+  }
 }
 
 stutter {
@@ -41,7 +58,7 @@ stutter {
       languageVersion.set(JavaLanguageVersion.of(8))
     }
     gradleVersions {
-      compatibleRange("8.0")
+      compatibleRange("8.0", "9.0")
     }
   }
   val java21 by matrices.creating {
@@ -57,16 +74,6 @@ stutter {
 plugins.withId("eclipse") {
   val eclipse = extensions.getByType(EclipseModel::class)
   eclipse.classpath.plusConfigurations.add(configurations["compatTestCompileClasspath"])
-}
-
-tasks.withType<Test>() {
-  useJUnitPlatform()
-}
-
-tasks.withType<Test>() {
-  inputs.dir("src/compatTest/projects")
-  systemProperty("stutter.projects", "src/compatTest/projects")
-  systemProperty("org.gradle.testkit.dir", file("build/stutter-test-kit").absolutePath)
 }
 
 java {

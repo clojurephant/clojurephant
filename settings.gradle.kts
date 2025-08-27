@@ -1,10 +1,10 @@
 pluginManagement {
   plugins {
-    id("dev.clojurephant.clojure") version("0.8.0-beta.7")
+    id("dev.clojurephant.clojure") version("0.8.0")
 
-    id("org.ajoberstar.reckon.settings") version("0.19.1")
-    id("com.diffplug.spotless") version("7.0.3")
-    id("org.ajoberstar.stutter") version("1.0.0")
+    id("org.ajoberstar.reckon.settings") version("1.0.0")
+    id("com.diffplug.spotless") version("7.2.1")
+    id("org.ajoberstar.stutter") version("2.0.0")
     id("com.gradle.plugin-publish") version("1.3.1")
   }
 }

@@ -64,6 +64,7 @@
 (defn runner [args]
   (println "***** Args:" args "*****")
   (-> (GradleRunner/create)
+      (.withGradleVersion (System/getProperty "compat.gradle.version"))
       (.withProjectDir (-> *project-dir* .toFile))
       (.withArguments (into-array String (conj args "--stacktrace")))
       (.withPluginClasspath)

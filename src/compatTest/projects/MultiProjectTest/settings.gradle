@@ -1,3 +1,2 @@
 include 'SubClojureA'
 include 'SubClojureB'
-include 'SubJavaC'

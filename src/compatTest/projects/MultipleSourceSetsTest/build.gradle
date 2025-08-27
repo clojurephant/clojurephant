@@ -28,14 +28,25 @@ sourceSets {
 dependencies {
   ss1Implementation 'org.clojure:clojure:1.12.0'
   ss2Implementation 'org.clojure:clojure:1.12.0'
-  testImplementation 'org.clojure:clojure:1.12.0'
-  testRuntimeOnly 'dev.clojurephant:jovial:0.4.2'
 }
 
-tasks.withType(Test) {
-  useJUnitPlatform()
-}
+testing {
+  suites {
+    test {
+      dependencies {
+        implementation 'org.clojure:clojure:1.12.0'
+        runtimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
+        runtimeOnly 'dev.clojurephant:jovial:0.4.2'
+      }
 
+      targets.all {
+        testTask.configure {
+          useJUnitPlatform()
+        }
+      }
+    }
+  }
+}
 
 clojure.builds.all {
   checkAll()

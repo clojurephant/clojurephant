@@ -1,7 +1,7 @@
 plugins {
   id 'dev.clojurephant.clojure'
   id 'application'
-  id 'com.gradleup.shadow' version '9.0.2'
+  id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 application {

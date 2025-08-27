@@ -6,8 +6,9 @@
 
 (deftest uberjar-application
   (testing "an application uberjar can have its main ns run"
-    (gradle/with-project "UberjarTest"
-      ;; Shadow plugin 7.1.2 is incompatible with configuration cache https://github.com/johnrengelman/shadow/issues/775
-      (let [result (gradle/build "runShadow" "-q" "--no-configuration-cache")]
+    (gradle/with-project (if (str/starts-with? (System/getProperty "compat.gradle.version") "8.")
+                           "UberjarLegacyTest"
+                           "UberjarTest")
+      (let [result (gradle/build "runShadow" "-q")]
         (gradle/verify-task-outcome result ":runShadow" :success)
         (is (str/includes? (.getOutput result) (str (LocalDate/now))))))))

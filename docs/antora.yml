@@ -8,7 +8,7 @@ nav:
   - modules/explanation/nav.adoc
 asciidoc:
   attributes:
-    clojurephant-version: "0.8.1"
+    clojurephant-version: "0.9.0"
     jovial-version: "0.4.2"
 
     clojure-version: "1.12.0"

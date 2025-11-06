@@ -1,5 +1,8 @@
 # clojurephant
 
+> [!IMPORTANT]
+> This plugin is now maintained on [SourceHut](https://git.sr.ht/~ajoberstar/clojurephant).
+
 Formerly known as "gradle-clojure"
 
 [![CI](https://github.com/clojurephant/clojurephant/actions/workflows/ci.yaml/badge.svg)](https://github.com/clojurephant/clojurephant/actions/workflows/ci.yaml)
